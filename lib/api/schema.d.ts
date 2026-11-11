@@ -142,6 +142,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/workspaces/{workspace_id}/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Channels */
+        get: operations["list_channels_workspaces__workspace_id__channels_get"];
+        put?: never;
+        /** Create Channel */
+        post: operations["create_channel_workspaces__workspace_id__channels_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/channels/{channel_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Messages
+         * @description Newest `limit` messages (older than before_id), oldest first.
+         */
+        get: operations["list_messages_channels__channel_id__messages_get"];
+        put?: never;
+        /** Send Message */
+        post: operations["send_message_channels__channel_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report
+         * @description False positive / missed profanity → retraining data (plan 9).
+         */
+        post: operations["report_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workspaces/{workspace_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Events
+         * @description All statuses; the calendar usually hides cancelled ones.
+         */
+        get: operations["list_events_workspaces__workspace_id__events_get"];
+        put?: never;
+        /** Create Event */
+        post: operations["create_event_workspaces__workspace_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Event */
+        delete: operations["delete_event_events__event_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Event */
+        patch: operations["update_event_events__event_id__patch"];
+        trace?: never;
+    };
+    "/channels/{channel_id}/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Pending Suggestions
+         * @description Cards nobody has answered yet, so they survive a page reload.
+         */
+        get: operations["list_pending_suggestions_channels__channel_id__suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/suggestions/{suggestion_id}/action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Act On Suggestion
+         * @description The button the user pressed is also the eval/retraining label (plan 5.2).
+         */
+        post: operations["act_on_suggestion_suggestions__suggestion_id__action_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workspaces/{workspace_id}/todos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Todos */
+        get: operations["list_todos_workspaces__workspace_id__todos_get"];
+        put?: never;
+        /** Create Todo */
+        post: operations["create_todo_workspaces__workspace_id__todos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/todos/{todo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Todo */
+        delete: operations["delete_todo_todos__todo_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Todo */
+        patch: operations["update_todo_todos__todo_id__patch"];
+        trace?: never;
+    };
+    "/moderate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Moderate Api */
+        post: operations["moderate_api_moderate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Schedule Api */
+        post: operations["schedule_api_schedule_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -163,6 +371,121 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ChannelIn */
+        ChannelIn: {
+            /** Name */
+            name: string;
+        };
+        /** ChannelOut */
+        ChannelOut: {
+            /** Id */
+            id: number;
+            /** Workspace Id */
+            workspace_id: number;
+            /** Name */
+            name: string;
+        };
+        /** DialogueTurn */
+        DialogueTurn: {
+            /** Speaker */
+            speaker: string;
+            /** Text */
+            text: string;
+            /** Ts */
+            ts?: string | null;
+        };
+        /** EventIn */
+        EventIn: {
+            /** Title */
+            title: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Start */
+            start?: string | null;
+            /** Time Text */
+            time_text?: string | null;
+            /** Location */
+            location?: string | null;
+            /**
+             * Attendees
+             * @default []
+             */
+            attendees: string[];
+            /**
+             * Absent
+             * @default []
+             */
+            absent: string[];
+            /** Note */
+            note?: string | null;
+        };
+        /** EventOut */
+        EventOut: {
+            /** Title */
+            title: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Start */
+            start?: string | null;
+            /** Time Text */
+            time_text?: string | null;
+            /** Location */
+            location?: string | null;
+            /**
+             * Attendees
+             * @default []
+             */
+            attendees: string[];
+            /**
+             * Absent
+             * @default []
+             */
+            absent: string[];
+            /** Note */
+            note?: string | null;
+            /** Id */
+            id: number;
+            /** Workspace Id */
+            workspace_id: number;
+            status: components["schemas"]["EventStatus"];
+            source: components["schemas"]["EventSource"];
+        };
+        /**
+         * EventSource
+         * @enum {string}
+         */
+        EventSource: "ai" | "manual";
+        /**
+         * EventStatus
+         * @enum {string}
+         */
+        EventStatus: "proposed" | "rejected" | "confirmed" | "cancelled";
+        /** EventUpdate */
+        EventUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Date */
+            date?: string | null;
+            /** Start */
+            start?: string | null;
+            /** Time Text */
+            time_text?: string | null;
+            /** Location */
+            location?: string | null;
+            status?: components["schemas"]["EventStatus"] | null;
+            /** Attendees */
+            attendees?: string[] | null;
+            /** Absent */
+            absent?: string[] | null;
+            /** Note */
+            note?: string | null;
+        };
         /**
          * FilterMode
          * @enum {string}
@@ -196,11 +519,130 @@ export interface components {
             name: string;
             role: components["schemas"]["Role"];
         };
+        /** MessageIn */
+        MessageIn: {
+            /** Text */
+            text: string;
+        };
+        /** MessageOut */
+        MessageOut: {
+            /** Id */
+            id: number;
+            /** Channel Id */
+            channel_id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name: string;
+            /** Text */
+            text: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Is Profane */
+            is_profane: boolean;
+            /** Profanity Spans */
+            profanity_spans: number[][];
+        };
+        /** ModerateRequest */
+        ModerateRequest: {
+            /** Text */
+            text: string;
+            /**
+             * Context
+             * @default []
+             */
+            context: string[];
+        };
+        /** ModerateResponse */
+        ModerateResponse: {
+            /** Is Profane */
+            is_profane: boolean;
+            /** Score */
+            score: number;
+            /** Spans */
+            spans: number[][];
+            /** Restored */
+            restored: string;
+            /** Model Version */
+            model_version: string;
+        };
+        /** ReportIn */
+        ReportIn: {
+            /** Message Id */
+            message_id: number;
+            type: components["schemas"]["ReportType"];
+        };
+        /**
+         * ReportType
+         * @enum {string}
+         */
+        ReportType: "false_positive" | "missed";
         /**
          * Role
          * @enum {string}
          */
         Role: "owner" | "member";
+        /**
+         * ScheduleEvent
+         * @description One event as the schedule model outputs it (plan 8.2).
+         */
+        ScheduleEvent: {
+            /** Title */
+            title: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Weekday */
+            weekday?: string | null;
+            /** Start */
+            start?: string | null;
+            /** Time Text */
+            time_text?: string | null;
+            /** Location */
+            location?: string | null;
+            status: components["schemas"]["EventStatus"];
+            /**
+             * Attendees
+             * @default []
+             */
+            attendees: string[];
+            /**
+             * Absent
+             * @default []
+             */
+            absent: string[];
+            /** Note */
+            note?: string | null;
+        };
+        /** ScheduleRequest */
+        ScheduleRequest: {
+            /**
+             * Ref Datetime
+             * Format: date-time
+             */
+            ref_datetime: string;
+            /** Participants */
+            participants: string[];
+            /** Dialogue */
+            dialogue: components["schemas"]["DialogueTurn"][];
+            /**
+             * Existing Events
+             * @default []
+             */
+            existing_events: components["schemas"]["ScheduleEvent"][];
+        };
+        /** ScheduleResponse */
+        ScheduleResponse: {
+            /** Events */
+            events: components["schemas"]["ScheduleEvent"][];
+            /** Model Version */
+            model_version: string;
+        };
         /** SignupIn */
         SignupIn: {
             /** Name */
@@ -212,6 +654,90 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /**
+         * SuggestionAction
+         * @enum {string}
+         */
+        SuggestionAction: "added" | "edited" | "ignored";
+        /** SuggestionActionIn */
+        SuggestionActionIn: {
+            action: components["schemas"]["SuggestionAction"];
+            event?: components["schemas"]["EventIn"] | null;
+        };
+        /**
+         * SuggestionKind
+         * @enum {string}
+         */
+        SuggestionKind: "add" | "update" | "cancel";
+        /** SuggestionOut */
+        SuggestionOut: {
+            /** Id */
+            id: number;
+            /** Channel Id */
+            channel_id: number;
+            payload: components["schemas"]["SuggestionPayload"];
+            action: components["schemas"]["SuggestionAction"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * SuggestionPayload
+         * @description Stored in ai_suggestions.payload_json and shown as the card.
+         */
+        SuggestionPayload: {
+            kind: components["schemas"]["SuggestionKind"];
+            event: components["schemas"]["ScheduleEvent"];
+            /** Event Id */
+            event_id?: number | null;
+            /**
+             * Message Ids
+             * @default []
+             */
+            message_ids: number[];
+        };
+        /** SuggestionResult */
+        SuggestionResult: {
+            suggestion: components["schemas"]["SuggestionOut"];
+            event: components["schemas"]["EventOut"] | null;
+        };
+        /** TodoIn */
+        TodoIn: {
+            /** Title */
+            title: string;
+            /** Assignee Id */
+            assignee_id?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+        };
+        /** TodoOut */
+        TodoOut: {
+            /** Title */
+            title: string;
+            /** Assignee Id */
+            assignee_id?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Id */
+            id: number;
+            /** Workspace Id */
+            workspace_id: number;
+            /** Done */
+            done: boolean;
+        };
+        /** TodoUpdate */
+        TodoUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Assignee Id */
+            assignee_id?: number | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Done */
+            done?: boolean | null;
         };
         /** TokenOut */
         TokenOut: {
@@ -575,6 +1101,575 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkspaceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_channels_workspaces__workspace_id__channels_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChannelOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_channel_workspaces__workspace_id__channels_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChannelIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChannelOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_messages_channels__channel_id__messages_get: {
+        parameters: {
+            query?: {
+                before_id?: number | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_message_channels__channel_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    report_reports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_events_workspaces__workspace_id__events_get: {
+        parameters: {
+            query?: {
+                start?: string | null;
+                end?: string | null;
+            };
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_event_workspaces__workspace_id__events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_event_events__event_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_event_events__event_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_pending_suggestions_channels__channel_id__suggestions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    act_on_suggestion_suggestions__suggestion_id__action_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                suggestion_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuggestionActionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_todos_workspaces__workspace_id__todos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TodoOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_todo_workspaces__workspace_id__todos_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TodoIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TodoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_todo_todos__todo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                todo_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_todo_todos__todo_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                todo_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TodoUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TodoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    moderate_api_moderate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    schedule_api_schedule_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleResponse"];
                 };
             };
             /** @description Validation Error */
