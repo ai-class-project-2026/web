@@ -38,23 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/google": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Google Login */
-        post: operations["google_login_auth_google_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/auth/me": {
         parameters: {
             query?: never;
@@ -491,11 +474,6 @@ export interface components {
          * @enum {string}
          */
         FilterMode: "mask" | "warn" | "notify_admin";
-        /** GoogleLoginIn */
-        GoogleLoginIn: {
-            /** Id Token */
-            id_token: string;
-        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -857,39 +835,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    google_login_auth_google_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GoogleLoginIn"];
             };
         };
         responses: {

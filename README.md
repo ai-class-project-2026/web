@@ -31,7 +31,7 @@ shadcn 컴포넌트 추가: `npx shadcn@latest add button`
 | 가져올 것 | 용도 |
 |---|---|
 | `api` (`@/lib/api`) | REST 호출. 경로와 필드가 자동완성되고, 틀리면 타입 에러 |
-| `login`, `signup`, `googleLogin`, `logout`, `useMe` (`@/lib/auth`) | 로그인 상태 |
+| `login`, `signup`, `logout`, `useMe` (`@/lib/auth`) | 로그인 상태 |
 | `useMessages(channelId)` (`@/lib/ws`) | 채팅: `messages`, `send(text)`, `loadOlder()`, `hasMore` (실시간 반영) |
 | `useSuggestions(channelId)` (`@/lib/ws`) | AI 일정 카드: `suggestions`, `act(id, "added" \| "edited" \| "ignored", event?)` |
 | `splitSpans(text, spans)` (`@/lib/mask`) | 욕설 가림: 메시지를 보이는 부분/가릴 부분으로 나눔 |

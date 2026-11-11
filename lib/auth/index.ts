@@ -43,10 +43,3 @@ export async function signup(name: string, email: string, password: string) {
   if (data) setToken(data.access_token);
   return { ok: !!data, error };
 }
-
-/** idToken = `credential` from Google Identity Services' sign-in button. */
-export async function googleLogin(idToken: string) {
-  const { data, error } = await api.POST("/auth/google", { body: { id_token: idToken } });
-  if (data) setToken(data.access_token);
-  return { ok: !!data, error };
-}
