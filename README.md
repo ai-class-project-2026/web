@@ -45,3 +45,5 @@ await api.PATCH("/todos/{todo_id}", { params: { path: { todo_id: 3 } }, body: { 
 ```
 
 `npm test`: `lib/*.test.ts` 실행 (node 내장 테스트).
+
+AI 사용 기록: [`ai-sessions/`](ai-sessions/README.md) (처음 한 번 `git config ai.part partN`)
