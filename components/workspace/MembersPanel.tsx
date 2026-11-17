@@ -19,14 +19,14 @@ export function MembersPanel() {
     <div className="flex flex-col gap-4">
       {groups.map((g) => (
         <section key={g.title}>
-          <h2 className="mb-1.5 px-1 text-xs font-medium text-muted-foreground">
+          <h2 className="mb-1 px-2 font-sans text-xs font-semibold text-muted-foreground">
             {g.title} — {g.list.length}
           </h2>
           <ul className="flex flex-col gap-0.5">
             {g.list.map((m) => {
               const isMe = m.user_id === ws.me?.id;
               return (
-                <li key={m.user_id} className="group flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition hover:bg-card">
+                <li key={m.user_id} className="group flex h-11 items-center gap-2.5 rounded-md px-2 transition hover:bg-sidebar-accent/60">
                   <Avatar id={m.user_id} name={m.name} className="size-8 text-xs" />
                   <span className="min-w-0 flex-1 truncate text-sm">
                     {m.name}

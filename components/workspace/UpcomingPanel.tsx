@@ -95,8 +95,8 @@ export function DueBadge({ date }: { date: string }) {
 
 function Heading({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-base">{children}</h2>
+    <div className="mb-2 flex items-center justify-between px-1">
+      <h2 className="font-sans text-xs font-semibold text-muted-foreground">{children}</h2>
       <Link href={href} className="flex items-center text-xs text-muted-foreground hover:text-primary">
         전체 <ChevronRight className="size-3.5" />
       </Link>

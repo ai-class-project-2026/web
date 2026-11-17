@@ -11,6 +11,7 @@ import { CalendarDays, CalendarPlus, Hash, Sparkles, Users } from "lucide-react"
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "cn";
+import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageList, type TimelineCard } from "@/components/chat/MessageList";
@@ -157,26 +158,26 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   return (
     <div className="flex min-h-0 flex-1">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b px-4 py-2.5">
-          <h1 className="flex min-w-0 items-center gap-1 text-xl">
-            <Hash className="size-5 shrink-0 text-primary" />
-            <span className="truncate">{channel?.name ?? "채널"}</span>
-          </h1>
+        {/* 상단 바: 왼쪽 채널 이름, 오른쪽 끝에 오른쪽 칸 전환 버튼 */}
+        <TopBar>
+          <TopBarTitle icon={Hash}>{channel?.name ?? "채널"}</TopBarTitle>
           {ws.workspace?.ai_schedule_on && (
-            <span className="hidden items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
-              <Sparkles className="size-3.5" /> AI 일정 도우미
-            </span>
+            <>
+              <TopBarDivider />
+              <span className="hidden items-center gap-1 truncate text-sm text-muted-foreground sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
+                <Sparkles className="size-4 text-primary" /> AI 일정 도우미 켜짐
+              </span>
+            </>
           )}
-          {/* 오른쪽 끝 도구 모음: 오른쪽 칸 바꾸기 */}
           <div className="ml-auto hidden items-center gap-1 xl:flex">
             <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">
-              <CalendarDays className="size-4" /> 일정
+              <CalendarDays className="size-5" /> 일정
             </ToolButton>
             <ToolButton active={panel === "members"} onClick={() => toggle("members")} label="멤버 목록 보기">
-              <Users className="size-4" /> 멤버 {ws.members.length}
+              <Users className="size-5" /> 멤버 {ws.members.length}
             </ToolButton>
           </div>
-        </header>
+        </TopBar>
 
         <MessageList
           messages={messages}
@@ -198,7 +199,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
               onClick={() => setDraft({ date: todayStr() })}
               title="일정 바로 추가"
               aria-label="일정 바로 추가"
-              className="mb-0.5 flex h-9 shrink-0 items-center gap-1 rounded-xl px-2 text-sm text-muted-foreground transition hover:bg-secondary hover:text-primary"
+              className="flex h-9 shrink-0 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground transition hover:bg-background hover:text-primary"
             >
               <CalendarPlus className="size-5" /> 일정
             </button>
@@ -207,7 +208,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
       </main>
 
       {panel && (
-        <aside className="hidden w-72 shrink-0 overflow-y-auto border-l bg-muted/40 p-3 xl:block">
+        <aside className="hidden w-64 shrink-0 overflow-y-auto border-l bg-sidebar px-2 py-3 xl:block">
           {panel === "schedule" ? <UpcomingPanel /> : <MembersPanel />}
         </aside>
       )}
@@ -232,8 +233,8 @@ function ToolButton({ active, onClick, label, children }: { active: boolean; onC
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm transition",
-        active ? "border-primary/30 bg-secondary font-medium text-secondary-foreground" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+        "flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm transition",
+        active ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       {children}

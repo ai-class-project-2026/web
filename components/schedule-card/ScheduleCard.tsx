@@ -46,7 +46,7 @@ export function ScheduleCard({ suggestion, onAct, current }: {
   const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   return (
-    <div className={cn("w-full rounded-2xl rounded-tl-md border border-l-4 bg-card p-4 shadow-sm", k.tone)}>
+    <div className={cn("w-full rounded-lg border border-l-4 bg-card p-4 shadow-xs", k.tone)}>
       <div className="mb-2 flex items-center gap-2 text-xs">
         <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{k.badge}</span>
       </div>

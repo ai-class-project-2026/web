@@ -80,7 +80,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
   };
 
   return (
-    <div ref={box} onScroll={onScroll} className="flex-1 overflow-y-auto px-4 py-4">
+    <div ref={box} onScroll={onScroll} className="flex-1 overflow-y-auto pb-4 pt-2">
       {hasMore && (
         <div className="mb-3 text-center">
           <button
@@ -105,7 +105,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           const before = items[i - 1];
           const newDay = !before || dayLabel(before.at) !== dayLabel(it.at);
           const sep = newDay && (
-            <li className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <li className="mx-4 mb-1 mt-5 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
               {dayLabel(it.at)}
               <span className="h-px flex-1 bg-border" />
@@ -116,13 +116,17 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
             return (
               <Fragment key={it.c.key}>
                 {sep}
-                {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 왼쪽에 붙여요 */}
-                <li className="animate-pop mt-3 flex gap-2">
-                  <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Sparkles className="size-4" />
+                {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 다른 메시지와 같은 줄 모양으로 */}
+                <li className="animate-pop mt-4 flex gap-3 px-4 py-1">
+                  <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Sparkles className="size-5" />
                   </span>
-                  <div className="flex min-w-0 max-w-md flex-1 flex-col items-start">
-                    <span className="mb-1 ml-1 text-xs font-medium text-foreground/70">AI 일정 도우미</span>
+                  <div className="min-w-0 max-w-lg flex-1">
+                    <p className="mb-1 flex items-baseline gap-2">
+                      <span className="text-sm font-semibold">AI 일정 도우미</span>
+                      <span className="rounded bg-secondary px-1 text-xs text-secondary-foreground">제안</span>
+                      <span className="text-xs text-muted-foreground">{clock(it.at)}</span>
+                    </p>
                     {it.c.node}
                   </div>
                 </li>
@@ -136,54 +140,60 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
             !newDay && before?.kind === "msg" && before.m.user_id === m.user_id &&
             new Date(m.created_at).getTime() - new Date(before.m.created_at).getTime() < GROUP_MS;
 
+          // 한 줄 = [아바타 40px] [이름 · 시간 / 내용]. 말풍선 없이 왼쪽 정렬이라 긴 대화도 읽기 편해요.
+          // 같은 사람이 연달아 보내면 아바타·이름을 생략하고, 마우스를 올리면 왼쪽에 시간만 보여줘요.
           return (
             <Fragment key={m.id}>
               {sep}
-              <li className={cn("group flex gap-2", mine ? "flex-row-reverse" : "", grouped ? "mt-1" : "mt-3", "animate-pop")}>
-                {!mine && (grouped ? <span className="w-9 shrink-0" /> : <Avatar id={m.user_id} name={m.user_name} />)}
-                <div className={cn("flex max-w-[78%] flex-col", mine ? "items-end" : "items-start")}>
-                  {!mine && !grouped && <span className="mb-1 ml-1 text-xs font-medium text-foreground/70">{m.user_name}</span>}
-                  <div className={cn("flex items-end gap-1.5", mine && "flex-row-reverse")}>
-                    <div
-                      className={cn(
-                        "rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-xs",
-                        mine
-                          ? "rounded-tr-md bg-primary text-primary-foreground"
-                          : "rounded-tl-md border bg-card",
-                      )}
-                    >
-                      <MaskedMessage message={m} mode={filterMode} isOwner={isOwner} mine={mine} onReport={onReport} />
-                    </div>
-                    <span className="shrink-0 pb-0.5 text-xs text-muted-foreground">{clock(m.created_at)}</span>
-                    {/* 마우스를 올리면 말풍선 바로 옆에 나타나는 작은 도구 (읽던 자리에서 바로 누를 수 있게) */}
-                    <span className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5 opacity-0 shadow-xs transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
-                      {onMakeEvent && !m.is_profane && (
-                        <button
-                          onClick={() => onMakeEvent(m)}
-                          title="이 메시지로 일정 만들기"
-                          aria-label="이 메시지로 일정 만들기"
-                          className="rounded-md p-1 text-muted-foreground transition hover:bg-secondary hover:text-primary"
-                        >
-                          <CalendarPlus className="size-4" />
-                        </button>
-                      )}
-                      {onReport && !m.is_profane && !mine && (
-                        reported.has(m.id) ? (
-                          <span className="px-1 text-xs text-muted-foreground">신고됨</span>
-                        ) : (
-                          <button
-                            onClick={() => reportMissed(m.id)}
-                            title="욕설인데 안 가려졌다면 신고"
-                            aria-label="욕설 신고"
-                            className="rounded-md p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <Flag className="size-4" />
-                          </button>
-                        )
-                      )}
-                    </span>
+              <li className={cn("animate-pop group relative flex gap-3 px-4 py-0.5 hover:bg-muted/60", grouped ? "" : "mt-4")}>
+                {grouped ? (
+                  <span className="w-10 shrink-0 pt-0.5 text-right text-[0.6875rem] leading-6 text-muted-foreground opacity-0 group-hover:opacity-100">
+                    {clock(m.created_at).replace(/^(오전|오후) /, "")}
+                  </span>
+                ) : (
+                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-10" />
+                )}
+                <div className="min-w-0 flex-1">
+                  {!grouped && (
+                    <p className="flex items-baseline gap-2">
+                      <span className={cn("text-sm font-semibold", mine && "text-primary")}>{m.user_name}</span>
+                      <span className="text-xs text-muted-foreground">{clock(m.created_at)}</span>
+                    </p>
+                  )}
+                  <div className="text-base leading-relaxed">
+                    <MaskedMessage message={m} mode={filterMode} isOwner={isOwner} onReport={onReport} />
                   </div>
                 </div>
+
+                {/* 마우스를 올리면 이 줄 오른쪽 위에 뜨는 도구 (터치 화면에서는 항상 보여요) */}
+                {(onMakeEvent || onReport) && !m.is_profane && (
+                  <span className="absolute -top-3 right-4 z-10 flex items-center gap-0.5 rounded-md border bg-card p-0.5 opacity-0 shadow-sm transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                    {onMakeEvent && (
+                      <button
+                        onClick={() => onMakeEvent(m)}
+                        title="이 메시지로 일정 만들기"
+                        aria-label="이 메시지로 일정 만들기"
+                        className="flex size-8 items-center justify-center rounded text-muted-foreground transition hover:bg-secondary hover:text-primary"
+                      >
+                        <CalendarPlus className="size-5" />
+                      </button>
+                    )}
+                    {onReport && !mine && (
+                      reported.has(m.id) ? (
+                        <span className="px-2 text-xs text-muted-foreground">신고됨</span>
+                      ) : (
+                        <button
+                          onClick={() => reportMissed(m.id)}
+                          title="욕설인데 안 가려졌다면 신고"
+                          aria-label="욕설 신고"
+                          className="flex size-8 items-center justify-center rounded text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Flag className="size-5" />
+                        </button>
+                      )
+                    )}
+                  </span>
+                )}
               </li>
             </Fragment>
           );

@@ -34,14 +34,14 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
 
   return (
     <form
-      className="border-t bg-background/80 p-3 backdrop-blur"
+      className="shrink-0 px-4 pb-4"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
-      <div className={`flex items-end gap-2 rounded-2xl border bg-card p-1.5 pl-3 shadow-sm transition focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/15 ${disabled ? "opacity-60" : ""}`}>
+      <div className={`flex min-h-12 items-end gap-2 rounded-lg bg-muted p-1.5 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
         {leading}
         <textarea
           disabled={disabled}
@@ -59,13 +59,13 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
             }
           }}
           placeholder={placeholder}
-          className="max-h-40 min-h-9 flex-1 resize-none disabled:cursor-not-allowed bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground/70"
+          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent px-1 py-1.5 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
         />
         <button
           type="submit"
           disabled={disabled || !text.trim()}
           aria-label="보내기"
-          className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+          className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
         >
           <SendHorizonal className="size-4" />
         </button>
