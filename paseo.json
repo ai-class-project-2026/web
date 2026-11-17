@@ -1,0 +1,8 @@
+{
+  "worktree": {
+    "setup": [
+      "npm ci",
+      "[ -f .env.local ] || cp .env.example .env.local"
+    ]
+  }
+}
