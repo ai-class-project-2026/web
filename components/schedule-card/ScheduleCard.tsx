@@ -46,11 +46,11 @@ export function ScheduleCard({ suggestion, onAct, current }: {
   const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   return (
-    <div className={cn("w-full rounded-lg border border-l-4 bg-card p-4 shadow-xs", k.tone)}>
+    <div className={cn("mt-1 w-full rounded-lg border border-l-4 bg-card p-3 shadow-xs", k.tone)}>
       <div className="mb-2 flex items-center gap-2 text-xs">
         <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{k.badge}</span>
       </div>
-      <p className="mb-3 font-heading text-lg leading-snug">{question}</p>
+      <p className="mb-2 font-semibold leading-snug">{question}</p>
 
       {editing ? (
         <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
@@ -83,7 +83,7 @@ export function ScheduleCard({ suggestion, onAct, current }: {
 
           {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-2">
             <Button disabled={busy} onClick={() => run("added")} className="rounded-xl" variant={kind === "cancel" ? "destructive" : "default"}>
               {kind === "cancel" ? <X /> : <CalendarPlus />} {k.ok}
             </Button>

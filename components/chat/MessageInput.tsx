@@ -34,7 +34,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
 
   return (
     <form
-      className="shrink-0 px-4 pb-4"
+      className="shrink-0 px-4 pb-3"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
@@ -59,7 +59,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
             }
           }}
           placeholder={placeholder}
-          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent px-1 py-1.5 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent px-1 py-1.5 text-[0.9375rem] outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
         />
         <button
           type="submit"

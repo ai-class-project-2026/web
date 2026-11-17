@@ -80,7 +80,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
   };
 
   return (
-    <div ref={box} onScroll={onScroll} className="flex-1 overflow-y-auto pb-4 pt-2">
+    <div ref={box} onScroll={onScroll} className="flex-1 overflow-y-auto pb-3 pt-1">
       {hasMore && (
         <div className="mb-3 text-center">
           <button
@@ -105,7 +105,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           const before = items[i - 1];
           const newDay = !before || dayLabel(before.at) !== dayLabel(it.at);
           const sep = newDay && (
-            <li className="mx-4 mb-1 mt-5 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
+            <li className="mx-4 my-3 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
               {dayLabel(it.at)}
               <span className="h-px flex-1 bg-border" />
@@ -117,12 +117,12 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
               <Fragment key={it.c.key}>
                 {sep}
                 {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 다른 메시지와 같은 줄 모양으로 */}
-                <li className="animate-pop mt-4 flex gap-3 px-4 py-1">
-                  <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <li className="animate-pop mt-2.5 flex gap-3 px-4 py-px">
+                  <span aria-hidden className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                     <Sparkles className="size-5" />
                   </span>
                   <div className="min-w-0 max-w-lg flex-1">
-                    <p className="mb-1 flex items-baseline gap-2">
+                    <p className="flex items-baseline gap-2">
                       <span className="text-sm font-semibold">AI 일정 도우미</span>
                       <span className="rounded bg-secondary px-1 text-xs text-secondary-foreground">제안</span>
                       <span className="text-xs text-muted-foreground">{clock(it.at)}</span>
@@ -145,13 +145,13 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           return (
             <Fragment key={m.id}>
               {sep}
-              <li className={cn("animate-pop group relative flex gap-3 px-4 py-0.5 hover:bg-muted/60", grouped ? "" : "mt-4")}>
+              <li className={cn("animate-pop group relative flex gap-3 px-4 py-px hover:bg-muted/60", grouped ? "" : "mt-2.5")}>
                 {grouped ? (
-                  <span className="w-10 shrink-0 pt-0.5 text-right text-[0.6875rem] leading-6 text-muted-foreground opacity-0 group-hover:opacity-100">
+                  <span className="w-9 shrink-0 text-right text-[0.6875rem] leading-6 text-muted-foreground opacity-0 group-hover:opacity-100">
                     {clock(m.created_at).replace(/^(오전|오후) /, "")}
                   </span>
                 ) : (
-                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-10" />
+                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-9" />
                 )}
                 <div className="min-w-0 flex-1">
                   {!grouped && (
@@ -160,7 +160,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                       <span className="text-xs text-muted-foreground">{clock(m.created_at)}</span>
                     </p>
                   )}
-                  <div className="text-base leading-relaxed">
+                  <div className="text-[0.9375rem] leading-normal">
                     <MaskedMessage message={m} mode={filterMode} isOwner={isOwner} onReport={onReport} />
                   </div>
                 </div>
