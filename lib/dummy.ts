@@ -81,7 +81,7 @@ export const dummyTodos: Todo[] = [
 ];
 
 // 데모에서 직접 보낸 메시지를 가려 보기 위한 아주 단순한 욕설 흉내 (진짜 판정은 서버 /moderate가 해요)
-const DEMO_BAD = /ㅅ\s*[1l!]?\s*ㅂ|[시씨쉬]\s*[0-9@.!*]*\s*[발빨팔]|tlqkf|sibal|ㅂ\s*ㅅ|병\s*[1!]?\s*신|개\s*새\s*[끼기]/gi;
+const DEMO_BAD = /[시씨쉬ㅅ]\s*[0-9l@.!*]*\s*[발빨팔ㅂ]|tlqkf|sibal|ㅂ\s*ㅅ|병\s*[1!]?\s*신|개\s*새\s*[끼기]/gi;
 const DEMO_OK = ["시발점", "시발역"];
 
 export function demoModerate(text: string): Pick<Message, "is_profane" | "profanity_spans"> {
