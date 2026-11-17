@@ -1,7 +1,7 @@
 "use client";
 
 // 워크스페이스 화면들(채팅, 캘린더, 할 일, 설정)이 같이 쓰는 데이터 상자예요.
-// 주소가 /w/demo/... 이면 lib/dummy.ts의 가짜 데이터로, 아니면 진짜 서버(@/lib/api)로 동작해요.
+// 주소가 /w/demo, /w/demo-2 … 이면 lib/dummy.ts의 가짜 데이터로, 아니면 진짜 서버(@/lib/api)로 동작해요.
 // 화면에서는 const ws = useWorkspace(); 로 꺼내 쓰면 되고, 데모인지 아닌지 신경 쓰지 않아도 돼요.
 
 import { usePathname, useRouter } from "next/navigation";
@@ -9,9 +9,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
-import {
-  DEMO_ID, dummyChannels, dummyEvents, dummyMe, dummyMembers, dummyMessages, dummySuggestions, dummyTodos, dummyWorkspace,
-} from "@/lib/dummy";
+import { demoProjects, demoWorkspaceId, dummyMe } from "@/lib/dummy";
+import { demoCache } from "@/components/demo/cache";
 import { errorText } from "@/components/ui/format";
 
 type S = components["schemas"];
@@ -64,8 +63,10 @@ export function useWorkspace() {
 }
 
 export function WorkspaceProvider({ workspaceId, children }: { workspaceId: string; children: React.ReactNode }) {
-  return workspaceId === DEMO_ID
-    ? <DemoProvider>{children}</DemoProvider>
+  // /w/demo, /w/demo-2 … 는 데모 프로젝트
+  const demoId = demoWorkspaceId(workspaceId);
+  return demoId !== null
+    ? <DemoProvider key={workspaceId} id={demoId} base={`/w/${workspaceId}`}>{children}</DemoProvider>
     : <LiveProvider key={workspaceId} workspaceId={Number(workspaceId)}>{children}</LiveProvider>;
 }
 
@@ -222,30 +223,40 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
 
 /* ───────────── 데모 (가짜 데이터) ───────────── */
 
-function DemoProvider({ children }: { children: React.ReactNode }) {
+function DemoProvider({ id, base, children }: { id: number; base: string; children: React.ReactNode }) {
   const router = useRouter();
-  const [workspace, setWorkspace] = useState(dummyWorkspace);
-  const [channels, setChannels] = useState(dummyChannels);
-  const [events, setEvents] = useState(dummyEvents);
-  const [todos, setTodos] = useState(dummyTodos);
-  const [messages, setMessages] = useState(dummyMessages);
-  const [suggestions, setSuggestions] = useState(dummySuggestions);
+  // 없는 데모 번호(/w/demo-9)면 첫 프로젝트 데이터로 그리고 "없는 프로젝트" 안내를 띄워요
+  const found = demoCache.project(id);
+  const start = found ?? demoProjects[0];
+  const [workspace, setWorkspace] = useState(start.workspace);
+  const [channels, setChannels] = useState(start.channels);
+  const [events, setEvents] = useState(start.events);
+  const [todos, setTodos] = useState(start.todos);
+  const [messages, setMessages] = useState(start.messages);
+  const [suggestions, setSuggestions] = useState(start.suggestions);
+  const members = start.members;
   const nextId = useMemo(() => {
-    let n = 1000;
+    let n = Date.now() % 100000;
     return () => ++n;
   }, []);
 
+  // 바뀐 내용을 보관해서 다른 프로젝트에 갔다 와도 그대로 있게
+  useEffect(() => {
+    if (found) demoCache.saveProject({ workspace, members, channels, events, todos, messages, suggestions });
+  }, [found, workspace, members, channels, events, todos, messages, suggestions]);
+
   const value: WorkspaceCtx = {
     demo: true,
-    base: `/w/${DEMO_ID}`,
-    status: "ready",
+    base,
+    status: found ? "ready" : "error",
+    errorMessage: found ? undefined : "없는 데모 프로젝트예요",
     me: dummyMe,
     workspace,
-    members: dummyMembers,
+    members,
     channels,
     events,
     todos,
-    isOwner: true,
+    isOwner: members.some((m) => m.user_id === dummyMe.id && m.role === "owner"),
     reloadEvents() {},
     async createChannel(name) {
       const channel = { id: nextId(), workspace_id: workspace.id, name };
