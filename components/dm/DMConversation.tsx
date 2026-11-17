@@ -5,6 +5,7 @@
 
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageList } from "@/components/chat/MessageList";
 import { Avatar } from "@/components/ui/avatar";
@@ -22,14 +23,15 @@ export function DMConversation({ peerId }: { peerId: number }) {
   return (
     <div className="flex min-h-0 flex-1">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b px-4 py-2.5">
-          <Avatar id={peer.id} name={peer.name} className="size-8 text-xs" />
-          <h1 className="text-xl">{peer.name}</h1>
-          <span className="truncate text-xs text-muted-foreground">{peer.projects.map((w) => w.name).join(" · ")}</span>
-        </header>
+        <TopBar>
+          <Avatar id={peer.id} name={peer.name} className="size-7 text-xs" />
+          <TopBarTitle>{peer.name}</TopBarTitle>
+          <TopBarDivider />
+          <span className="truncate text-sm text-muted-foreground">{peer.projects.map((w) => w.name).join(" · ")}</span>
+        </TopBar>
 
         {!dm.supported && (
-          <p className="mx-4 mt-3 rounded-2xl bg-butter/60 px-4 py-2.5 text-sm">
+          <p className="mx-4 mt-3 rounded-md bg-muted px-4 py-2.5 text-sm">
             🛠️ 1:1 메시지 저장 기능은 서버에 준비 중이에요. 준비되면 여기서 바로 대화할 수 있어요.
           </p>
         )}
@@ -70,15 +72,15 @@ function Profile({ peer }: { peer: Person }) {
     : [];
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col overflow-y-auto border-l bg-muted/40 xl:flex">
-      <div className={`h-20 ${pastel(peer.id)}`} />
+    <aside className="hidden w-72 shrink-0 flex-col overflow-y-auto border-l bg-sidebar xl:flex">
+      <div className={`h-24 ${pastel(peer.id)}`} />
       <div className="-mt-10 px-4">
         <Avatar id={peer.id} name={peer.name} className="size-20 border-4 border-background text-2xl" />
-        <p className="mt-2 font-heading text-2xl">{peer.name}</p>
+        <p className="mt-2 font-sans text-xl font-semibold">{peer.name}</p>
       </div>
 
-      <section className="m-4 rounded-2xl bg-card p-3">
-        <h2 className="mb-2 text-sm">함께하는 프로젝트</h2>
+      <section className="m-4 rounded-lg bg-card p-3">
+        <h2 className="mb-2 font-sans text-xs font-semibold text-muted-foreground">함께하는 프로젝트</h2>
         <ul className="flex flex-col gap-1">
           {peer.projects.map((w) => (
             <li key={w.id}>
@@ -94,8 +96,8 @@ function Profile({ peer }: { peer: Person }) {
       </section>
 
       {dm.demo && (
-        <section className="mx-4 mb-4 rounded-2xl bg-card p-3">
-          <h2 className="mb-2 text-sm">함께하는 일정</h2>
+        <section className="mx-4 mb-4 rounded-lg bg-card p-3">
+          <h2 className="mb-2 font-sans text-xs font-semibold text-muted-foreground">함께하는 일정</h2>
           {together.length === 0 ? (
             <p className="text-xs text-muted-foreground">다가오는 일정이 없어요</p>
           ) : (
