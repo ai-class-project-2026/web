@@ -82,34 +82,35 @@ function Sidebar() {
         <p className="truncate pr-6 font-heading text-xl" title={ws.workspace?.name}>{ws.workspace?.name}</p>
         <p className="text-xs text-muted-foreground">팀원 {ws.members.length}명 · {ws.isOwner ? "내가 방장" : "팀원으로 참여"}</p>
         {ws.demo && (
-          <p className="mt-2 flex items-center gap-1.5 rounded-xl bg-butter/60 px-3 py-1.5 text-xs">
+          <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs text-muted-foreground">
             <Sparkles className="size-3.5" /> 데모 모드 · 서버 없이 둘러보는 중
           </p>
         )}
         <button
           onClick={copyInvite}
-          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/40 py-1.5 text-xs text-primary transition hover:bg-primary/5"
+          className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border bg-card text-sm font-medium text-primary transition hover:bg-secondary"
         >
-          {copied ? <><Check className="size-3.5" /> 복사됐어요!</> : <><Link2 className="size-3.5" /> 팀원 초대 링크 복사</>}
+          {copied ? <><Check className="size-4" /> 복사됐어요!</> : <><Link2 className="size-4" /> 팀원 초대 링크 복사</>}
         </button>
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2">
-        <SectionLabel action={
-          <button aria-label="채널 추가" title="채널 추가" className="rounded-md p-0.5 hover:bg-sidebar-accent" onClick={() => setAdding((a) => !a)}>
-            <Plus className="size-4" />
-          </button>
-        }>
-          채널
-        </SectionLabel>
+        <SectionLabel>채널</SectionLabel>
         {ws.channels.map((c) => {
           const href = `${ws.base}/c/${c.id}`;
           return <NavItem key={c.id} href={href} active={pathname === href} icon={Hash}>{c.name}</NavItem>;
         })}
-        {adding && (
+        {adding ? (
           <form onSubmit={addChannel} className="px-1 py-1">
-            <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="새 채널 이름" onBlur={() => !name && setAdding(false)} />
+            <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="새 채널 이름 입력 후 Enter" onBlur={() => !name && setAdding(false)} />
           </form>
+        ) : (
+          <button
+            onClick={() => setAdding(true)}
+            className="flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+          >
+            <Plus className="size-4 shrink-0" /> 채널 추가
+          </button>
         )}
 
         <SectionLabel>프로젝트 관리</SectionLabel>
@@ -146,13 +147,13 @@ export function NavItem({ href, active, icon: Icon, count, children }: {
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-9 items-center gap-2 rounded-xl px-3 py-1.5 text-sm transition",
-        active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+        "flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition",
+        active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/60",
       )}
     >
-      {Icon && <Icon className="size-4 shrink-0 opacity-70" />}
+      {Icon && <Icon className="size-4 shrink-0 text-muted-foreground" />}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {!!count && <span className="rounded-full bg-primary/15 px-1.5 text-[11px] font-medium text-primary">{count}</span>}
+      {!!count && <span className="rounded-full bg-primary px-2 text-xs font-medium text-primary-foreground">{count}</span>}
     </Link>
   );
 }

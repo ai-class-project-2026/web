@@ -165,12 +165,11 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
           )}
           {/* 오른쪽 끝 도구 모음: 오른쪽 칸 바꾸기 */}
           <div className="ml-auto hidden items-center gap-1 xl:flex">
-            <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정">
-              <CalendarDays className="size-4" />
+            <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">
+              <CalendarDays className="size-4" /> 일정
             </ToolButton>
-            <ToolButton active={panel === "members"} onClick={() => toggle("members")} label={`멤버 ${ws.members.length}명`}>
-              <Users className="size-4" />
-              <span className="text-xs">{ws.members.length}</span>
+            <ToolButton active={panel === "members"} onClick={() => toggle("members")} label="멤버 목록 보기">
+              <Users className="size-4" /> 멤버 {ws.members.length}
             </ToolButton>
           </div>
         </header>
@@ -195,9 +194,9 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
               onClick={() => setDraft({ date: todayStr() })}
               title="일정 바로 추가"
               aria-label="일정 바로 추가"
-              className="mb-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-secondary hover:text-primary"
+              className="mb-0.5 flex h-9 shrink-0 items-center gap-1 rounded-xl px-2 text-sm text-muted-foreground transition hover:bg-secondary hover:text-primary"
             >
-              <CalendarPlus className="size-5" />
+              <CalendarPlus className="size-5" /> 일정
             </button>
           }
         />
@@ -229,8 +228,8 @@ function ToolButton({ active, onClick, label, children }: { active: boolean; onC
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "flex h-8 items-center gap-1 rounded-lg px-2 transition",
-        active ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        "flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm transition",
+        active ? "border-primary/30 bg-secondary font-medium text-secondary-foreground" : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       {children}

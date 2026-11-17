@@ -38,9 +38,9 @@ export function MembersPanel() {
                       href={ws.demo ? `/dm/demo-${m.user_id}` : `/dm/${m.user_id}`}
                       title={`${m.name}님과 1:1 대화`}
                       aria-label={`${m.name}님과 1:1 대화`}
-                      className="rounded-lg p-1.5 text-muted-foreground opacity-60 transition hover:bg-secondary hover:text-primary group-hover:opacity-100"
+                      className="flex items-center gap-1 rounded-lg border bg-card px-2 py-1 text-xs text-muted-foreground transition hover:border-primary/30 hover:bg-secondary hover:text-primary"
                     >
-                      <MessageCircle className="size-4" />
+                      <MessageCircle className="size-3.5" /> 대화
                     </Link>
                   )}
                 </li>

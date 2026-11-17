@@ -17,9 +17,9 @@ type Action = "added" | "edited" | "ignored";
 // 누가 버튼을 누르면 서버가 다른 팀원 화면의 카드도 지워줘요 (useSuggestions).
 
 const KIND = {
-  add: { badge: "새 일정", question: "이 일정을 캘린더에 추가할까요?", ok: "캘린더에 추가", tone: "from-lavender/50 to-sky/40" },
-  update: { badge: "일정 변경", question: "기존 일정을 이렇게 바꿀까요?", ok: "이렇게 바꾸기", tone: "from-butter/60 to-peach/40" },
-  cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "from-pink/50 to-peach/40" },
+  add: { badge: "새 일정", question: "이 일정을 캘린더에 추가할까요?", ok: "캘린더에 추가", tone: "border-l-primary" },
+  update: { badge: "일정 변경", question: "기존 일정을 이렇게 바꿀까요?", ok: "이렇게 바꾸기", tone: "border-l-chart-3" },
+  cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "border-l-destructive" },
 } as const;
 
 export function ScheduleCard({ suggestion, onAct, current }: {
@@ -46,12 +46,12 @@ export function ScheduleCard({ suggestion, onAct, current }: {
   const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   return (
-    <div className={cn("mx-auto w-full max-w-md rounded-3xl border bg-gradient-to-br p-4 shadow-sm", k.tone)}>
+    <div className={cn("mx-auto w-full max-w-md rounded-2xl border border-l-4 bg-card p-4 shadow-sm", k.tone)}>
       <div className="mb-2 flex items-center gap-2 text-xs">
-        <span className="flex items-center gap-1 rounded-full bg-card/80 px-2 py-0.5 font-medium text-primary">
+        <span className="flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
           <Sparkles className="size-3.5" /> AI 일정 제안
         </span>
-        <span className="rounded-full bg-card/60 px-2 py-0.5">{k.badge}</span>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{k.badge}</span>
       </div>
       <p className="mb-3 font-heading text-lg leading-snug">{question}</p>
 
@@ -60,11 +60,11 @@ export function ScheduleCard({ suggestion, onAct, current }: {
       ) : (
         <>
           {current && kind === "update" && (
-            <p className="mb-2 rounded-xl bg-card/50 px-3 py-1.5 text-xs text-muted-foreground line-through">
+            <p className="mb-2 rounded-xl bg-muted px-3 py-1.5 text-xs text-muted-foreground line-through">
               기존: {shortDate(current.date)} {timeLabel(current)} · {current.location ?? "장소 미정"} · {current.title}
             </p>
           )}
-          <div className={cn("rounded-2xl bg-card/90 p-3 text-sm", kind === "cancel" && "opacity-70")}>
+          <div className={cn("rounded-xl bg-muted/60 p-3 text-sm", kind === "cancel" && "opacity-70")}>
             <p className="font-heading text-xl">
               {shortDate(event.date, event.weekday)} <span className="text-primary">{timeLabel(event) || "시간 미정"}</span>
             </p>
@@ -75,7 +75,7 @@ export function ScheduleCard({ suggestion, onAct, current }: {
                 <li className="flex items-start gap-1.5">
                   <Users className="mt-0.5 size-3.5 shrink-0" />
                   <span className="flex flex-wrap gap-1">
-                    {event.attendees.map((n) => <span key={n} className="rounded-full bg-mint/60 px-2 text-foreground/80">{n}</span>)}
+                    {event.attendees.map((n) => <span key={n} className="rounded-full bg-secondary px-2 text-secondary-foreground">{n}</span>)}
                     {event.absent.map((n) => <span key={n} className="rounded-full bg-muted px-2 line-through" title="불참">{n}</span>)}
                   </span>
                 </li>
@@ -126,7 +126,7 @@ function EditForm({ event, busy, onSave, onCancel }: {
 
   return (
     <form
-      className="grid grid-cols-2 gap-2 rounded-2xl bg-card/90 p-3"
+      className="grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-3"
       onSubmit={(e) => {
         e.preventDefault();
         onSave({

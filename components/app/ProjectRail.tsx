@@ -22,7 +22,7 @@ export function ProjectRail({ demo, active }: {
   const { workspaces } = useProjects(demo);
 
   return (
-    <nav aria-label="프로젝트" className="flex w-[72px] shrink-0 flex-col items-center gap-2 bg-secondary/70 py-3">
+    <nav aria-label="프로젝트" className="flex w-20 shrink-0 flex-col items-center gap-2 bg-secondary/70 py-3">
       <RailItem href={demo ? "/dm/demo" : "/dm"} label="1:1 대화" active={active === "dm"} className="bg-card text-primary">
         <MessageCircle className="size-6" />
       </RailItem>

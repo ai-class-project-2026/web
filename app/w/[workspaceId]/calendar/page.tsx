@@ -62,7 +62,7 @@ export default function CalendarPage() {
         </Button>
       </header>
 
-      <div className="calendar-wrap min-h-[560px] flex-1">
+      <div className="calendar-wrap min-h-[32rem] flex-1">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, breezyTheme]}
           locale={koLocale}

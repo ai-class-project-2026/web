@@ -32,7 +32,7 @@ export function UpcomingPanel() {
               return (
                 <li key={e.id} className="flex items-center gap-3 rounded-2xl border bg-card p-2.5">
                   <div className={cn("flex w-11 shrink-0 flex-col items-center rounded-xl py-1", diff <= 1 ? "bg-peach" : "bg-lavender/70")}>
-                    <span className="text-[10px] leading-none text-foreground/60">{d.getMonth() + 1}월</span>
+                    <span className="text-xs leading-none text-foreground/60">{d.getMonth() + 1}월</span>
                     <span className="font-heading text-lg leading-tight">{d.getDate()}</span>
                   </div>
                   <div className="min-w-0 text-sm">
@@ -84,7 +84,7 @@ export function DueBadge({ date }: { date: string }) {
   return (
     <span
       className={cn(
-        "shrink-0 rounded-full px-1.5 py-px text-[11px] font-medium",
+        "shrink-0 rounded-full px-1.5 py-px text-xs font-medium",
         diff < 0 ? "bg-destructive/10 text-destructive" : diff <= 2 ? "bg-peach text-accent-foreground" : "bg-muted text-muted-foreground",
       )}
     >

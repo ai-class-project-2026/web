@@ -85,7 +85,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
         <div className="mb-3 text-center">
           <button
             onClick={onScroll}
-            className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground hover:bg-secondary"
+            className="rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground hover:bg-secondary"
           >
             {loadingOlder ? "불러오는 중…" : "이전 메시지 더 보기"}
           </button>
@@ -145,9 +145,9 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                     >
                       <MaskedMessage message={m} mode={filterMode} isOwner={isOwner} mine={mine} onReport={onReport} />
                     </div>
-                    <span className="shrink-0 pb-0.5 text-[11px] text-muted-foreground">{clock(m.created_at)}</span>
+                    <span className="shrink-0 pb-0.5 text-xs text-muted-foreground">{clock(m.created_at)}</span>
                     {/* 마우스를 올리면 말풍선 바로 옆에 나타나는 작은 도구 (읽던 자리에서 바로 누를 수 있게) */}
-                    <span className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5 opacity-0 shadow-xs transition focus-within:opacity-100 group-hover:opacity-100">
+                    <span className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5 opacity-0 shadow-xs transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
                       {onMakeEvent && !m.is_profane && (
                         <button
                           onClick={() => onMakeEvent(m)}
@@ -155,12 +155,12 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                           aria-label="이 메시지로 일정 만들기"
                           className="rounded-md p-1 text-muted-foreground transition hover:bg-secondary hover:text-primary"
                         >
-                          <CalendarPlus className="size-3.5" />
+                          <CalendarPlus className="size-4" />
                         </button>
                       )}
                       {onReport && !m.is_profane && !mine && (
                         reported.has(m.id) ? (
-                          <span className="px-1 text-[11px] text-muted-foreground">신고됨</span>
+                          <span className="px-1 text-xs text-muted-foreground">신고됨</span>
                         ) : (
                           <button
                             onClick={() => reportMissed(m.id)}
@@ -168,7 +168,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                             aria-label="욕설 신고"
                             className="rounded-md p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
                           >
-                            <Flag className="size-3.5" />
+                            <Flag className="size-4" />
                           </button>
                         )
                       )}

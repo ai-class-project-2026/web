@@ -138,7 +138,8 @@ function TodoRow({ todo: t, onChange, onDelete }: {
       <button
         onClick={() => confirm(`"${t.title}"을(를) 지울까요?`) && onDelete()}
         aria-label="삭제"
-        className="rounded-lg p-1.5 text-muted-foreground opacity-60 transition hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+        title="삭제"
+        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
       >
         <Trash2 className="size-4" />
       </button>

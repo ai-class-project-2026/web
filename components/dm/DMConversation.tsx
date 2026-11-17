@@ -83,7 +83,7 @@ function Profile({ peer }: { peer: Person }) {
           {peer.projects.map((w) => (
             <li key={w.id}>
               <Link href={dm.demo ? demoPath(w.id) : `/w/${w.id}`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 text-sm hover:bg-muted">
-                <span className={`flex size-6 items-center justify-center rounded-lg font-heading text-[10px] ${pastel(w.id)}`}>
+                <span className={`flex size-6 items-center justify-center rounded-lg font-heading text-xs ${pastel(w.id)}`}>
                   {w.name.replace(/\s/g, "").slice(0, 2)}
                 </span>
                 {w.name}

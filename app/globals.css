@@ -55,86 +55,86 @@
 }
 
 :root {
-  /* 크림색 바탕 + 라벤더 포인트: 깔끔하지만 말랑한 느낌 */
-  --background: oklch(0.985 0.007 85);
-  --foreground: oklch(0.28 0.025 285);
+  /* 차분한 회백색 바탕 + 남색 포인트 하나. 눈이 덜 피곤하도록 채도를 낮췄어요 */
+  --background: oklch(0.975 0.003 260);
+  --foreground: oklch(0.25 0.015 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.28 0.025 285);
+  --card-foreground: oklch(0.25 0.015 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.28 0.025 285);
-  --primary: oklch(0.62 0.15 285);
+  --popover-foreground: oklch(0.25 0.015 260);
+  --primary: oklch(0.5 0.11 265);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.955 0.025 285);
-  --secondary-foreground: oklch(0.42 0.11 285);
-  --muted: oklch(0.965 0.008 85);
-  --muted-foreground: oklch(0.56 0.02 285);
-  --accent: oklch(0.95 0.04 60);
-  --accent-foreground: oklch(0.48 0.1 45);
-  --destructive: oklch(0.63 0.19 20);
-  --border: oklch(0.915 0.012 285);
-  --input: oklch(0.9 0.015 285);
-  --ring: oklch(0.72 0.12 285);
-  /* 파스텔 팔레트 (아바타, 일정 색) */
-  --lavender: oklch(0.86 0.07 290);
-  --mint: oklch(0.88 0.08 165);
-  --peach: oklch(0.88 0.07 50);
-  --pink: oklch(0.87 0.07 355);
-  --sky: oklch(0.87 0.07 235);
-  --butter: oklch(0.93 0.09 95);
-  --chart-1: oklch(0.62 0.15 285);
-  --chart-2: oklch(0.7 0.12 165);
-  --chart-3: oklch(0.72 0.13 50);
-  --chart-4: oklch(0.68 0.14 355);
-  --chart-5: oklch(0.68 0.12 235);
-  --radius: 0.875rem;
-  --sidebar: oklch(0.97 0.014 285);
-  --sidebar-foreground: oklch(0.32 0.03 285);
-  --sidebar-primary: oklch(0.62 0.15 285);
+  --secondary: oklch(0.95 0.012 265);
+  --secondary-foreground: oklch(0.38 0.07 265);
+  --muted: oklch(0.955 0.004 260);
+  --muted-foreground: oklch(0.5 0.015 260);
+  --accent: oklch(0.95 0.02 70);
+  --accent-foreground: oklch(0.45 0.07 60);
+  --destructive: oklch(0.55 0.17 25);
+  --border: oklch(0.9 0.006 260);
+  --input: oklch(0.87 0.008 260);
+  --ring: oklch(0.62 0.09 265);
+  /* 아바타·프로젝트 구분용 색: 거의 회색에 가까운 옅은 색이라 여러 개가 모여도 쨍하지 않아요 */
+  --lavender: oklch(0.9 0.03 290);
+  --mint: oklch(0.91 0.03 170);
+  --peach: oklch(0.91 0.03 55);
+  --pink: oklch(0.91 0.03 0);
+  --sky: oklch(0.91 0.03 235);
+  --butter: oklch(0.94 0.035 95);
+  --chart-1: oklch(0.5 0.11 265);
+  --chart-2: oklch(0.62 0.1 165);
+  --chart-3: oklch(0.68 0.1 60);
+  --chart-4: oklch(0.6 0.1 0);
+  --chart-5: oklch(0.6 0.09 235);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.96 0.004 260);
+  --sidebar-foreground: oklch(0.3 0.015 260);
+  --sidebar-primary: oklch(0.5 0.11 265);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.93 0.035 285);
-  --sidebar-accent-foreground: oklch(0.36 0.1 285);
-  --sidebar-border: oklch(0.915 0.015 285);
-  --sidebar-ring: oklch(0.72 0.12 285);
+  --sidebar-accent: oklch(0.915 0.012 265);
+  --sidebar-accent-foreground: oklch(0.3 0.06 265);
+  --sidebar-border: oklch(0.9 0.006 260);
+  --sidebar-ring: oklch(0.62 0.09 265);
 }
 
 .dark {
-  --background: oklch(0.2 0.02 285);
-  --foreground: oklch(0.95 0.01 285);
-  --card: oklch(0.25 0.025 285);
-  --card-foreground: oklch(0.95 0.01 285);
-  --popover: oklch(0.25 0.025 285);
-  --popover-foreground: oklch(0.95 0.01 285);
-  --primary: oklch(0.72 0.13 285);
-  --primary-foreground: oklch(0.2 0.03 285);
-  --secondary: oklch(0.3 0.04 285);
-  --secondary-foreground: oklch(0.9 0.04 285);
-  --muted: oklch(0.28 0.02 285);
-  --muted-foreground: oklch(0.72 0.02 285);
-  --accent: oklch(0.32 0.04 50);
-  --accent-foreground: oklch(0.9 0.05 60);
-  --destructive: oklch(0.7 0.17 20);
+  --background: oklch(0.2 0.008 260);
+  --foreground: oklch(0.93 0.005 260);
+  --card: oklch(0.24 0.01 260);
+  --card-foreground: oklch(0.93 0.005 260);
+  --popover: oklch(0.24 0.01 260);
+  --popover-foreground: oklch(0.93 0.005 260);
+  --primary: oklch(0.7 0.1 265);
+  --primary-foreground: oklch(0.2 0.02 265);
+  --secondary: oklch(0.29 0.02 265);
+  --secondary-foreground: oklch(0.88 0.03 265);
+  --muted: oklch(0.27 0.008 260);
+  --muted-foreground: oklch(0.7 0.01 260);
+  --accent: oklch(0.3 0.02 60);
+  --accent-foreground: oklch(0.88 0.04 60);
+  --destructive: oklch(0.68 0.15 25);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.1 285);
-  --lavender: oklch(0.45 0.08 290);
-  --mint: oklch(0.45 0.07 165);
-  --peach: oklch(0.47 0.07 50);
-  --pink: oklch(0.45 0.07 355);
-  --sky: oklch(0.45 0.07 235);
-  --butter: oklch(0.5 0.07 95);
-  --chart-1: oklch(0.72 0.13 285);
-  --chart-2: oklch(0.72 0.11 165);
-  --chart-3: oklch(0.75 0.12 50);
-  --chart-4: oklch(0.72 0.13 355);
-  --chart-5: oklch(0.72 0.11 235);
-  --sidebar: oklch(0.23 0.025 285);
-  --sidebar-foreground: oklch(0.92 0.01 285);
-  --sidebar-primary: oklch(0.72 0.13 285);
-  --sidebar-primary-foreground: oklch(0.2 0.03 285);
-  --sidebar-accent: oklch(0.3 0.04 285);
-  --sidebar-accent-foreground: oklch(0.95 0.01 285);
+  --ring: oklch(0.6 0.08 265);
+  --lavender: oklch(0.38 0.03 290);
+  --mint: oklch(0.38 0.03 170);
+  --peach: oklch(0.4 0.03 55);
+  --pink: oklch(0.38 0.03 0);
+  --sky: oklch(0.38 0.03 235);
+  --butter: oklch(0.42 0.03 95);
+  --chart-1: oklch(0.7 0.1 265);
+  --chart-2: oklch(0.7 0.09 165);
+  --chart-3: oklch(0.74 0.09 60);
+  --chart-4: oklch(0.7 0.09 0);
+  --chart-5: oklch(0.7 0.08 235);
+  --sidebar: oklch(0.22 0.008 260);
+  --sidebar-foreground: oklch(0.9 0.005 260);
+  --sidebar-primary: oklch(0.7 0.1 265);
+  --sidebar-primary-foreground: oklch(0.2 0.02 265);
+  --sidebar-accent: oklch(0.29 0.02 265);
+  --sidebar-accent-foreground: oklch(0.95 0.005 260);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.1 285);
+  --sidebar-ring: oklch(0.6 0.08 265);
 }
 
 @layer base {
@@ -146,6 +146,9 @@
   }
   html {
     @apply font-sans;
+    /* 전체 크기를 12.5% 키워요 (기본 16px → 18px).
+       글자·여백·버튼이 rem 단위라 한 줄로 모두 같이 커져요. 더 키우거나 줄이려면 이 숫자만 바꾸세요 */
+    font-size: 112.5%;
   }
   h1, h2, h3 {
     font-family: var(--font-heading);

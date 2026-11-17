@@ -13,7 +13,7 @@ export function UserPanel({ me, sub, demo }: { me: User | null; sub?: string; de
   const router = useRouter();
   if (!me) return null;
   return (
-    <div className="flex items-center gap-2 border-t border-sidebar-border bg-sidebar-accent/40 p-3">
+    <div className="flex items-center gap-2 border-t border-sidebar-border bg-sidebar p-3">
       <span className="relative">
         <Avatar id={me.id} name={me.name} className="size-8" />
         {/* 접속 중 표시 */}
@@ -26,13 +26,13 @@ export function UserPanel({ me, sub, demo }: { me: User | null; sub?: string; de
       <button
         aria-label="로그아웃"
         title="로그아웃"
-        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
+        className="flex items-center gap-1 rounded-lg border bg-card px-2 py-1.5 text-xs text-muted-foreground transition hover:bg-sidebar-accent hover:text-foreground"
         onClick={() => {
           if (!demo) logout();
           router.replace("/login");
         }}
       >
-        <LogOut className="size-4" />
+        <LogOut className="size-4" /> 로그아웃
       </button>
     </div>
   );
