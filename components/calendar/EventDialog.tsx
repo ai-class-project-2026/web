@@ -12,7 +12,8 @@ import { ErrorText, Field, Input } from "@/components/ui/field";
 import { hhmm } from "@/components/ui/format";
 import type { EventUpdate } from "@/components/workspace/WorkspaceProvider";
 
-export type EventDraft = { event?: Event; date: string; start?: string };
+/** title: 채팅 메시지에서 일정을 만들 때 미리 채울 제목 */
+export type EventDraft = { event?: Event; date: string; start?: string; title?: string };
 
 export function EventDialog({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
   draft: EventDraft | null;
@@ -49,7 +50,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
   onDelete: (id: number) => Promise<string | null>;
 }) {
   const ev = draft.event;
-  const [title, setTitle] = useState(ev?.title ?? "");
+  const [title, setTitle] = useState(ev?.title ?? draft.title ?? "");
   const [date, setDate] = useState(ev?.date ?? draft.date);
   const [start, setStart] = useState(ev ? hhmm(ev.start) : draft.start ?? "");
   const [location, setLocation] = useState(ev?.location ?? "");
