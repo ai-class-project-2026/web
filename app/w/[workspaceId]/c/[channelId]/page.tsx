@@ -1,16 +1,23 @@
 "use client";
 
-// 채팅 화면: 가운데 메시지 + AI 일정 카드, 오른쪽 다가오는 일정.
-// 진짜 서버면 useMessages / useSuggestions(@/lib/ws), 데모(/w/demo)면 lib/dummy.ts 데이터를 써요.
+// 채팅 화면: 가운데 메시지 + AI 일정 카드, 오른쪽 [일정 | 멤버] 탭.
+// 진짜 서버면 useMessages / useSuggestions(@/lib/ws), 데모(/w/demo…)면 lib/dummy.ts 데이터를 써요.
+//
+// 마우스 이동 줄이기
+//  - 오른쪽 칸 전환 버튼은 채널 제목 줄 오른쪽 끝 한곳에 모았어요.
+//  - 일정 추가는 입력창 왼쪽 📅 버튼, 또는 메시지에 마우스를 올려 나오는 📅 버튼으로 바로.
 
-import { Hash, Sparkles, Users } from "lucide-react";
+import { CalendarDays, CalendarPlus, Hash, Sparkles, Users } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { cn } from "cn";
+import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageList, type TimelineCard } from "@/components/chat/MessageList";
 import type { ReportFn } from "@/components/chat/MaskedMessage";
 import { ScheduleCard } from "@/components/schedule-card/ScheduleCard";
-import { errorText } from "@/components/ui/format";
+import { errorText, todayStr } from "@/components/ui/format";
+import { MembersPanel } from "@/components/workspace/MembersPanel";
 import { UpcomingPanel } from "@/components/workspace/UpcomingPanel";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
 import { api, type EventInput, type Message, type Suggestion } from "@/lib/api";
@@ -126,6 +133,8 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
 }) {
   const ws = useWorkspace();
   const channel = ws.channels.find((c) => c.id === channelId);
+  const [panel, setPanel] = useState<"schedule" | "members" | null>("schedule");
+  const [draft, setDraft] = useState<EventDraft | null>(null);
 
   const cards: TimelineCard[] = suggestions.map((s) => ({
     key: `s${s.id}`,
@@ -139,22 +148,31 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
     ),
   }));
 
+  const toggle = (p: "schedule" | "members") => setPanel((cur) => (cur === p ? null : p));
+
   return (
     <div className="flex min-h-0 flex-1">
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b px-4 py-3">
-          <h1 className="flex items-center gap-1 text-xl">
-            <Hash className="size-5 text-primary" />
-            {channel?.name ?? "채널"}
+        <header className="flex items-center gap-3 border-b px-4 py-2.5">
+          <h1 className="flex min-w-0 items-center gap-1 text-xl">
+            <Hash className="size-5 shrink-0 text-primary" />
+            <span className="truncate">{channel?.name ?? "채널"}</span>
           </h1>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Users className="size-3.5" /> {ws.members.length}명
-          </span>
           {ws.workspace?.ai_schedule_on && (
-            <span className="ml-auto flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground" title="대화에서 일정을 찾아 카드로 알려줘요">
-              <Sparkles className="size-3.5" /> AI 일정 도우미 켜짐
+            <span className="hidden items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
+              <Sparkles className="size-3.5" /> AI 일정 도우미
             </span>
           )}
+          {/* 오른쪽 끝 도구 모음: 오른쪽 칸 바꾸기 */}
+          <div className="ml-auto hidden items-center gap-1 xl:flex">
+            <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정">
+              <CalendarDays className="size-4" />
+            </ToolButton>
+            <ToolButton active={panel === "members"} onClick={() => toggle("members")} label={`멤버 ${ws.members.length}명`}>
+              <Users className="size-4" />
+              <span className="text-xs">{ws.members.length}</span>
+            </ToolButton>
+          </div>
         </header>
 
         <MessageList
@@ -166,10 +184,56 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
           filterMode={ws.workspace?.filter_mode}
           isOwner={ws.isOwner}
           onReport={onReport}
+          onMakeEvent={(m) => setDraft({ date: todayStr(), title: m.text.slice(0, 40) })}
         />
-        <MessageInput onSend={onSend} placeholder={`#${channel?.name ?? "채널"}에 메시지 보내기`} />
+        <MessageInput
+          onSend={onSend}
+          placeholder={`#${channel?.name ?? "채널"}에 메시지 보내기`}
+          leading={
+            <button
+              type="button"
+              onClick={() => setDraft({ date: todayStr() })}
+              title="일정 바로 추가"
+              aria-label="일정 바로 추가"
+              className="mb-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-secondary hover:text-primary"
+            >
+              <CalendarPlus className="size-5" />
+            </button>
+          }
+        />
       </main>
-      <UpcomingPanel />
+
+      {panel && (
+        <aside className="hidden w-72 shrink-0 overflow-y-auto border-l bg-muted/40 p-4 xl:block">
+          {panel === "schedule" ? <UpcomingPanel /> : <MembersPanel />}
+        </aside>
+      )}
+
+      <EventDialog
+        draft={draft}
+        members={ws.members}
+        onClose={() => setDraft(null)}
+        onCreate={ws.createEvent}
+        onUpdate={ws.updateEvent}
+        onDelete={ws.deleteEvent}
+      />
     </div>
+  );
+}
+
+function ToolButton({ active, onClick, label, children }: { active: boolean; onClick: () => void; label: string; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      aria-pressed={active}
+      className={cn(
+        "flex h-8 items-center gap-1 rounded-lg px-2 transition",
+        active ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
   );
 }
