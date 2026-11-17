@@ -277,7 +277,7 @@ function DemoProvider({ children }: { children: React.ReactNode }) {
       return null;
     },
     async updateWorkspace(patch) {
-      setWorkspace((w) => ({ ...w, ...dropNulls(patch) }));
+      setWorkspace((w) => ({ ...w, ...dropNulls(patch) }) as Workspace);
       return null;
     },
     logout() {
