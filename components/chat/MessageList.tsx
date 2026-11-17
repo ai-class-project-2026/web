@@ -119,11 +119,11 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                 {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 다른 메시지와 같은 줄 모양으로 */}
                 <li className="animate-pop mt-chat-group flex gap-4 px-4 py-0.5">
                   <span aria-hidden className="mt-0.5 flex size-chat-avatar shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Sparkles className="size-5" />
+                    <Sparkles className="size-6" />
                   </span>
                   <div className="min-w-0 max-w-lg flex-1">
                     <p className="flex items-baseline gap-2">
-                      <span className="text-chat font-medium">AI 일정 도우미</span>
+                      <span className="text-chat font-semibold">AI 일정 도우미</span>
                       <span className="rounded bg-secondary px-1 text-meta text-secondary-foreground">제안</span>
                       <span className="text-meta text-muted-foreground">{clock(it.at)}</span>
                     </p>
@@ -145,18 +145,18 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           return (
             <Fragment key={m.id}>
               {sep}
-              <li className={cn("animate-pop group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "" : "mt-chat-group")}>
+              <li className={cn("animate-pop group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group")}>
                 {grouped ? (
-                  <span className="w-chat-avatar shrink-0 text-right text-[0.6875rem] leading-[1.375rem] text-muted-foreground opacity-0 group-hover:opacity-100">
+                  <span className="w-chat-avatar shrink-0 text-right text-meta leading-6 text-muted-foreground opacity-0 group-hover:opacity-100">
                     {clock(m.created_at).replace(/^(오전|오후) /, "")}
                   </span>
                 ) : (
-                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-chat-avatar text-base" />
+                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-chat-avatar text-lg" />
                 )}
                 <div className="min-w-0 flex-1">
                   {!grouped && (
-                    <p className="flex items-baseline gap-2">
-                      <span className={cn("text-chat font-medium", mine && "text-primary")}>{m.user_name}</span>
+                    <p className="mb-0.5 flex items-baseline gap-2">
+                      <span className={cn("text-chat font-semibold", mine && "text-primary")}>{m.user_name}</span>
                       <span className="text-meta text-muted-foreground">{clock(m.created_at)}</span>
                     </p>
                   )}
@@ -173,7 +173,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                         onClick={() => onMakeEvent(m)}
                         title="이 메시지로 일정 만들기"
                         aria-label="이 메시지로 일정 만들기"
-                        className="flex size-8 items-center justify-center rounded text-muted-foreground transition hover:bg-secondary hover:text-primary"
+                        className="flex size-9 items-center justify-center rounded text-muted-foreground transition hover:bg-secondary hover:text-primary"
                       >
                         <CalendarPlus className="size-5" />
                       </button>
@@ -186,7 +186,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                           onClick={() => reportMissed(m.id)}
                           title="욕설인데 안 가려졌다면 신고"
                           aria-label="욕설 신고"
-                          className="flex size-8 items-center justify-center rounded text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                          className="flex size-9 items-center justify-center rounded text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Flag className="size-5" />
                         </button>

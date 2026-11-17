@@ -65,9 +65,9 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
           type="submit"
           disabled={disabled || !text.trim()}
           aria-label="보내기"
-          className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+          className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
         >
-          <SendHorizonal className="size-4" />
+          <SendHorizonal className="size-5" />
         </button>
       </div>
     </form>
