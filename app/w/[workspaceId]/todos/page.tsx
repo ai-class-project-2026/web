@@ -66,7 +66,7 @@ export default function TodosPage() {
 
       <form onSubmit={add} className="flex flex-col gap-2 rounded-3xl border bg-card p-3 shadow-sm sm:flex-row">
         <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="새 할 일 (예: 발표 자료 초안)" className="sm:flex-1" />
-        <Select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="sm:w-32" aria-label="담당자">
+        <Select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="sm:w-36" aria-label="담당자">
           <option value="">담당자 없음</option>
           {ws.members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
         </Select>
