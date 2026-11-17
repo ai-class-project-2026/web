@@ -38,8 +38,8 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
         )}
       >
         <ProjectRail demo={demo} active={active} />
-        <aside className="relative flex w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-          <button aria-label="메뉴 닫기" className="absolute right-2 top-3 z-10 rounded-lg p-1 hover:bg-sidebar-accent md:hidden" onClick={() => setOpen(false)}>
+        <aside className="relative flex w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+          <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-sidebar-accent md:hidden" onClick={() => setOpen(false)}>
             <X className="size-5" />
           </button>
           {sidebar}
@@ -47,11 +47,11 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-2 border-b px-3 py-2 md:hidden">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3 md:hidden">
           <button aria-label="메뉴 열기" className="rounded-lg p-1.5 hover:bg-muted" onClick={() => setOpen(true)}>
             <Menu className="size-5" />
           </button>
-          <span className="truncate font-heading text-lg">{title}</span>
+          <span className="truncate text-base font-semibold">{title}</span>
         </header>
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </div>

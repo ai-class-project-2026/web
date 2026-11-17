@@ -44,15 +44,15 @@ function Sidebar() {
 
   return (
     <>
-      <div className="border-b border-sidebar-border px-3 pb-3 pt-4">
-        <p className="mb-2 px-1 pr-6 font-heading text-xl">1:1 대화</p>
-        <label className="flex items-center gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/15">
-          <Search className="size-4 text-muted-foreground" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름으로 대화 찾기" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground/70" />
+      {/* 맨 위 줄: 대화 찾기 (본문 상단 바와 같은 48px) */}
+      <div className="flex h-12 shrink-0 items-center border-b border-sidebar-border pl-2.5 pr-10 md:pr-2.5">
+        <label className="flex h-8 w-full items-center gap-2 rounded-md bg-background px-2.5 text-sm focus-within:ring-2 focus-within:ring-primary/30">
+          <Search className="size-4 shrink-0 text-muted-foreground" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름으로 대화 찾기" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" />
         </label>
       </div>
 
-      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2">
+      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
         {query ? (
           <>
             <SectionLabel>검색 결과</SectionLabel>
@@ -61,7 +61,9 @@ function Sidebar() {
           </>
         ) : (
           <>
-            <NavItem href={dm.homeHref} active={pathname === dm.homeHref} icon={Users}>팀원 전체 보기</NavItem>
+            <div className="-mx-2 mb-1 border-b border-sidebar-border px-2 py-2">
+              <NavItem href={dm.homeHref} active={pathname === dm.homeHref} icon={Users}>팀원 전체 보기</NavItem>
+            </div>
 
             <SectionLabel>최근 대화</SectionLabel>
             {dm.threads.length === 0 && (
@@ -93,7 +95,7 @@ function PersonLink({ id, name, sub, time }: { id: number; name: string; sub: st
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition ${active ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60"}`}
+      className={`flex h-12 shrink-0 items-center gap-2.5 rounded-md px-2 transition ${active ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60"}`}
     >
       <Avatar id={id} name={name} className="size-8 text-xs" />
       <span className="min-w-0 flex-1">
