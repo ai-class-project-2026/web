@@ -19,6 +19,9 @@ const screens = [
   ["/w/demo/calendar", "캘린더 (데모)"],
   ["/w/demo/todos", "할 일 (데모)"],
   ["/w/demo/settings", "설정 (데모)"],
+  ["/w/demo-2/c/21", "다른 프로젝트 (데모)"],
+  ["/dm/demo", "1:1 대화 (데모)"],
+  ["/dm/demo-2", "서연과 1:1 (데모)"],
   ["/dashboard", "AI 대시보드"],
 ];
 
