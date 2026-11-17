@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag } from "lucide-react";
+import { CalendarPlus, Flag } from "lucide-react";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "cn";
 import type { Message, Workspace } from "@/lib/api";
@@ -16,7 +16,7 @@ type Item = { kind: "msg"; m: Message; at: string } | { kind: "card"; c: Timelin
 // 같은 사람이 3분 안에 연달아 보낸 메시지는 이름과 아바타를 한 번만 보여줘요.
 const GROUP_MS = 3 * 60 * 1000;
 
-export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], filterMode, isOwner, onReport }: {
+export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], filterMode, isOwner, onReport, onMakeEvent }: {
   messages: Message[];
   hasMore: boolean;
   onLoadOlder: () => void | Promise<void>;
@@ -25,6 +25,8 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
   filterMode?: Workspace["filter_mode"];
   isOwner?: boolean;
   onReport?: ReportFn;
+  /** 메시지 옆 📅 버튼: 이 메시지 내용으로 일정 만들기 */
+  onMakeEvent?: (m: Message) => void;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
@@ -144,20 +146,33 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                       <MaskedMessage message={m} mode={filterMode} isOwner={isOwner} mine={mine} onReport={onReport} />
                     </div>
                     <span className="shrink-0 pb-0.5 text-[11px] text-muted-foreground">{clock(m.created_at)}</span>
-                    {onReport && !m.is_profane && !mine && (
-                      reported.has(m.id) ? (
-                        <span className="pb-0.5 text-[11px] text-muted-foreground">신고됨</span>
-                      ) : (
+                    {/* 마우스를 올리면 말풍선 바로 옆에 나타나는 작은 도구 (읽던 자리에서 바로 누를 수 있게) */}
+                    <span className="flex items-center gap-0.5 rounded-lg border bg-card p-0.5 opacity-0 shadow-xs transition focus-within:opacity-100 group-hover:opacity-100">
+                      {onMakeEvent && !m.is_profane && (
                         <button
-                          onClick={() => reportMissed(m.id)}
-                          title="욕설인데 안 가려졌다면 신고"
-                          aria-label="욕설 신고"
-                          className="mb-0.5 rounded-md p-0.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-destructive focus:opacity-100 group-hover:opacity-100"
+                          onClick={() => onMakeEvent(m)}
+                          title="이 메시지로 일정 만들기"
+                          aria-label="이 메시지로 일정 만들기"
+                          className="rounded-md p-1 text-muted-foreground transition hover:bg-secondary hover:text-primary"
                         >
-                          <Flag className="size-3.5" />
+                          <CalendarPlus className="size-3.5" />
                         </button>
-                      )
-                    )}
+                      )}
+                      {onReport && !m.is_profane && !mine && (
+                        reported.has(m.id) ? (
+                          <span className="px-1 text-[11px] text-muted-foreground">신고됨</span>
+                        ) : (
+                          <button
+                            onClick={() => reportMissed(m.id)}
+                            title="욕설인데 안 가려졌다면 신고"
+                            aria-label="욕설 신고"
+                            className="rounded-md p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Flag className="size-3.5" />
+                          </button>
+                        )
+                      )}
+                    </span>
                   </div>
                 </div>
               </li>
