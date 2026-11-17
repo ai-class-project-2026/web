@@ -1,6 +1,6 @@
 "use client";
 
-// 채팅 화면 오른쪽: 다가오는 일정 + 아직 안 끝난 할 일. 넓은 화면(xl)에서만 보여요.
+// 채팅 화면 오른쪽 "일정" 탭: 다가오는 일정 + 아직 안 끝난 할 일. (오른쪽 칸 틀은 채팅 화면이 그려요)
 
 import { ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,7 @@ export function UpcomingPanel() {
   const todos = (mine.length ? mine : ws.todos.filter((t) => !t.done)).slice(0, 5);
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col gap-6 overflow-y-auto border-l bg-muted/40 p-4 xl:flex">
+    <div className="flex flex-col gap-6">
       <section>
         <Heading href={`${ws.base}/calendar`}>📅 다가오는 일정</Heading>
         {events.length === 0 ? (
@@ -75,7 +75,7 @@ export function UpcomingPanel() {
           </ul>
         )}
       </section>
-    </aside>
+    </div>
   );
 }
 
