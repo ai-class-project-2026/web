@@ -10,7 +10,8 @@ import type { Workspace } from "@/lib/api";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ErrorText, Field, Input } from "@/components/ui/field";
+import { ErrorText, Input } from "@/components/ui/field";
+import { Panel, PanelPage } from "@/components/ui/panel";
 import { Splash } from "@/components/workspace/WorkspaceShell";
 import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
@@ -66,121 +67,119 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
         <TopBarDivider />
         <TopBarTitle icon={Settings}>프로젝트 설정</TopBarTitle>
       </TopBar>
-    <div className="flex-1 overflow-y-auto">
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
-      {locked && (
-        <p className="rounded-md bg-muted px-4 py-3 text-sm">🔒 설정은 방장만 바꿀 수 있어요. 지금은 보기만 할 수 있어요.</p>
-      )}
+      <PanelPage
+        main={
+          <>
+            {locked && (
+              <p className="rounded-lg border bg-card px-4 py-3 text-sm shadow-xs">🔒 설정은 방장만 바꿀 수 있어요. 지금은 보기만 할 수 있어요.</p>
+            )}
+            <form onSubmit={save} className="flex flex-col gap-3">
+              <Panel title="프로젝트 이름">
+                <Input value={name} onChange={(e) => setName(e.target.value)} disabled={locked} maxLength={40} aria-label="프로젝트 이름" />
+              </Panel>
 
-      <form onSubmit={save} className="flex flex-col gap-4">
-        <Card title="워크스페이스">
-          <Field label="이름">
-            <Input value={name} onChange={(e) => setName(e.target.value)} disabled={locked} maxLength={40} />
-          </Field>
-        </Card>
+              <Panel title="✨ AI 일정 도우미" desc="대화에서 확정된 약속을 찾아 '캘린더에 추가할까요?' 카드를 띄워요. 끄면 대화를 분석하지 않아요.">
+                <label className={cn("flex items-center justify-between gap-4 rounded-md border px-4 py-3", !locked && "cursor-pointer")}>
+                  <span className="text-sm">대화 분석해서 일정 제안하기</span>
+                  <Toggle checked={ai} onChange={setAi} disabled={locked} />
+                </label>
+              </Panel>
 
-        <Card title="✨ AI 일정 도우미" desc="대화에서 확정된 약속을 찾아 '캘린더에 추가할까요?' 카드를 띄워요. 끄면 대화를 분석하지 않아요.">
-          <label className={cn("flex items-center justify-between gap-4 rounded-2xl bg-muted/60 px-4 py-3", !locked && "cursor-pointer")}>
-            <span className="text-sm">대화 분석해서 일정 제안하기</span>
-            <Toggle checked={ai} onChange={setAi} disabled={locked} />
-          </label>
-        </Card>
+              <Panel title="🧼 욕설 필터" desc="우회 욕설(ㅅ1발, tlqkf 등)까지 AI가 찾아내요. 찾았을 때 어떻게 보여줄지 골라 주세요.">
+                <p className="mb-2 text-sm font-medium">보여주는 방식</p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {MODES.map((m) => (
+                    <button
+                      type="button"
+                      key={m.value}
+                      disabled={locked}
+                      onClick={() => setMode(m.value)}
+                      className={cn(
+                        "flex flex-col items-start gap-1 rounded-md border p-3 text-left transition disabled:cursor-not-allowed",
+                        mode === m.value ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "hover:bg-muted/60",
+                      )}
+                    >
+                      <span className="text-sm font-medium">{m.emoji} {m.title}</span>
+                      <span className="text-xs text-muted-foreground">{m.desc}</span>
+                    </button>
+                  ))}
+                </div>
 
-        <Card title="🧼 욕설 필터" desc="우회 욕설(ㅅ1발, tlqkf 등)까지 AI가 찾아내요. 찾았을 때 어떻게 보여줄지 골라 주세요.">
-          <div className="grid gap-2 sm:grid-cols-3">
-            {MODES.map((m) => (
-              <button
-                type="button"
-                key={m.value}
-                disabled={locked}
-                onClick={() => setMode(m.value)}
-                className={cn(
-                  "flex flex-col items-start gap-1 rounded-2xl border p-3 text-left transition disabled:cursor-not-allowed",
-                  mode === m.value ? "border-primary bg-primary/5 ring-3 ring-primary/15" : "hover:bg-muted/60",
-                )}
-              >
-                <span className="text-xl">{m.emoji}</span>
-                <span className="text-sm font-medium">{m.title}</span>
-                <span className="text-xs text-muted-foreground">{m.desc}</span>
-              </button>
-            ))}
-          </div>
+                <div className="mt-4 border-t pt-4">
+                  <p className="mb-2 text-sm font-medium">민감도</p>
+                  <div className="flex gap-1 rounded-md bg-muted p-1">
+                    {LEVELS.map((l) => (
+                      <button
+                        type="button"
+                        key={l.value}
+                        disabled={locked}
+                        onClick={() => setLevel(l.value)}
+                        className={cn("flex-1 rounded py-1.5 text-sm transition disabled:cursor-not-allowed", level === l.value ? "bg-card font-medium shadow-xs" : "text-muted-foreground")}
+                      >
+                        {l.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">{LEVELS.find((l) => l.value === level)?.desc}</p>
+                </div>
+              </Panel>
 
-          <div className="mt-4">
-            <p className="mb-2 text-sm font-medium text-foreground/80">민감도</p>
-            <div className="flex gap-1 rounded-2xl bg-muted p-1">
-              {LEVELS.map((l) => (
-                <button
-                  type="button"
-                  key={l.value}
-                  disabled={locked}
-                  onClick={() => setLevel(l.value)}
-                  className={cn("flex-1 rounded-xl py-2 text-sm transition disabled:cursor-not-allowed", level === l.value ? "bg-card font-medium shadow-sm" : "text-muted-foreground")}
-                >
-                  {l.label}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-xs text-muted-foreground">{LEVELS.find((l) => l.value === level)?.desc}</p>
-          </div>
-        </Card>
-
-        {!locked && (
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={busy} className="rounded-xl px-5">{busy ? "저장 중…" : "저장하기"}</Button>
-            {saved && <span className="flex items-center gap-1 text-sm text-primary"><Check className="size-4" /> 저장됐어요</span>}
-          </div>
-        )}
-        <ErrorText>{error}</ErrorText>
-      </form>
-
-      <Card title={`👥 멤버 ${ws.members.length}명`}>
-        <ul className="flex flex-col gap-2">
-          {ws.members.map((m) => (
-            <li key={m.user_id} className="flex items-center gap-3">
-              <Avatar id={m.user_id} name={m.name} />
-              <span className="flex-1 text-sm">
-                {m.name} {m.user_id === ws.me?.id && <span className="text-xs text-muted-foreground">(나)</span>}
-              </span>
-              {m.role === "owner" ? (
-                <span className="flex items-center gap-1 rounded-full bg-butter px-2 py-0.5 text-xs"><Crown className="size-3" /> 방장</span>
-              ) : (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">팀원</span>
+              {/* 저장 줄: 화면 아래쪽에 붙어 있어서 길게 내려도 바로 누를 수 있어요 */}
+              {!locked && (
+                <div className="sticky bottom-0 flex items-center gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
+                  <span className="flex-1 text-sm text-muted-foreground">
+                    {saved ? <span className="flex items-center gap-1 text-primary"><Check className="size-4" /> 저장됐어요</span> : "바꾼 내용은 저장해야 반영돼요"}
+                  </span>
+                  <Button type="submit" disabled={busy} className="px-5">{busy ? "저장 중…" : "저장하기"}</Button>
+                </div>
               )}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-4 flex gap-2">
-          <Input readOnly value={inviteUrl} onFocus={(e) => e.target.select()} aria-label="초대 링크" />
-          <Button
-            type="button"
-            variant="outline"
-            className="h-auto shrink-0 rounded-xl"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(inviteUrl);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1500);
-              } catch {}
-            }}
-          >
-            {copied ? <Check /> : <Link2 />} {copied ? "복사됨" : "복사"}
-          </Button>
-        </div>
-      </Card>
-    </main>
-    </div>
-    </div>
-  );
-}
+              <ErrorText>{error}</ErrorText>
+            </form>
+          </>
+        }
+        side={
+          <>
+            <Panel title="초대 링크" desc="이 링크를 받은 사람은 바로 팀원이 돼요.">
+              <div className="flex gap-2">
+                <Input readOnly value={inviteUrl} onFocus={(e) => e.target.select()} aria-label="초대 링크" className="text-xs" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto shrink-0"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(inviteUrl);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    } catch {}
+                  }}
+                >
+                  {copied ? <Check /> : <Link2 />} {copied ? "복사됨" : "복사"}
+                </Button>
+              </div>
+            </Panel>
 
-function Card({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-3xl border bg-card p-5 shadow-sm">
-      <h2 className="text-lg">{title}</h2>
-      {desc && <p className="mb-3 mt-0.5 text-sm text-muted-foreground">{desc}</p>}
-      <div className={desc ? "" : "mt-3"}>{children}</div>
-    </section>
+            <Panel title="멤버" action={<span className="text-sm text-muted-foreground">{ws.members.length}명</span>} bodyClassName="p-2">
+              <ul className="flex flex-col">
+                {ws.members.map((m) => (
+                  <li key={m.user_id} className="flex h-11 items-center gap-2.5 rounded-md px-2">
+                    <Avatar id={m.user_id} name={m.name} className="size-8 text-xs" />
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      {m.name} {m.user_id === ws.me?.id && <span className="text-xs text-muted-foreground">(나)</span>}
+                    </span>
+                    {m.role === "owner" ? (
+                      <span className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-xs text-secondary-foreground"><Crown className="size-3" /> 방장</span>
+                    ) : (
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">팀원</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          </>
+        }
+      />
+    </div>
   );
 }
 
