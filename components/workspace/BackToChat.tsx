@@ -24,10 +24,10 @@ export function BackToChat() {
   return (
     <Link
       href={href}
-      className="flex w-fit items-center gap-1.5 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs transition hover:bg-secondary hover:text-secondary-foreground"
+      className="flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border bg-card px-2.5 text-sm font-medium text-foreground transition hover:bg-secondary hover:text-secondary-foreground"
     >
       <ArrowLeft className="size-4" />
-      {channel ? `#${channel.name} 채팅으로 돌아가기` : "채팅으로 돌아가기"}
+      <span className="max-w-48 truncate">{channel ? `#${channel.name} 채팅으로` : "채팅으로 돌아가기"}</span>
     </Link>
   );
 }

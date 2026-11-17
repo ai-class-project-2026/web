@@ -3,9 +3,10 @@
 // 할 일 화면: 추가(제목·담당자·마감일), 완료 체크, 담당자 바꾸기, 삭제.
 // 담당자는 멤버 목록에서 골라요.
 
-import { Plus, Trash2 } from "lucide-react";
+import { ListTodo, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
+import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Input, Select } from "@/components/ui/field";
@@ -54,11 +55,17 @@ export default function TodosPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 overflow-y-auto p-4 md:px-5">
-      <BackToChat />
+    <div className="flex min-h-0 flex-1 flex-col">
+      <TopBar>
+        <BackToChat />
+        <TopBarDivider />
+        <TopBarTitle icon={ListTodo}>할 일</TopBarTitle>
+        <span className="ml-auto shrink-0 text-sm text-muted-foreground">{doneCount}/{ws.todos.length} 완료</span>
+      </TopBar>
+    <div className="flex-1 overflow-y-auto">
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
       <header>
-        <h1 className="text-2xl">✅ 할 일</h1>
-        <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-gradient-to-r from-primary to-chart-2 transition-all" style={{ width: `${pct}%` }} />
           </div>
@@ -66,7 +73,7 @@ export default function TodosPage() {
         </div>
       </header>
 
-      <form onSubmit={add} className="flex flex-col gap-2 rounded-3xl border bg-card p-3 shadow-sm sm:flex-row">
+      <form onSubmit={add} className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-xs sm:flex-row">
         <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="새 할 일 (예: 발표 자료 초안)" className="sm:flex-1" />
         <Select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="sm:w-36" aria-label="담당자">
           <option value="">담당자 없음</option>
@@ -77,12 +84,12 @@ export default function TodosPage() {
       </form>
       <ErrorText>{error}</ErrorText>
 
-      <div className="flex gap-1 rounded-2xl bg-muted p-1 text-sm">
+      <div className="flex gap-1 rounded-lg bg-muted p-1 text-sm">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={cn("flex-1 rounded-xl py-1.5 transition", tab === t.key ? "bg-card font-medium shadow-sm" : "text-muted-foreground hover:text-foreground")}
+            className={cn("flex-1 rounded-md py-1.5 transition", tab === t.key ? "bg-card font-medium shadow-sm" : "text-muted-foreground hover:text-foreground")}
           >
             {t.label}
           </button>
@@ -90,7 +97,7 @@ export default function TodosPage() {
       </div>
 
       {sorted.length === 0 ? (
-        <p className="rounded-3xl border border-dashed p-10 text-center text-muted-foreground">
+        <p className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
           {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅! 💪" : "할 일이 없어요 🎉"}
         </p>
       ) : (
@@ -101,6 +108,8 @@ export default function TodosPage() {
         </ul>
       )}
     </main>
+    </div>
+    </div>
   );
 }
 
@@ -112,7 +121,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
   const ws = useWorkspace();
   const who = ws.members.find((m) => m.user_id === t.assignee_id);
   return (
-    <li className={cn("animate-pop group flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 transition", t.done && "bg-muted/50")}>
+    <li className={cn("animate-pop group flex items-center gap-3 rounded-lg border bg-card px-4 py-3 transition", t.done && "bg-muted/50")}>
       <input
         type="checkbox"
         checked={t.done}

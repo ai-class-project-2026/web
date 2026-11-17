@@ -13,8 +13,9 @@ import timeGridPlugin from "@fullcalendar/react/timegrid";
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/breezy/theme.css";
 import "@fullcalendar/react/themes/breezy/palettes/indigo.css";
-import { Plus } from "lucide-react";
+import { CalendarDays, Plus } from "lucide-react";
 import { useState } from "react";
+import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { Button } from "@/components/ui/button";
 import { todayStr, toDateStr } from "@/components/ui/format";
@@ -47,11 +48,12 @@ export default function CalendarPage() {
     });
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:px-5">
-      <BackToChat />
-      <header className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl">📅 캘린더</h1>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <TopBar>
+        <BackToChat />
+        <TopBarDivider />
+        <TopBarTitle icon={CalendarDays}>캘린더</TopBarTitle>
+        <div className="hidden items-center gap-3 text-xs text-muted-foreground lg:flex">
           <Legend color={COLORS.ai}>✨ AI가 찾은 일정</Legend>
           <Legend color={COLORS.manual}>직접 추가</Legend>
           <label className="flex cursor-pointer items-center gap-1.5">
@@ -59,11 +61,12 @@ export default function CalendarPage() {
             취소된 일정도 보기
           </label>
         </div>
-        <Button className="ml-auto rounded-xl" onClick={() => setDraft({ date: todayStr() })}>
+        <Button className="ml-auto" onClick={() => setDraft({ date: todayStr() })}>
           <Plus /> 일정 추가
         </Button>
-      </header>
+      </TopBar>
 
+    <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
       <div className="calendar-wrap min-h-[32rem] flex-1">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, breezyTheme]}
@@ -107,6 +110,7 @@ export default function CalendarPage() {
         onDelete={ws.deleteEvent}
       />
     </main>
+    </div>
   );
 }
 

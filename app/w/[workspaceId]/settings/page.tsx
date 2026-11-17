@@ -3,10 +3,11 @@
 // 설정 화면: 워크스페이스 이름, AI 일정 on/off, 욕설 필터 방식/민감도, 멤버, 초대 링크.
 // 저장(PATCH /workspaces/{id})은 방장(owner)만 할 수 있어요. 아니면 서버가 403을 돌려줘요.
 
-import { Check, Crown, Link2 } from "lucide-react";
+import { Check, Crown, Link2, Settings } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
 import type { Workspace } from "@/lib/api";
+import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
@@ -59,11 +60,16 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 overflow-y-auto p-4 md:px-5">
-      <BackToChat />
-      <h1 className="text-2xl">⚙️ 설정</h1>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <TopBar>
+        <BackToChat />
+        <TopBarDivider />
+        <TopBarTitle icon={Settings}>프로젝트 설정</TopBarTitle>
+      </TopBar>
+    <div className="flex-1 overflow-y-auto">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
       {locked && (
-        <p className="rounded-2xl bg-butter/60 px-4 py-3 text-sm">🔒 설정은 방장만 바꿀 수 있어요. 지금은 보기만 할 수 있어요.</p>
+        <p className="rounded-md bg-muted px-4 py-3 text-sm">🔒 설정은 방장만 바꿀 수 있어요. 지금은 보기만 할 수 있어요.</p>
       )}
 
       <form onSubmit={save} className="flex flex-col gap-4">
@@ -163,6 +169,8 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
         </div>
       </Card>
     </main>
+    </div>
+    </div>
   );
 }
 
