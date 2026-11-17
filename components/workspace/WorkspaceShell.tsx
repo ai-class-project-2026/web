@@ -1,30 +1,25 @@
 "use client";
 
-// 워크스페이스 화면의 뼈대: 왼쪽 사이드바(채널 목록, 메뉴) + 가운데 본문.
-// 휴대폰처럼 좁은 화면에서는 사이드바가 숨고, 왼쪽 위 ☰ 버튼으로 열어요.
+// 프로젝트(워크스페이스) 화면의 뼈대: [프로젝트 레일] [채널 목록 + 메뉴] [본문]
+// 레일과 휴대폰 서랍은 AppFrame이 맡고, 여기서는 두 번째 줄(사이드바) 내용을 채워요.
+//
+// 사이드바 순서 = 자주 쓰는 순서: 프로젝트 이름 → 초대 → 채널 → 캘린더/할 일/설정 → (맨 아래 고정) 나
 
-import { BarChart3, CalendarDays, Check, Hash, Link2, ListTodo, LogOut, Menu, Plus, Settings, Sparkles, X } from "lucide-react";
+import { CalendarDays, Check, Hash, Link2, ListTodo, Plus, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "cn";
-import { Avatar } from "@/components/ui/avatar";
+import { AppFrame } from "@/components/app/AppFrame";
+import { UserPanel } from "@/components/app/UserPanel";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { useWorkspace } from "./WorkspaceProvider";
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const ws = useWorkspace();
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const [lastPath, setLastPath] = useState(pathname);
-  // 다른 화면으로 이동하면 (휴대폰에서 열어 둔) 사이드바를 닫아요
-  if (pathname !== lastPath) {
-    setLastPath(pathname);
-    setOpen(false);
-  }
 
-  if (ws.status === "loading") return <Splash>워크스페이스를 불러오는 중이에요…</Splash>;
+  if (ws.status === "loading") return <Splash>프로젝트를 불러오는 중이에요…</Splash>;
   if (ws.status === "error") {
     return (
       <Splash emoji="🥲">
@@ -39,32 +34,13 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-dvh min-h-0 flex-1">
-      {/* 휴대폰: 사이드바 뒤 어두운 배경 */}
-      {open && <div className="fixed inset-0 z-30 bg-foreground/20 md:hidden" onClick={() => setOpen(false)} />}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform md:static md:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <Sidebar onClose={() => setOpen(false)} />
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-2 border-b px-3 py-2 md:hidden">
-          <button aria-label="메뉴 열기" className="rounded-lg p-1.5 hover:bg-muted" onClick={() => setOpen(true)}>
-            <Menu className="size-5" />
-          </button>
-          <span className="truncate font-heading text-lg">{ws.workspace?.name}</span>
-        </header>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-      </div>
-    </div>
+    <AppFrame demo={ws.demo} active={ws.workspace?.id ?? null} title={ws.workspace?.name} sidebar={<Sidebar />}>
+      {children}
+    </AppFrame>
   );
 }
 
-function Sidebar({ onClose }: { onClose: () => void }) {
+function Sidebar() {
   const ws = useWorkspace();
   const pathname = usePathname();
   const router = useRouter();
@@ -96,50 +72,39 @@ function Sidebar({ onClose }: { onClose: () => void }) {
 
   const nav = [
     { href: `${ws.base}/calendar`, label: "캘린더", icon: CalendarDays },
-    { href: `${ws.base}/todos`, label: "할 일", icon: ListTodo },
+    { href: `${ws.base}/todos`, label: "할 일", icon: ListTodo, count: ws.todos.filter((t) => !t.done).length },
     { href: `${ws.base}/settings`, label: "설정", icon: Settings },
-    { href: "/dashboard", label: "AI 대시보드", icon: BarChart3 },
   ];
 
   return (
     <>
-      <div className="flex items-start justify-between gap-2 p-4 pb-2">
-        <div className="min-w-0">
-          <Link href="/" className="font-heading text-sm text-primary">팀플메이트 🐣</Link>
-          <p className="truncate font-heading text-xl" title={ws.workspace?.name}>{ws.workspace?.name}</p>
-        </div>
-        <button aria-label="메뉴 닫기" className="rounded-lg p-1 hover:bg-sidebar-accent md:hidden" onClick={onClose}>
-          <X className="size-5" />
+      <div className="border-b border-sidebar-border px-4 pb-3 pt-4">
+        <p className="truncate pr-6 font-heading text-xl" title={ws.workspace?.name}>{ws.workspace?.name}</p>
+        <p className="text-xs text-muted-foreground">팀원 {ws.members.length}명 · {ws.isOwner ? "내가 방장" : "팀원으로 참여"}</p>
+        {ws.demo && (
+          <p className="mt-2 flex items-center gap-1.5 rounded-xl bg-butter/60 px-3 py-1.5 text-xs">
+            <Sparkles className="size-3.5" /> 데모 모드 · 서버 없이 둘러보는 중
+          </p>
+        )}
+        <button
+          onClick={copyInvite}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/40 py-1.5 text-xs text-primary transition hover:bg-primary/5"
+        >
+          {copied ? <><Check className="size-3.5" /> 복사됐어요!</> : <><Link2 className="size-3.5" /> 팀원 초대 링크 복사</>}
         </button>
       </div>
 
-      {ws.demo && (
-        <p className="mx-4 mb-2 flex items-center gap-1.5 rounded-xl bg-butter/60 px-3 py-1.5 text-xs">
-          <Sparkles className="size-3.5" /> 데모 모드 · 서버 없이 둘러보는 중
-        </p>
-      )}
-
-      <button
-        onClick={copyInvite}
-        className="mx-4 mb-3 flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/40 py-1.5 text-xs text-primary hover:bg-primary/5"
-      >
-        {copied ? <><Check className="size-3.5" /> 복사됐어요!</> : <><Link2 className="size-3.5" /> 팀원 초대 링크 복사</>}
-      </button>
-
-      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2">
-        <div className="flex items-center justify-between px-2 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-          채널
-          <button aria-label="채널 추가" className="rounded-md p-0.5 hover:bg-sidebar-accent" onClick={() => setAdding((a) => !a)}>
+      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2">
+        <SectionLabel action={
+          <button aria-label="채널 추가" title="채널 추가" className="rounded-md p-0.5 hover:bg-sidebar-accent" onClick={() => setAdding((a) => !a)}>
             <Plus className="size-4" />
           </button>
-        </div>
+        }>
+          채널
+        </SectionLabel>
         {ws.channels.map((c) => {
           const href = `${ws.base}/c/${c.id}`;
-          return (
-            <NavItem key={c.id} href={href} active={pathname === href} icon={Hash}>
-              {c.name}
-            </NavItem>
-          );
+          return <NavItem key={c.id} href={href} active={pathname === href} icon={Hash}>{c.name}</NavItem>;
         })}
         {adding && (
           <form onSubmit={addChannel} className="px-1 py-1">
@@ -147,46 +112,47 @@ function Sidebar({ onClose }: { onClose: () => void }) {
           </form>
         )}
 
-        <div className="px-2 pb-1 pt-4 text-xs font-medium text-muted-foreground">메뉴</div>
+        <SectionLabel>프로젝트 관리</SectionLabel>
         {nav.map((n) => (
-          <NavItem key={n.href} href={n.href} active={pathname.startsWith(n.href)} icon={n.icon}>
+          <NavItem key={n.href} href={n.href} active={pathname.startsWith(n.href)} icon={n.icon} count={n.count}>
             {n.label}
           </NavItem>
         ))}
       </nav>
 
-      {ws.me && (
-        <div className="flex items-center gap-2 border-t border-sidebar-border p-3">
-          <Avatar id={ws.me.id} name={ws.me.name} className="size-8" />
-          <div className="min-w-0 flex-1 text-sm">
-            <p className="truncate font-medium">{ws.me.name}</p>
-            <p className="truncate text-xs text-muted-foreground">{ws.isOwner ? "방장" : "팀원"}</p>
-          </div>
-          <button aria-label="로그아웃" title="로그아웃" className="rounded-lg p-1.5 text-muted-foreground hover:bg-sidebar-accent" onClick={ws.logout}>
-            <LogOut className="size-4" />
-          </button>
-        </div>
-      )}
+      <UserPanel me={ws.me} demo={ws.demo} sub={ws.isOwner ? "방장" : "팀원"} />
     </>
   );
 }
 
-function NavItem({ href, active, icon: Icon, children }: {
+export function SectionLabel({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between px-2 pb-1 pt-3 text-xs font-medium text-muted-foreground">
+      {children}
+      {action}
+    </div>
+  );
+}
+
+export function NavItem({ href, active, icon: Icon, count, children }: {
   href: string;
   active: boolean;
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string }>;
+  count?: number;
   children: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition",
-        active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/60",
+        "flex min-h-9 items-center gap-2 rounded-xl px-3 py-1.5 text-sm transition",
+        active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
       )}
     >
-      <Icon className="size-4 opacity-70" />
-      <span className="truncate">{children}</span>
+      {Icon && <Icon className="size-4 shrink-0 opacity-70" />}
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      {!!count && <span className="rounded-full bg-primary/15 px-1.5 text-[11px] font-medium text-primary">{count}</span>}
     </Link>
   );
 }
