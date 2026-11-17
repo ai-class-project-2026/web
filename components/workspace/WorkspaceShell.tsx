@@ -70,17 +70,31 @@ function Sidebar() {
     }
   };
 
-  const nav = [
-    { href: `${ws.base}/calendar`, label: "캘린더", icon: CalendarDays },
-    { href: `${ws.base}/todos`, label: "할 일", icon: ListTodo, count: ws.todos.filter((t) => !t.done).length },
-    { href: `${ws.base}/settings`, label: "설정", icon: Settings },
-  ];
+  const todoCount = ws.todos.filter((t) => !t.done).length;
+  const settingsHref = `${ws.base}/settings`;
+  const settingsActive = pathname.startsWith(settingsHref);
 
   return (
     <>
       <div className="border-b border-sidebar-border px-4 pb-3 pt-4">
-        <p className="truncate pr-6 font-heading text-xl" title={ws.workspace?.name}>{ws.workspace?.name}</p>
-        <p className="text-xs text-muted-foreground">팀원 {ws.members.length}명 · {ws.isOwner ? "내가 방장" : "팀원으로 참여"}</p>
+        {/* 프로젝트 이름 + 바로 옆 설정 버튼 (설정은 "이 프로젝트"에 대한 것이라 이름 옆이 찾기 쉬워요) */}
+        <div className="flex items-start gap-2 pr-6 md:pr-0">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-heading text-xl" title={ws.workspace?.name}>{ws.workspace?.name}</p>
+            <p className="text-xs text-muted-foreground">팀원 {ws.members.length}명 · {ws.isOwner ? "내가 방장" : "팀원으로 참여"}</p>
+          </div>
+          <Link
+            href={settingsHref}
+            aria-current={settingsActive ? "page" : undefined}
+            title="프로젝트 설정"
+            className={cn(
+              "flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1.5 text-xs transition",
+              settingsActive ? "border-primary/30 bg-secondary font-medium text-secondary-foreground" : "bg-card text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+            )}
+          >
+            <Settings className="size-4" /> 설정
+          </Link>
+        </div>
         {ws.demo && (
           <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs text-muted-foreground">
             <Sparkles className="size-3.5" /> 데모 모드 · 서버 없이 둘러보는 중
@@ -92,6 +106,12 @@ function Sidebar() {
         >
           {copied ? <><Check className="size-4" /> 복사됐어요!</> : <><Link2 className="size-4" /> 팀원 초대 링크 복사</>}
         </button>
+      </div>
+
+      {/* 캘린더·할 일: 채널 목록 위에 큰 버튼으로 (자주 쓰는데 목록 맨 아래에 있으면 찾기 어려워요) */}
+      <div className="grid grid-cols-2 gap-2 border-b border-sidebar-border p-3">
+        <QuickLink href={`${ws.base}/calendar`} active={pathname.startsWith(`${ws.base}/calendar`)} icon={CalendarDays}>캘린더</QuickLink>
+        <QuickLink href={`${ws.base}/todos`} active={pathname.startsWith(`${ws.base}/todos`)} icon={ListTodo} count={todoCount}>할 일</QuickLink>
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2">
@@ -113,12 +133,6 @@ function Sidebar() {
           </button>
         )}
 
-        <SectionLabel>프로젝트 관리</SectionLabel>
-        {nav.map((n) => (
-          <NavItem key={n.href} href={n.href} active={pathname.startsWith(n.href)} icon={n.icon} count={n.count}>
-            {n.label}
-          </NavItem>
-        ))}
       </nav>
 
       <UserPanel me={ws.me} demo={ws.demo} sub={ws.isOwner ? "방장" : "팀원"} />
@@ -154,6 +168,31 @@ export function NavItem({ href, active, icon: Icon, count, children }: {
       {Icon && <Icon className="size-4 shrink-0 text-muted-foreground" />}
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {!!count && <span className="rounded-full bg-primary px-2 text-xs font-medium text-primary-foreground">{count}</span>}
+    </Link>
+  );
+}
+
+function QuickLink({ href, active, icon: Icon, count, children }: {
+  href: string;
+  active: boolean;
+  icon: React.ComponentType<{ className?: string }>;
+  count?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex flex-col items-center gap-1 rounded-xl border py-2.5 text-sm transition",
+        active ? "border-primary/30 bg-secondary font-medium text-secondary-foreground" : "bg-card hover:bg-sidebar-accent/60",
+      )}
+    >
+      <Icon className="size-5 text-primary" />
+      {children}
+      {!!count && (
+        <span className="absolute right-1.5 top-1.5 rounded-full bg-primary px-1.5 text-xs font-medium text-primary-foreground">{count}</span>
+      )}
     </Link>
   );
 }
