@@ -21,7 +21,7 @@ export function DMConversation({ peerId }: { peerId: number }) {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex items-center gap-3 border-b px-4 py-2.5">
           <Avatar id={peer.id} name={peer.name} className="size-8 text-xs" />
           <h1 className="text-xl">{peer.name}</h1>
