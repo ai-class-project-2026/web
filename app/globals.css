@@ -156,6 +156,10 @@
   html {
     @apply font-sans;
   }
+  /* 마이페이지 > 화면 설정 > 글자 크기 "크게": rem 단위가 모두 같이 커져요 */
+  html[data-text="large"] {
+    font-size: 112.5%;
+  }
   h1, h2, h3 {
     font-family: var(--font-heading);
     font-weight: 400;
