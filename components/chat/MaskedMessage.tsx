@@ -54,7 +54,7 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = 
         )}
       </span>
 
-      <span className={cn("flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs", mine ? "text-primary-foreground/80" : "text-muted-foreground")}>
+      <span className={cn("flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta", mine ? "text-primary-foreground/80" : "text-muted-foreground")}>
         {warnOnly ? <span>⚠️ 부적절한 표현이 있어요</span> : <span>🙈 부적절한 표현이 가려졌어요</span>}
         {!warnOnly && (
           <button className="font-medium underline underline-offset-2" onClick={() => setShown((s) => !s)}>

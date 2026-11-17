@@ -41,7 +41,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
       }}
     >
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
-      <div className={`flex min-h-12 items-end gap-2 rounded-lg bg-muted p-1.5 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
+      <div className={`flex min-h-13 items-end gap-2 rounded-lg bg-muted p-2 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
         {leading}
         <textarea
           disabled={disabled}
@@ -59,7 +59,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
             }
           }}
           placeholder={placeholder}
-          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent px-1 py-1.5 text-[0.9375rem] outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+          className="max-h-40 min-h-9 flex-1 resize-none bg-transparent px-1 py-1.5 text-chat outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
         />
         <button
           type="submit"

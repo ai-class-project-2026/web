@@ -16,21 +16,21 @@ export function MembersPanel() {
   ].filter((g) => g.list.length);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {groups.map((g) => (
         <section key={g.title}>
-          <h2 className="mb-1 px-2 font-sans text-xs font-semibold text-muted-foreground">
+          <h2 className="mb-1 px-2 font-sans text-meta font-semibold text-muted-foreground">
             {g.title} — {g.list.length}
           </h2>
           <ul className="flex flex-col gap-0.5">
             {g.list.map((m) => {
               const isMe = m.user_id === ws.me?.id;
               return (
-                <li key={m.user_id} className="group flex h-11 items-center gap-2.5 rounded-md px-2 transition hover:bg-sidebar-accent/60">
+                <li key={m.user_id} className="group flex h-[2.625rem] items-center gap-3 rounded-md px-2 transition hover:bg-sidebar-accent/60">
                   <Avatar id={m.user_id} name={m.name} className="size-8 text-xs" />
-                  <span className="min-w-0 flex-1 truncate text-sm">
+                  <span className="min-w-0 flex-1 truncate text-chat">
                     {m.name}
-                    {isMe && <span className="ml-1 text-xs text-muted-foreground">(나)</span>}
+                    {isMe && <span className="ml-1 text-meta text-muted-foreground">(나)</span>}
                   </span>
                   {m.role === "owner" && <Crown className="size-3.5 text-accent-foreground" aria-label="방장" />}
                   {!isMe && (
