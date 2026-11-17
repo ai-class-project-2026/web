@@ -152,7 +152,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
 
   return (
     <div className="flex min-h-0 flex-1">
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex items-center gap-3 border-b px-4 py-2.5">
           <h1 className="flex min-w-0 items-center gap-1 text-xl">
             <Hash className="size-5 shrink-0 text-primary" />
