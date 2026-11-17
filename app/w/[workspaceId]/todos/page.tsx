@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorText, Input, Select } from "@/components/ui/field";
 import { shortDate } from "@/components/ui/format";
 import { DueBadge } from "@/components/workspace/UpcomingPanel";
+import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
 import type { Todo } from "@/lib/api";
 
@@ -54,6 +55,7 @@ export default function TodosPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 overflow-y-auto p-4 md:p-6">
+      <BackToChat />
       <header>
         <h1 className="text-2xl">✅ 할 일</h1>
         <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">

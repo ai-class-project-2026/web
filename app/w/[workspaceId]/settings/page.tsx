@@ -11,6 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
 import { Splash } from "@/components/workspace/WorkspaceShell";
+import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
 
 const MODES: { value: Workspace["filter_mode"]; emoji: string; title: string; desc: string }[] = [
@@ -59,6 +60,7 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 overflow-y-auto p-4 md:p-6">
+      <BackToChat />
       <h1 className="text-2xl">⚙️ 설정</h1>
       {locked && (
         <p className="rounded-2xl bg-butter/60 px-4 py-3 text-sm">🔒 설정은 방장만 바꿀 수 있어요. 지금은 보기만 할 수 있어요.</p>

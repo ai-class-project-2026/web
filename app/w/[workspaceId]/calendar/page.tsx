@@ -18,6 +18,7 @@ import { useState } from "react";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { Button } from "@/components/ui/button";
 import { todayStr, toDateStr } from "@/components/ui/format";
+import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
 
 const COLORS = {
@@ -47,6 +48,7 @@ export default function CalendarPage() {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
+      <BackToChat />
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl">📅 캘린더</h1>
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">

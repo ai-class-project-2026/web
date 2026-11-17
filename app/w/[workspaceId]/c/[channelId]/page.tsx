@@ -9,7 +9,7 @@
 
 import { CalendarDays, CalendarPlus, Hash, Sparkles, Users } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "cn";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { MessageInput } from "@/components/chat/MessageInput";
@@ -17,6 +17,7 @@ import { MessageList, type TimelineCard } from "@/components/chat/MessageList";
 import type { ReportFn } from "@/components/chat/MaskedMessage";
 import { ScheduleCard } from "@/components/schedule-card/ScheduleCard";
 import { errorText, todayStr } from "@/components/ui/format";
+import { rememberChannel } from "@/components/workspace/BackToChat";
 import { MembersPanel } from "@/components/workspace/MembersPanel";
 import { UpcomingPanel } from "@/components/workspace/UpcomingPanel";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
@@ -135,6 +136,9 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   const channel = ws.channels.find((c) => c.id === channelId);
   const [panel, setPanel] = useState<"schedule" | "members" | null>("schedule");
   const [draft, setDraft] = useState<EventDraft | null>(null);
+
+  // 캘린더·할 일 화면의 "채팅으로 돌아가기"가 이 채널로 돌아오게 기억해 둬요
+  useEffect(() => rememberChannel(ws.base, channelId), [ws.base, channelId]);
 
   const cards: TimelineCard[] = suggestions.map((s) => ({
     key: `s${s.id}`,
