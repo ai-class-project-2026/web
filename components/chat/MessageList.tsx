@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, Flag } from "lucide-react";
+import { CalendarPlus, Flag, Sparkles } from "lucide-react";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "cn";
 import type { Message, Workspace } from "@/lib/api";
@@ -116,7 +116,16 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
             return (
               <Fragment key={it.c.key}>
                 {sep}
-                <li className="animate-pop my-2">{it.c.node}</li>
+                {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 왼쪽에 붙여요 */}
+                <li className="animate-pop mt-3 flex gap-2">
+                  <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Sparkles className="size-4" />
+                  </span>
+                  <div className="flex min-w-0 max-w-md flex-1 flex-col items-start">
+                    <span className="mb-1 ml-1 text-xs font-medium text-foreground/70">AI 일정 도우미</span>
+                    {it.c.node}
+                  </div>
+                </li>
               </Fragment>
             );
           }

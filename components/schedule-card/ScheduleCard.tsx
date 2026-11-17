@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlus, Clock, MapPin, Pencil, Sparkles, Users, X } from "lucide-react";
+import { CalendarPlus, Clock, MapPin, Pencil, Users, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
 import type { Event, EventInput, Suggestion } from "@/lib/api";
@@ -46,11 +46,8 @@ export function ScheduleCard({ suggestion, onAct, current }: {
   const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   return (
-    <div className={cn("mx-auto w-full max-w-md rounded-2xl border border-l-4 bg-card p-4 shadow-sm", k.tone)}>
+    <div className={cn("w-full rounded-2xl rounded-tl-md border border-l-4 bg-card p-4 shadow-sm", k.tone)}>
       <div className="mb-2 flex items-center gap-2 text-xs">
-        <span className="flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
-          <Sparkles className="size-3.5" /> AI 일정 제안
-        </span>
         <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{k.badge}</span>
       </div>
       <p className="mb-3 font-heading text-lg leading-snug">{question}</p>
