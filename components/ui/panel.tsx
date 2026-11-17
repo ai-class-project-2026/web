@@ -1,0 +1,41 @@
+import { cn } from "cn";
+
+// 회색 바탕 위에 올리는 흰 칸. 맨 위 회색 제목 띠 덕분에 칸과 칸의 경계가 한눈에 보여요.
+// 할 일·설정·마이페이지처럼 여러 묶음이 있는 화면에서 같은 모양으로 써요.
+
+export function Panel({ title, desc, action, children, className, bodyClassName, danger }: {
+  title: React.ReactNode;
+  /** 제목 띠 아래 한 줄 설명 */
+  desc?: React.ReactNode;
+  /** 제목 띠 오른쪽 끝 (버튼, 개수 등) */
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  /** 안쪽 여백을 바꾸고 싶을 때 (목록처럼 꽉 채울 땐 "p-0") */
+  bodyClassName?: string;
+  /** 회원 탈퇴처럼 조심해야 하는 칸은 빨간 테두리 */
+  danger?: boolean;
+}) {
+  return (
+    <section className={cn("overflow-hidden rounded-lg border bg-card shadow-xs", danger && "border-destructive/40", className)}>
+      <header className={cn("flex min-h-11 items-center gap-2 border-b px-4 py-2", danger ? "bg-destructive/5" : "bg-muted/60")}>
+        <h2 className={cn("font-sans text-sm font-semibold", danger && "text-destructive")}>{title}</h2>
+        {action && <div className="ml-auto flex items-center gap-2">{action}</div>}
+      </header>
+      {desc && <p className="px-4 pt-3 text-sm text-muted-foreground">{desc}</p>}
+      <div className={cn("p-4", bodyClassName)}>{children}</div>
+    </section>
+  );
+}
+
+/** 회색 바탕 + 넓은 화면에서 [본문 | 오른쪽 요약 20rem] 두 칸 */
+export function PanelPage({ main, side }: { main: React.ReactNode; side?: React.ReactNode }) {
+  return (
+    <div className="flex-1 overflow-y-auto bg-muted/60">
+      <div className={cn("mx-auto grid w-full max-w-6xl items-start gap-3 p-4", side && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
+        <div className="flex min-w-0 flex-col gap-3">{main}</div>
+        {side && <div className="flex min-w-0 flex-col gap-3">{side}</div>}
+      </div>
+    </div>
+  );
+}

@@ -10,7 +10,8 @@ import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Input, Select } from "@/components/ui/field";
-import { shortDate } from "@/components/ui/format";
+import { dDay, shortDate } from "@/components/ui/format";
+import { Panel, PanelPage } from "@/components/ui/panel";
 import { DueBadge } from "@/components/workspace/UpcomingPanel";
 import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
@@ -37,7 +38,6 @@ export default function TodosPage() {
   // 마감일 가까운 순, 마감일 없는 건 뒤로
   const sorted = [...filtered].sort((a, b) => (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999") || a.id - b.id);
   const doneCount = ws.todos.filter((t) => t.done).length;
-  const pct = ws.todos.length ? Math.round((doneCount / ws.todos.length) * 100) : 0;
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,53 +62,113 @@ export default function TodosPage() {
         <TopBarTitle icon={ListTodo}>할 일</TopBarTitle>
         <span className="ml-auto shrink-0 text-sm text-muted-foreground">{doneCount}/{ws.todos.length} 완료</span>
       </TopBar>
-    <div className="flex-1 overflow-y-auto">
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
-      <header>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-gradient-to-r from-primary to-chart-2 transition-all" style={{ width: `${pct}%` }} />
-          </div>
-          <span>{doneCount}/{ws.todos.length} 완료 · {pct}%</span>
-        </div>
-      </header>
+      <PanelPage
+        main={
+          <>
+            <Panel title="할 일 추가">
+              <form onSubmit={add} className="flex flex-col gap-2 sm:flex-row">
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="새 할 일 (예: 발표 자료 초안)" className="sm:flex-1" />
+                <Select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="sm:w-36" aria-label="담당자">
+                  <option value="">담당자 없음</option>
+                  {ws.members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+                </Select>
+                <Input type="date" value={due} onChange={(e) => setDue(e.target.value)} className="sm:w-40" aria-label="마감일" />
+                <Button type="submit" className="h-auto py-2"><Plus /> 추가</Button>
+              </form>
+              {error && <div className="mt-2"><ErrorText>{error}</ErrorText></div>}
+            </Panel>
 
-      <form onSubmit={add} className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-xs sm:flex-row">
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="새 할 일 (예: 발표 자료 초안)" className="sm:flex-1" />
-        <Select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="sm:w-36" aria-label="담당자">
-          <option value="">담당자 없음</option>
-          {ws.members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
-        </Select>
-        <Input type="date" value={due} onChange={(e) => setDue(e.target.value)} className="sm:w-40" aria-label="마감일" />
-        <Button type="submit" className="h-auto rounded-xl py-2"><Plus /> 추가</Button>
-      </form>
-      <ErrorText>{error}</ErrorText>
-
-      <div className="flex gap-1 rounded-lg bg-muted p-1 text-sm">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn("flex-1 rounded-md py-1.5 transition", tab === t.key ? "bg-card font-medium shadow-sm" : "text-muted-foreground hover:text-foreground")}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {sorted.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
-          {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅! 💪" : "할 일이 없어요 🎉"}
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {sorted.map((t) => (
-            <TodoRow key={t.id} todo={t} onChange={(patch) => run(ws.updateTodo(t.id, patch))} onDelete={() => run(ws.deleteTodo(t.id))} />
-          ))}
-        </ul>
-      )}
-    </main>
+            {/* 목록: 제목 띠에 탭, 안쪽은 줄 구분선으로 나눈 표 모양 */}
+            <Panel
+              title={`${TABS.find((t) => t.key === tab)?.label} ${sorted.length}개`}
+              bodyClassName="p-0"
+              action={
+                <div className="flex gap-0.5 rounded-md bg-background p-0.5 text-sm">
+                  {TABS.map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setTab(t.key)}
+                      className={cn("rounded px-2.5 py-1 transition", tab === t.key ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              }
+            >
+              {sorted.length === 0 ? (
+                <p className="p-10 text-center text-muted-foreground">
+                  {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅! 💪" : "할 일이 없어요 🎉"}
+                </p>
+              ) : (
+                <ul className="divide-y">
+                  {sorted.map((t) => (
+                    <TodoRow key={t.id} todo={t} onChange={(patch) => run(ws.updateTodo(t.id, patch))} onDelete={() => run(ws.deleteTodo(t.id))} />
+                  ))}
+                </ul>
+              )}
+            </Panel>
+          </>
+        }
+        side={<Summary />}
+      />
     </div>
+  );
+}
+
+/** 오른쪽 요약: 진행률 + 상태별 개수 + 담당자별 남은 일 */
+function Summary() {
+  const ws = useWorkspace();
+  const total = ws.todos.length;
+  const done = ws.todos.filter((t) => t.done).length;
+  const left = ws.todos.filter((t) => !t.done);
+  const overdue = left.filter((t) => t.due_date && dDay(t.due_date).diff < 0).length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const byMember = ws.members
+    .map((m) => ({ m, n: left.filter((t) => t.assignee_id === m.user_id).length }))
+    .sort((a, b) => b.n - a.n);
+  const nobody = left.filter((t) => !t.assignee_id).length;
+
+  return (
+    <>
+      <Panel title="진행 상황" action={<span className="text-sm font-semibold text-primary">{pct}%</span>}>
+        <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        </div>
+        <dl className="mt-3 grid grid-cols-3 divide-x rounded-md border text-center">
+          <Stat label="남음" value={left.length} />
+          <Stat label="완료" value={done} />
+          <Stat label="마감 지남" value={overdue} warn={overdue > 0} />
+        </dl>
+      </Panel>
+
+      <Panel title="담당자별 남은 일" bodyClassName="p-2">
+        <ul className="flex flex-col">
+          {byMember.map(({ m, n }) => (
+            <li key={m.user_id} className="flex h-10 items-center gap-2.5 rounded-md px-2">
+              <Avatar id={m.user_id} name={m.name} className="size-7 text-xs" />
+              <span className="min-w-0 flex-1 truncate text-sm">{m.name}{m.user_id === ws.me?.id && <span className="text-muted-foreground"> (나)</span>}</span>
+              <span className={cn("text-sm font-semibold", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
+            </li>
+          ))}
+          {nobody > 0 && (
+            <li className="flex h-10 items-center gap-2.5 rounded-md px-2 text-muted-foreground">
+              <span className="size-7 rounded-full border border-dashed" />
+              <span className="flex-1 text-sm">담당자 없음</span>
+              <span className="text-sm font-semibold">{nobody}</span>
+            </li>
+          )}
+        </ul>
+      </Panel>
+    </>
+  );
+}
+
+function Stat({ label, value, warn }: { label: string; value: number; warn?: boolean }) {
+  return (
+    <div className="py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className={cn("text-lg font-semibold", warn && "text-destructive")}>{value}</dd>
     </div>
   );
 }
@@ -121,7 +181,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
   const ws = useWorkspace();
   const who = ws.members.find((m) => m.user_id === t.assignee_id);
   return (
-    <li className={cn("animate-pop group flex items-center gap-3 rounded-lg border bg-card px-4 py-3 transition", t.done && "bg-muted/50")}>
+    <li className={cn("group flex min-h-14 items-center gap-3 px-4 py-2 transition hover:bg-muted/40", t.done && "bg-muted/30")}>
       <input
         type="checkbox"
         checked={t.done}
