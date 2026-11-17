@@ -5,7 +5,7 @@
 // 화면에서는 const ws = useWorkspace(); 로 꺼내 쓰면 되고, 데모인지 아닌지 신경 쓰지 않아도 돼요.
 
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
@@ -223,6 +223,9 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
 
 /* ───────────── 데모 (가짜 데이터) ───────────── */
 
+// 데모에서 새로 만드는 채널·일정·할 일 번호 (프로젝트끼리 겹치지 않게 하나로 셉니다)
+let demoSeq = 100000;
+
 function DemoProvider({ id, base, children }: { id: number; base: string; children: React.ReactNode }) {
   const router = useRouter();
   // 없는 데모 번호(/w/demo-9)면 첫 프로젝트 데이터로 그리고 "없는 프로젝트" 안내를 띄워요
@@ -235,10 +238,7 @@ function DemoProvider({ id, base, children }: { id: number; base: string; childr
   const [messages, setMessages] = useState(start.messages);
   const [suggestions, setSuggestions] = useState(start.suggestions);
   const members = start.members;
-  const nextId = useMemo(() => {
-    let n = Date.now() % 100000;
-    return () => ++n;
-  }, []);
+  const nextId = () => ++demoSeq;
 
   // 바뀐 내용을 보관해서 다른 프로젝트에 갔다 와도 그대로 있게
   useEffect(() => {
