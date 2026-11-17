@@ -22,9 +22,20 @@ export const dummyChannels: Channel[] = [
   { id: 2, workspace_id: 1, name: "자료조사" },
 ];
 
+/** 데모에 나오는 모든 사람 (여러 프로젝트에 걸쳐 있어요) */
+export const dummyPeople: User[] = [
+  dummyMe,
+  { id: 2, name: "서연", email: "seoyeon@example.com" },
+  { id: 3, name: "지호", email: "jiho@example.com" },
+  { id: 4, name: "하은", email: "haeun@example.com" },
+  { id: 5, name: "도윤", email: "doyun@example.com" },
+  { id: 6, name: "수아", email: "sua@example.com" },
+  { id: 7, name: "예린", email: "yerin@example.com" },
+];
+
 const msg = (id: number, channel_id: number, user_id: number, text: string, created_at: string, profanity_spans: number[][] | null = null): Message => ({
   id, channel_id, user_id, text, created_at,
-  user_name: dummyMembers.find((m) => m.user_id === user_id)!.name,
+  user_name: dummyPeople.find((p) => p.id === user_id)!.name,
   is_profane: profanity_spans !== null,
   profanity_spans: profanity_spans ?? [],
 });
@@ -93,3 +104,102 @@ export function demoModerate(text: string): Pick<Message, "is_profane" | "profan
   }
   return { is_profane: spans.length > 0, profanity_spans: spans };
 }
+
+/* ───────────── 여러 프로젝트(워크스페이스) ─────────────
+ * 데모 주소: /w/demo (= 1번), /w/demo-2, /w/demo-3
+ */
+
+export type DemoProject = {
+  workspace: Workspace;
+  members: Member[];
+  channels: Channel[];
+  messages: Message[];
+  suggestions: Suggestion[];
+  events: Event[];
+  todos: Todo[];
+};
+
+export const demoProjects: DemoProject[] = [
+  {
+    workspace: dummyWorkspace, members: dummyMembers, channels: dummyChannels,
+    messages: dummyMessages, suggestions: dummySuggestions, events: dummyEvents, todos: dummyTodos,
+  },
+  {
+    workspace: { id: 2, name: "캡스톤 디자인", invite_code: "demo-2", ai_schedule_on: true, filter_mode: "warn", filter_level: 2 },
+    members: [
+      { user_id: 5, name: "도윤", role: "owner" },
+      { user_id: 1, name: "민준", role: "member" },
+      { user_id: 6, name: "수아", role: "member" },
+      { user_id: 2, name: "서연", role: "member" },
+    ],
+    channels: [
+      { id: 21, workspace_id: 2, name: "일반" },
+      { id: 22, workspace_id: 2, name: "디자인-시안" },
+    ],
+    messages: [
+      msg(201, 21, 5, "와이어프레임 1차 올렸어요! 피드백 부탁해요", "2026-11-16T14:00:00+09:00"),
+      msg(202, 21, 6, "확인했어요 👀 버튼 색만 조금 더 밝게 하면 좋을 듯", "2026-11-16T14:05:00+09:00"),
+      msg(203, 21, 1, "금요일 오후 4시에 멘토링 있는 거 맞죠?", "2026-11-16T14:10:00+09:00"),
+      msg(204, 21, 5, "네 맞아요, 공학관 302호!", "2026-11-16T14:11:00+09:00"),
+      msg(205, 22, 2, "로고 시안 3개 만들어 봤어요", "2026-11-15T20:00:00+09:00"),
+    ],
+    suggestions: [],
+    events: [
+      { id: 21, workspace_id: 2, title: "멘토링", date: "2026-11-20", start: "16:00:00", location: "공학관 302호", attendees: ["도윤", "민준", "수아", "서연"], absent: [], status: "confirmed", source: "ai" },
+      { id: 22, workspace_id: 2, title: "중간 데모 제출", date: "2026-11-27", start: "23:59:00", attendees: [], absent: [], status: "confirmed", source: "manual" },
+    ],
+    todos: [
+      { id: 21, workspace_id: 2, title: "와이어프레임 피드백 반영", assignee_id: 1, due_date: "2026-11-19", done: false },
+      { id: 22, workspace_id: 2, title: "사용자 인터뷰 질문지", assignee_id: 6, due_date: "2026-11-21", done: false },
+    ],
+  },
+  {
+    workspace: { id: 3, name: "영어 스터디", invite_code: "demo-3", ai_schedule_on: false, filter_mode: "mask", filter_level: 1 },
+    members: [
+      { user_id: 7, name: "예린", role: "owner" },
+      { user_id: 1, name: "민준", role: "member" },
+      { user_id: 4, name: "하은", role: "member" },
+    ],
+    channels: [{ id: 31, workspace_id: 3, name: "일반" }],
+    messages: [
+      msg(301, 31, 7, "이번 주 단어 시험 범위는 Day 11~15예요", "2026-11-17T08:00:00+09:00"),
+      msg(302, 31, 4, "넵! 토요일 10시 스카에서 봐요 📚", "2026-11-17T08:05:00+09:00"),
+    ],
+    suggestions: [],
+    events: [
+      { id: 31, workspace_id: 3, title: "단어 시험", date: "2026-11-21", start: "10:00:00", location: "스터디카페", attendees: ["예린", "민준", "하은"], absent: [], status: "confirmed", source: "manual" },
+    ],
+    todos: [{ id: 31, workspace_id: 3, title: "Day 11~15 외우기", assignee_id: 1, due_date: "2026-11-21", done: false }],
+  },
+];
+
+/** 주소의 워크스페이스 부분이 데모인지: "demo" → 1, "demo-2" → 2, 아니면 null */
+export function demoWorkspaceId(param: string): number | null {
+  if (param === DEMO_ID) return 1;
+  const m = /^demo-(\d+)$/.exec(param);
+  return m ? Number(m[1]) : null;
+}
+
+export function demoPath(workspaceId: number) {
+  return workspaceId === 1 ? `/w/${DEMO_ID}` : `/w/demo-${workspaceId}`;
+}
+
+/* ───────────── 1:1 대화 (DM) ─────────────
+ * 데모 주소: /dm/demo (목록), /dm/demo-2 (서연과의 대화)
+ * DM 메시지의 channel_id는 상대 id에 마이너스를 붙인 값으로 구분해요 (데모 전용 규칙).
+ */
+
+export const dummyDMs: Record<number, Message[]> = {
+  2: [
+    msg(901, -2, 2, "민준아 발표 자료 템플릿 어디 있어?", "2026-11-17T10:00:00+09:00"),
+    msg(902, -2, 1, "드라이브 '팀플' 폴더에 있어! 링크 보내줄게", "2026-11-17T10:02:00+09:00"),
+    msg(903, -2, 2, "고마워 🙏 오늘 밤까지 1~3장 채워둘게", "2026-11-17T10:03:00+09:00"),
+  ],
+  5: [
+    msg(911, -5, 5, "멘토링 전에 10분 일찍 만나서 맞춰볼래요?", "2026-11-16T22:00:00+09:00"),
+    msg(912, -5, 1, "좋아요! 3시 50분에 302호 앞에서 봐요", "2026-11-16T22:01:00+09:00"),
+  ],
+  3: [
+    msg(921, -3, 3, "아 ㅅㅂ 과제 제출 링크 안 열려", "2026-11-17T11:00:00+09:00", [[2, 4]]),
+  ],
+};
