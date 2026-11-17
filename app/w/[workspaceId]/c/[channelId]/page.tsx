@@ -208,7 +208,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
       </main>
 
       {panel && (
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-l bg-sidebar px-2 py-3 xl:block">
+        <aside className="hidden w-66 shrink-0 overflow-y-auto border-l bg-sidebar px-2 py-3 xl:block">
           {panel === "schedule" ? <UpcomingPanel /> : <MembersPanel />}
         </aside>
       )}

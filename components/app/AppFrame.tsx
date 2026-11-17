@@ -38,7 +38,7 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
         )}
       >
         <ProjectRail demo={demo} active={active} />
-        <aside className="relative flex w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+        <aside className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
           <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-sidebar-accent md:hidden" onClick={() => setOpen(false)}>
             <X className="size-5" />
           </button>

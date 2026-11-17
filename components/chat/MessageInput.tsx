@@ -34,14 +34,14 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
 
   return (
     <form
-      className="shrink-0 px-4 pb-3"
+      className="shrink-0 px-2 pb-2"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
-      <div className={`flex min-h-13 items-end gap-2 rounded-lg bg-muted p-2 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
+      <div className={`flex min-h-14 items-end gap-2 rounded-lg bg-muted p-2.5 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
         {leading}
         <textarea
           disabled={disabled}

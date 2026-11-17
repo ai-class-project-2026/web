@@ -141,7 +141,7 @@ export function SectionLabel({ children, action }: { children: React.ReactNode; 
 /** 사이드바 한 줄의 모양 (높이 40px, 아이콘 20px). 링크·버튼 모두 같은 모양이 나오게 따로 빼 뒀어요 */
 export function navItemClass(active: boolean) {
   return cn(
-    "flex h-10 w-full shrink-0 items-center gap-2.5 rounded-md px-2.5 text-sm transition",
+    "flex h-9 w-full shrink-0 items-center gap-2 rounded-md px-2 text-base transition",
     active ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/60",
   );
 }
