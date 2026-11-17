@@ -194,3 +194,26 @@
 .calendar-wrap .fc-event {
   cursor: pointer;
 }
+/* 칸 구분: 선을 진하게, 요일 줄은 회색 띠, 주말은 옅은 회색, 다른 달은 더 흐리게, 오늘은 남색 빛 */
+.calendar-wrap {
+  --fc-breezy-border: var(--input);
+  --fc-breezy-muted-border: var(--border);
+  --fc-breezy-strong-border: var(--input);
+}
+.calendar-wrap .cal-head {
+  background: var(--muted);
+  font-weight: 600;
+}
+.calendar-wrap .cal-sat,
+.calendar-wrap .cal-sun {
+  background: color-mix(in oklch, var(--muted) 70%, var(--card));
+}
+.calendar-wrap .cal-head.cal-sun { color: var(--destructive); }
+.calendar-wrap .cal-head.cal-sat { color: var(--primary); }
+.calendar-wrap .cal-other {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.calendar-wrap .cal-today {
+  background: color-mix(in oklch, var(--primary) 9%, var(--card));
+}

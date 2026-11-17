@@ -15,6 +15,7 @@ import "@fullcalendar/react/themes/breezy/theme.css";
 import "@fullcalendar/react/themes/breezy/palettes/indigo.css";
 import { CalendarDays, Plus } from "lucide-react";
 import { useState } from "react";
+import { cn } from "cn";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { Button } from "@/components/ui/button";
@@ -66,8 +67,8 @@ export default function CalendarPage() {
         </Button>
       </TopBar>
 
-    <main className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
-      <div className="calendar-wrap min-h-[32rem] flex-1">
+    <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-muted/60 p-4">
+      <div className="calendar-wrap min-h-[32rem] flex-1 rounded-lg border bg-card p-3 shadow-xs">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, breezyTheme]}
           locale={koLocale}
@@ -76,6 +77,9 @@ export default function CalendarPage() {
           height="100%"
           dayMaxEvents={3}
           eventDisplay="block"
+          // 날짜 칸 구분: 주말·다른 달·오늘에 각각 다른 배경 (모양은 globals.css의 .cal-*)
+          dayCellClass={(d) => cn(d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat", d.isOther && "cal-other", d.isToday && "cal-today")}
+          dayHeaderClass={(d) => cn("cal-head", d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat")}
           editable
           events={events}
           dateClick={(info) => {
