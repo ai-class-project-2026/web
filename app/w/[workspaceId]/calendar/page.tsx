@@ -47,7 +47,7 @@ export default function CalendarPage() {
     });
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
+    <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:px-5">
       <BackToChat />
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl">📅 캘린더</h1>

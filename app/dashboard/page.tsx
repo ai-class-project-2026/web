@@ -81,7 +81,7 @@ export default function DashboardPage() {
   const rows = cur?.rows.filter((r) => r.testset === testset) ?? [];
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 p-4 md:p-8">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4 md:px-5">
       <header className="flex flex-wrap items-center gap-3">
         <Link href="/" className="rounded-xl p-1.5 text-muted-foreground hover:bg-muted" aria-label="처음으로">
           <ArrowLeft className="size-5" />

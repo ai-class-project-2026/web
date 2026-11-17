@@ -4,6 +4,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 글자 크기만 한 단계씩 키워요 (여백·버튼 크기는 그대로라 화면이 헐렁해지지 않아요)
+   text-xs 12→13px, text-sm 14→15px, text-base 16→17px */
+@theme {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.4;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.55;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -146,9 +157,6 @@
   }
   html {
     @apply font-sans;
-    /* 전체 크기를 12.5% 키워요 (기본 16px → 18px).
-       글자·여백·버튼이 rem 단위라 한 줄로 모두 같이 커져요. 더 키우거나 줄이려면 이 숫자만 바꾸세요 */
-    font-size: 112.5%;
   }
   h1, h2, h3 {
     font-family: var(--font-heading);

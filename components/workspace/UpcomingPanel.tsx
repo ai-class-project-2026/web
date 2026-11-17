@@ -19,7 +19,7 @@ export function UpcomingPanel() {
   const todos = (mine.length ? mine : ws.todos.filter((t) => !t.done)).slice(0, 5);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <section>
         <Heading href={`${ws.base}/calendar`}>📅 다가오는 일정</Heading>
         {events.length === 0 ? (

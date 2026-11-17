@@ -54,7 +54,7 @@ export default function TodosPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 overflow-y-auto p-4 md:p-6">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 overflow-y-auto p-4 md:px-5">
       <BackToChat />
       <header>
         <h1 className="text-2xl">✅ 할 일</h1>
