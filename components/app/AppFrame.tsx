@@ -29,7 +29,7 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
   }
 
   return (
-    <div className="flex h-dvh min-h-0 flex-1">
+    <div className="flex h-dvh overflow-hidden">
       {open && <div className="fixed inset-0 z-30 bg-foreground/20 md:hidden" onClick={() => setOpen(false)} />}
       <div
         className={cn(
