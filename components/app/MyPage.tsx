@@ -39,11 +39,22 @@ export function MyPage({ demo }: { demo: boolean }) {
 }
 
 function LiveMyPage() {
-  const me = useMe();
+  const { user: me, error, retry } = useMe();
   const router = useRouter();
   useEffect(() => {
-    if (me === null) router.replace("/login");
+    if (me === null) router.replace("/login?next=/me");
   }, [me, router]);
+  // 서버에 연결하지 못하면 무한 로딩 대신 안내와 다시 시도 버튼을 보여줘요
+  if (error) {
+    return (
+      <Splash tone="error">
+        <p>내 정보를 불러오지 못했어요. 서버가 켜져 있는지 확인해 주세요</p>
+        <div className="mt-4 flex justify-center">
+          <Button variant="outline" onClick={retry}>다시 시도</Button>
+        </div>
+      </Splash>
+    );
+  }
   if (!me) return <Splash>내 정보를 불러오는 중…</Splash>;
   return <MyPageView demo={false} me={me} />;
 }

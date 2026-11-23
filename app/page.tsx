@@ -48,7 +48,8 @@ export default function Home() {
     (async () => {
       try {
         const me = await api.GET("/auth/me");
-        if (!me.data) return router.replace("/login");
+        if (me.response.status === 401) return router.replace("/login");
+        if (!me.data) return setOffline(true); // 5xx: 로그인은 그대로 두고 소개 화면을 보여줘요
         const { data } = await api.GET("/workspaces");
         router.replace(data?.length ? `/w/${data[0].id}` : "/onboarding");
       } catch {

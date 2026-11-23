@@ -5,13 +5,14 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Segmented } from "@/components/ui/segmented";
 import { BrandCard } from "@/components/ui/brand-card";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
 import { errorText } from "@/components/ui/format";
 import { login, signup } from "@/lib/auth";
+import { safeNext } from "@/lib/safe-next";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,21 +25,25 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const isSignup = mode === "signup";
 
+  const submitting = useRef(false); // 로그인·가입 버튼 연타 방지
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     setBusy(true);
     setError("");
     try {
       const { ok, error } = isSignup ? await signup(name.trim(), email.trim(), password) : await login(email.trim(), password);
       if (ok) {
-        // 다른 사이트로 튀지 않게 "/"로 시작하는 주소만 허용
-        router.replace(next?.startsWith("/") && !next.startsWith("//") ? next : "/");
+        // 다른 사이트로 튀지 않게, 브라우저처럼 주소를 해석해서 우리 사이트일 때만 가요
+        router.replace(safeNext(next, location.origin));
         return;
       }
       setError(isSignup ? errorText(error, "가입하지 못했어요. 이미 쓰는 이메일인지 확인해 주세요") : "이메일이나 비밀번호가 맞지 않아요");
     } catch {
       setError("서버에 연결할 수 없어요. 서버가 켜져 있는지 확인해 주세요");
     }
+    submitting.current = false;
     setBusy(false);
   };
 

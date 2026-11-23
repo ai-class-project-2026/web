@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "cn";
 import type { Message, Workspace } from "@/lib/api";
 import { IconHidden, IconNotify, IconWarning } from "@/components/ui/icons";
-import { splitSpans } from "@/lib/mask";
+import { splitSpans, spansAreValid } from "@/lib/mask";
 
 export type ReportType = "false_positive" | "missed";
 /** 신고 보내기. 실패하면 에러 문구, 성공하면 null */
@@ -14,7 +14,7 @@ export type ReportFn = (messageId: number, type: ReportType) => Promise<string |
 //  - mask:         욕 부분만 검은 줄(.redact)로 가리고 [보기]를 누르면 원문
 //  - warn:         원문은 보여주고 경고만 표시
 //  - notify_admin: mask처럼 가리고, 방장(owner) 화면에는 "관리자 알림" 표시
-// is_profane인데 profanity_spans가 비어 있으면(AI 모델이 잡은 경우) 메시지 전체를 가려요.
+// is_profane인데 profanity_spans가 비어 있거나, 하나라도 이상하면(범위 밖, 거꾸로, 빈 구간, null) 메시지 전체를 가려요.
 
 export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = false, onReport }: {
   message: Message;
@@ -26,17 +26,24 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = 
 }) {
   const [shown, setShown] = useState(false);
   const [reported, setReported] = useState(false);
+  const sending = useRef(false); // 연타해도 신고가 한 번만 가게 (state는 다음 화면 갱신에야 바뀌어서 ref로 막아요)
 
   if (!message.is_profane) return <span className="whitespace-pre-wrap break-words">{message.text}</span>;
 
   const warnOnly = mode === "warn";
-  const whole = message.profanity_spans.length === 0;
+  const whole = !spansAreValid(message.text, message.profanity_spans);
   const reveal = warnOnly || shown;
 
   const report = async () => {
-    const err = await onReport?.(message.id, "false_positive");
-    if (err) alert(err);
-    else setReported(true);
+    if (sending.current) return;
+    sending.current = true;
+    try {
+      const err = await onReport?.(message.id, "false_positive");
+      if (err) alert(err);
+      else setReported(true);
+    } finally {
+      sending.current = false;
+    }
   };
 
   return (

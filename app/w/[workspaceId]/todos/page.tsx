@@ -3,7 +3,7 @@
 // 할 일 화면: 추가(제목·담당자·마감일), 완료 체크, 담당자 바꾸기, 삭제.
 // 담당자는 멤버 목록에서 골라요.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "cn";
 import { Segmented } from "@/components/ui/segmented";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
@@ -40,14 +40,21 @@ export default function TodosPage() {
   const sorted = [...filtered].sort((a, b) => (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999") || a.id - b.id);
   const doneCount = ws.todos.filter((t) => t.done).length;
 
+  // 더블클릭하면 state가 바뀌기 전에 두 번째 클릭이 들어와요. 바로 바뀌는 ref로 한 번만 보내요.
+  const adding = useRef(false);
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
-    const err = await ws.createTodo({ title: title.trim(), assignee_id: assignee ? Number(assignee) : null, due_date: due || null });
-    if (err) return setError(err);
-    setTitle("");
-    setDue("");
-    setError("");
+    if (!title.trim() || adding.current) return;
+    adding.current = true;
+    try {
+      const err = await ws.createTodo({ title: title.trim(), assignee_id: assignee ? Number(assignee) : null, due_date: due || null });
+      if (err) return setError(err);
+      setTitle("");
+      setDue("");
+      setError("");
+    } finally {
+      adding.current = false;
+    }
   };
 
   const run = async (p: Promise<string | null>) => {

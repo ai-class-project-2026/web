@@ -51,10 +51,42 @@ v2 증강+화이트리스트,test_D_fp,100,0.0,0.02,40`,
 };
 type SourceKey = keyof typeof SOURCES;
 
+/** CSV 칸의 숫자. 비어 있거나 숫자가 아니면 null(= 측정 안 함). Number("")은 0이라서 따로 걸러요 */
+function num(v: string | undefined, unit: Metric["unit"] = "%"): number | null {
+  if (v === undefined || v.trim() === "") return null;
+  const n = Number(v);
+  // Infinity나 음수(-500%)처럼 점수가 될 수 없는 값은 "측정 안 함"으로 봐요. 비율(%)은 0~1 사이만 인정해요.
+  if (!Number.isFinite(n) || n < 0) return null;
+  if (unit === "%" && n > 1) return null;
+  return n;
+}
+
+/** 따옴표("…")로 감싼 칸 안의 쉼표·줄바꿈·""(따옴표 한 개)를 지켜서 CSV를 읽어요. 빈 줄은 건너뛰어요 */
 function parseCsv(text: string): Row[] {
-  const [head, ...lines] = text.trim().split(/\r?\n/);
-  const cols = head.split(",");
-  return lines.filter(Boolean).map((l) => Object.fromEntries(l.split(",").map((v, i) => [cols[i], v.trim()])));
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+  const src = text.replace(/^﻿/, "");
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (quoted) {
+      if (c === '"' && src[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && src[i + 1] === "\n") i++;
+      row.push(cell); cell = "";
+      rows.push(row); row = [];
+    } else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  const [head, ...lines] = rows.filter((r) => r.some((v) => v.trim() !== ""));
+  if (!head) return [];
+  const cols = head.map((h) => h.trim());
+  return lines.map((l) => Object.fromEntries(cols.map((c, i) => [c, (l[i] ?? "").trim()])));
 }
 
 export default function DashboardPage() {
@@ -121,9 +153,13 @@ export default function DashboardPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             {src.metrics
-              .filter((m) => rows.some((r) => Number(r[m.key]) > 0 || m.lowerBetter))
+              .filter((m) => rows.some((r) => { const v = num(r[m.key], m.unit); return v !== null && (v > 0 || m.lowerBetter); }))
               .map((m) => (
-                <BarChart key={m.key} metric={m} rows={rows.map((r) => ({ label: r.label, value: Number(r[m.key]) }))} />
+                <BarChart
+                  key={m.key}
+                  metric={m}
+                  rows={rows.flatMap((r) => { const v = num(r[m.key], m.unit); return v === null ? [] : [{ label: r.label || "(이름 없음)", value: v }]; })}
+                />
               ))}
           </div>
 
@@ -141,9 +177,9 @@ export default function DashboardPage() {
                 <tbody>
                   {rows.map((r, i) => (
                     <tr key={i} className="border-t">
-                      <td className="py-1.5 pr-4 font-sans">{r.label}</td>
+                      <td className="py-1.5 pr-4 font-sans">{r.label || "(이름 없음)"}</td>
                       <td className="py-1.5 pr-4 tabular-nums">{r.n}</td>
-                      {src.metrics.map((m) => <td key={m.key} className="py-1.5 pr-4 tabular-nums">{fmt(Number(r[m.key]), m.unit)}</td>)}
+                      {src.metrics.map((m) => <td key={m.key} className="py-1.5 pr-4 tabular-nums">{fmt(num(r[m.key], m.unit), m.unit)}</td>)}
                     </tr>
                   ))}
                 </tbody>
@@ -156,8 +192,8 @@ export default function DashboardPage() {
   );
 }
 
-function fmt(v: number, unit: Metric["unit"]) {
-  if (Number.isNaN(v)) return "-";
+function fmt(v: number | null, unit: Metric["unit"]) {
+  if (v === null || Number.isNaN(v)) return "-";
   return unit === "%" ? `${(v * 100).toFixed(1)}%` : `${Math.round(v)}ms`;
 }
 

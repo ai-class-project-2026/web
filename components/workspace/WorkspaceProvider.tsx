@@ -5,7 +5,7 @@
 // 화면에서는 const ws = useWorkspace(); 로 꺼내 쓰면 되고, 데모인지 아닌지 신경 쓰지 않아도 돼요.
 
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
@@ -94,6 +94,18 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
   const [events, setEvents] = useState<Event[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const path = { params: { path: { workspace_id: id } } };
+  // 할 일마다 "가장 최근에 보낸 요청 번호". 늦게 온 옛 답이 화면을 덮어쓰지 못하게 해요
+  const todoSeq = useRef(new Map<number, number>());
+  const todoPending = useRef(new Map<number, Set<Promise<unknown>>>()); // 할 일마다 아직 답이 안 온 요청들
+  const todosRef = useRef<Todo[]>([]);
+  useEffect(() => {
+    todosRef.current = todos;
+  });
+
+  const reloadTodos = useCallback(() => {
+    return safe(api.GET("/workspaces/{workspace_id}/todos", { params: { path: { workspace_id: id } } }))
+      .then(({ data }) => !!data && (setTodos(data), true));
+  }, [id]);
 
   const reloadEvents = useCallback(() => {
     safe(api.GET("/workspaces/{workspace_id}/events", { params: { path: { workspace_id: id } } }))
@@ -106,12 +118,14 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
       const meRes = await safe(api.GET("/auth/me"));
       if (!alive) return;
       if (!meRes.data) {
-        if (meRes.error === OFFLINE) {
-          setErrorMessage(OFFLINE.detail);
-          setStatus("error");
-        } else {
+        if (meRes.response?.status === 401) {
+          // 로그인이 풀렸을 때만 로그아웃해요
           logout();
           router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+        } else {
+          // 서버가 꺼졌거나 5xx면 로그인은 그대로 두고 다시 시도하게 해요
+          setErrorMessage(meRes.error === OFFLINE ? OFFLINE.detail : "서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요");
+          setStatus("error");
         }
         return;
       }
@@ -130,11 +144,21 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
         setStatus("error");
         return;
       }
+      // 일부만 실패했는데 빈 목록으로 보여 주면 방장이 팀원처럼 보이는 등 잘못된 화면이 돼요.
+      // 실패한 목록을 알려 주고 "다시 시도"를 누르게 해요.
+      const failed = [["멤버", mem], ["채널", ch], ["일정", ev], ["할 일", td]]
+        .filter(([, r]) => !(r as { data?: unknown }).data)
+        .map(([name]) => name as string);
+      if (failed.length) {
+        setErrorMessage(`${failed.join(", ")} 목록을 불러오지 못했어요. 다시 시도해 주세요`);
+        setStatus("error");
+        return;
+      }
       setWorkspace(ws.data);
-      setMembers(mem.data ?? []);
-      setChannels(ch.data ?? []);
-      setEvents(ev.data ?? []);
-      setTodos(td.data ?? []);
+      setMembers(mem.data!);
+      setChannels(ch.data!);
+      setEvents(ev.data!);
+      setTodos(td.data!);
       setStatus("ready");
     })();
     return () => {
@@ -170,14 +194,21 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
       return null;
     },
     async updateEvent(eventId, patch) {
-      const { data, error } = await safe(api.PATCH("/events/{event_id}", { params: { path: { event_id: eventId } }, body: patch }));
-      if (!data) return errorText(error);
+      const { data, error, response } = await safe(api.PATCH("/events/{event_id}", { params: { path: { event_id: eventId } }, body: patch }));
+      if (!data) {
+        // 다른 곳에서 이미 지워진 일정이면 목록에서도 치워요
+        if (response?.status === 404 || response?.status === 410) setEvents((es) => es.filter((e) => e.id !== eventId));
+        return errorText(error);
+      }
       setEvents((es) => es.map((e) => (e.id === eventId ? data : e)));
       return null;
     },
     async deleteEvent(eventId) {
       const { error, response } = await safe(api.DELETE("/events/{event_id}", { params: { path: { event_id: eventId } } }));
-      if (!response?.ok) return errorText(error);
+      if (!response?.ok) {
+        if (response?.status === 404 || response?.status === 410) setEvents((es) => es.filter((e) => e.id !== eventId));
+        return errorText(error);
+      }
       setEvents((es) => es.filter((e) => e.id !== eventId));
       return null;
     },
@@ -188,20 +219,40 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
       return null;
     },
     async updateTodo(todoId, patch) {
-      // 체크박스는 바로 반영하고(빠르게 느껴지게), 실패하면 되돌려요
-      const before = todos;
+      // 체크박스는 바로 반영하고(빠르게 느껴지게), 마지막 요청의 답으로 맞춰요.
+      // 연타하면 요청이 여러 개 나가는데, 마지막이 아닌 요청의 답은 무시해야 화면이 서버와 달라지지 않아요.
+      const old = todosRef.current.find((t) => t.id === todoId);
+      const seq = (todoSeq.current.get(todoId) ?? 0) + 1;
+      todoSeq.current.set(todoId, seq);
       setTodos((ts) => ts.map((t) => (t.id === todoId ? { ...t, ...patch } as Todo : t)));
-      const { data, error } = await safe(api.PATCH("/todos/{todo_id}", { params: { path: { todo_id: todoId } }, body: patch }));
+      const req = safe(api.PATCH("/todos/{todo_id}", { params: { path: { todo_id: todoId } }, body: patch }));
+      const mine = new Set(todoPending.current.get(todoId));
+      todoPending.current.set(todoId, new Set([...(todoPending.current.get(todoId) ?? []), req]));
+      const { data, error, response } = await req;
+      todoPending.current.get(todoId)?.delete(req);
+      if (todoSeq.current.get(todoId) !== seq) return null; // 더 새로운 요청이 있어요: 그쪽 답을 기다려요
       if (!data) {
-        setTodos(before);
+        // 다른 곳에서 지워진 할 일이면 목록에서도 치워요
+        if (response?.status === 404) setTodos((ts) => ts.filter((t) => t.id !== todoId));
+        // 앞선 요청이 서버에 반영됐는지 알 수 없으니, 되돌리지 말고 서버 목록으로 맞춰요.
+        // 단, 아직 날아가는 앞선 요청이 끝난 뒤에 받아야 그 결과까지 담겨요.
+        // (서버 목록도 못 받으면 이 변경만 원래 값으로 되돌려요)
+        else if (!(await Promise.allSettled([...mine]).then(reloadTodos)) && old && todoSeq.current.get(todoId) === seq) {
+          const undo = Object.fromEntries(Object.keys(patch).map((k) => [k, old[k as keyof Todo]]));
+          setTodos((ts) => ts.map((t) => (t.id === todoId ? { ...t, ...undo } : t)));
+        }
         return errorText(error);
       }
       setTodos((ts) => ts.map((t) => (t.id === todoId ? data : t)));
       return null;
     },
     async deleteTodo(todoId) {
+      todoSeq.current.set(todoId, (todoSeq.current.get(todoId) ?? 0) + 1); // 날아가는 수정 답이 지운 할 일을 되살리지 못하게
       const { error, response } = await safe(api.DELETE("/todos/{todo_id}", { params: { path: { todo_id: todoId } } }));
-      if (!response?.ok) return errorText(error);
+      if (!response?.ok) {
+        if (response?.status === 404) setTodos((ts) => ts.filter((t) => t.id !== todoId));
+        return errorText(error);
+      }
       setTodos((ts) => ts.filter((t) => t.id !== todoId));
       return null;
     },
@@ -268,7 +319,7 @@ function DemoProvider({ id, base, children }: { id: number; base: string; childr
       return null;
     },
     async updateEvent(id, patch) {
-      setEvents((es) => es.map((e) => (e.id === id ? ({ ...e, ...dropNulls(patch) } as Event) : e)));
+      setEvents((es) => es.map((e) => (e.id === id ? ({ ...e, ...dropUndefined(patch) } as Event) : e)));
       return null;
     },
     async deleteEvent(id) {
@@ -288,7 +339,7 @@ function DemoProvider({ id, base, children }: { id: number; base: string; childr
       return null;
     },
     async updateWorkspace(patch) {
-      setWorkspace((w) => ({ ...w, ...dropNulls(patch) }) as Workspace);
+      setWorkspace((w) => ({ ...w, ...dropUndefined(patch) }) as Workspace);
       return null;
     },
     logout() {
@@ -300,7 +351,7 @@ function DemoProvider({ id, base, children }: { id: number; base: string; childr
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
-/** PATCH 규칙처럼 null/undefined인 칸은 "안 바꿈"으로 처리 */
-function dropNulls<T extends object>(o: T) {
-  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined)) as Partial<T>;
+/** 서버 PATCH처럼: 안 보낸 칸(undefined)만 "안 바꿈", 명시한 null은 값을 비우는 뜻이라 그대로 둬요 */
+function dropUndefined<T extends object>(o: T) {
+  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
 }

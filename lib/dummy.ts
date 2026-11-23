@@ -100,7 +100,9 @@ export function demoModerate(text: string): Pick<Message, "is_profane" | "profan
   for (const m of text.matchAll(DEMO_BAD)) {
     const s = m.index;
     if (DEMO_OK.some((w) => text.startsWith(w, s))) continue;
-    spans.push([s, s + m[0].length]);
+    // 서버처럼 글자(코드포인트) 번호로 맞춰요: 이모지는 1글자
+    const from = Array.from(text.slice(0, s)).length;
+    spans.push([from, from + Array.from(m[0]).length]);
   }
   return { is_profane: spans.length > 0, profanity_spans: spans };
 }

@@ -115,7 +115,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Preview Invite
+         * @description 초대 페이지용: 가입하지 않고 워크스페이스 이름과 AI 사용 여부만 보여 준다.
+         */
+        get: operations["preview_invite_invites__code__get"];
         put?: never;
         /** Join By Invite */
         post: operations["join_by_invite_invites__code__post"];
@@ -405,8 +409,15 @@ export interface components {
             /** Note */
             note?: string | null;
         };
-        /** EventOut */
+        /**
+         * EventOut
+         * @description 제한(max_length)을 일부러 걸지 않았다: 예전에 저장된 큰 값 때문에 목록 전체가 500이 나면 안 된다.
+         */
         EventOut: {
+            /** Id */
+            id: number;
+            /** Workspace Id */
+            workspace_id: number;
             /** Title */
             title: string;
             /**
@@ -420,23 +431,13 @@ export interface components {
             time_text?: string | null;
             /** Location */
             location?: string | null;
-            /**
-             * Attendees
-             * @default []
-             */
+            status: components["schemas"]["EventStatus"];
+            /** Attendees */
             attendees: string[];
-            /**
-             * Absent
-             * @default []
-             */
+            /** Absent */
             absent: string[];
             /** Note */
             note?: string | null;
-            /** Id */
-            id: number;
-            /** Workspace Id */
-            workspace_id: number;
-            status: components["schemas"]["EventStatus"];
             source: components["schemas"]["EventSource"];
         };
         /**
@@ -479,6 +480,16 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * InvitePreview
+         * @description 초대 링크 페이지용 미리보기. 가입은 하지 않는다.
+         */
+        InvitePreview: {
+            /** Name */
+            name: string;
+            /** Ai Schedule On */
+            ai_schedule_on: boolean;
+        };
         /** LoginIn */
         LoginIn: {
             /**
@@ -501,6 +512,8 @@ export interface components {
         MessageIn: {
             /** Text */
             text: string;
+            /** Client Id */
+            client_id?: string | null;
         };
         /** MessageOut */
         MessageOut: {
@@ -523,6 +536,8 @@ export interface components {
             is_profane: boolean;
             /** Profanity Spans */
             profanity_spans: number[][];
+            /** Client Id */
+            client_id?: string | null;
         };
         /** ModerateRequest */
         ModerateRequest: {
@@ -1015,6 +1030,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_invite_invites__code__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitePreview"];
                 };
             };
             /** @description Validation Error */

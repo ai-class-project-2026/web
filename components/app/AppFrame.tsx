@@ -38,7 +38,8 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
         )}
       >
         <ProjectRail demo={demo} active={active} />
-        <aside className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+        {/* 서랍 안의 링크를 누르면 닫아요. #해시 링크(/me 목차)는 주소(pathname)가 안 바뀌어서 따로 처리해요 */}
+        <aside onClick={(e) => (e.target as HTMLElement).closest("a") && setOpen(false)} className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
           <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-foreground/5 md:hidden" onClick={() => setOpen(false)}>
             <IconClose className="size-5" />
           </button>

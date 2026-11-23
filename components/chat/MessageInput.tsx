@@ -1,34 +1,81 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { errorText } from "@/components/ui/format";
 import { IconSend } from "@/components/ui/icons";
+import { newClientId } from "@/lib/ws";
 
 // Enter로 전송, Shift+Enter로 줄바꿈. 한글 조합 중(isComposing)에는 Enter를 무시해야
 // 마지막 글자가 두 번 보내지는 문제가 안 생겨요.
 
 // leading: 입력창 왼쪽에 붙는 빠른 버튼 자리 (예: 일정 추가). 손이 이미 입력창 근처에 있으니 멀리 안 가도 돼요.
 
-export function MessageInput({ onSend, placeholder = "메시지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)", leading, disabled }: {
-  /** 결과에 ok: false가 오면 입력했던 글을 되살려요 */
-  onSend: (text: string) => unknown;
+// 채널(draftKey)마다 쓰던 글을 기억해 둬요. 채널을 옮겨도, 전송이 실패한 뒤에 옮겨도 글이 사라지지 않아요.
+const drafts = new Map<string, string>();
+// 실패한 글을 다시 보낼 때 같은 번호(client_id)를 써서 서버에 두 번 저장되지 않게 해요
+const attempts = new Map<string, { text: string; id: string }>();
+
+export function MessageInput({ onSend, placeholder = "메시지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)", leading, disabled, draftKey = "" }: {
+  /** 결과에 ok: false가 오면 입력했던 글을 되살려요. clientId는 다시 보내도 같은 글이면 같은 값이에요 */
+  onSend: (text: string, clientId: string) => unknown;
   placeholder?: string;
   leading?: React.ReactNode;
   disabled?: boolean;
+  /** 채널 번호처럼 "어디에 쓰는 글인지" 구분하는 값 */
+  draftKey?: string | number;
 }) {
-  const [text, setText] = useState("");
+  const key = String(draftKey);
+  const [text, setText] = useState(() => drafts.get(key) ?? "");
   const [error, setError] = useState("");
   const ref = useRef<HTMLTextAreaElement>(null);
+  const keyRef = useRef(key);
+  useEffect(() => {
+    keyRef.current = key;
+    return () => {
+      keyRef.current = "gone-left"; // 화면을 떠난 뒤에는 입력창을 건드리지 않아요
+    };
+  }, [key]);
+  const change = (v: string) => {
+    setText(v);
+    if (v) drafts.set(key, v);
+    else drafts.delete(key);
+  };
+
+  // 글이 바뀌면(되살린 글 포함) 입력창 높이도 맞춰요
+  useLayoutEffect(() => resize(ref.current), [text]);
 
   const submit = async () => {
     const t = text.trim();
     if (!t || disabled) return;
+    const sentKey = key;
+    // 같은 글을 다시 보내는 거면 처음 번호를 그대로 써요
+    const prev = attempts.get(sentKey);
+    const attempt = prev && prev.text === t ? prev : { text: t, id: newClientId() };
+    attempts.set(sentKey, attempt);
     setText("");
+    drafts.delete(sentKey);
     setError("");
     resize(ref.current, true);
-    const res = (await onSend(t)) as { ok?: boolean } | undefined;
-    if (res && res.ok === false) {
-      setText(t);
-      setError("전송하지 못했어요. 다시 시도해 주세요");
+    // 실패(결과 ok:false, 또는 예외)하면 쓰던 글을 되살리고 이유를 보여줘요
+    let failed: string | null = null;
+    try {
+      const res = (await onSend(t, attempt.id)) as { ok?: boolean; error?: unknown } | undefined;
+      if (res && res.ok === false) failed = errorText(res.error, "전송하지 못했어요. 다시 시도해 주세요");
+    } catch {
+      failed = "전송하지 못했어요. 서버 연결을 확인해 주세요";
+    }
+    if (!failed) {
+      attempts.delete(sentKey);
+      return;
+    }
+    // 그 사이에 새로 쓴 글이 있으면 지우지 않고, 실패한 글을 앞에 붙여요.
+    // 채널을 옮긴 뒤라도 그 채널의 임시 저장에 남겨서, 돌아오면 그대로 있어요.
+    const cur = drafts.get(sentKey) ?? "";
+    const merged = cur ? t + "\n" + cur : t;
+    drafts.set(sentKey, merged);
+    if (keyRef.current === sentKey) {
+      setText(merged);
+      setError(failed);
     }
   };
 
@@ -49,7 +96,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
           rows={1}
           value={text}
           onChange={(e) => {
-            setText(e.target.value);
+            change(e.target.value);
             resize(e.target);
           }}
           onKeyDown={(e) => {

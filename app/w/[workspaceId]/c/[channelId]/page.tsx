@@ -7,9 +7,11 @@
 //  - 오른쪽 칸 전환 버튼은 채널 제목 줄 오른쪽 끝 한곳에 모았어요.
 //  - 일정 추가는 입력창 왼쪽 일정 버튼, 또는 메시지에 마우스를 올려 나오는 일정 버튼으로 바로.
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "cn";
+import { buttonVariants } from "@/components/ui/button";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { MessageInput } from "@/components/chat/MessageInput";
@@ -19,6 +21,7 @@ import { ScheduleCard } from "@/components/schedule-card/ScheduleCard";
 import { errorText, todayStr } from "@/components/ui/format";
 import { IconAI, IconCalendar, IconChannel, IconEventAdd, IconMembers } from "@/components/ui/icons";
 import { rememberChannel } from "@/components/workspace/BackToChat";
+import { Splash } from "@/components/workspace/WorkspaceShell";
 import { MembersPanel } from "@/components/workspace/MembersPanel";
 import { UpcomingPanel } from "@/components/workspace/UpcomingPanel";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
@@ -30,20 +33,44 @@ type Action = "added" | "edited" | "ignored";
 
 export default function ChatPage() {
   const channelId = Number(useParams<{ channelId: string }>().channelId);
-  const { demo } = useWorkspace();
+  const { demo, status, channels, base } = useWorkspace();
   // key: 채널을 옮기면 화면 상태(스크롤 등)를 새로 시작
-  return demo ? <DemoChat key={channelId} channelId={channelId} /> : <LiveChat key={channelId} channelId={channelId} />;
+  if (demo) return <DemoChat key={channelId} channelId={channelId} />;
+  // 불러오는 동안에는 소켓도 열지 않아요 (없는 채널로 연결을 시도하지 않게)
+  if (status !== "ready") return null;
+  // 주소의 채널이 이 프로젝트에 없으면(잘못된 번호, 다른 프로젝트 채널) 연결하지 않고 안내해요
+  if (!channels.some((c) => c.id === channelId)) return <ChannelNotFound base={base} first={channels[0]?.id} />;
+  return <LiveChat key={channelId} channelId={channelId} />;
+}
+
+function ChannelNotFound({ base, first }: { base: string; first?: number }) {
+  return (
+    <Splash tone="error">
+      <p>없는 채널이거나 들어갈 수 없는 채널이에요</p>
+      {first !== undefined && (
+        <div className="mt-4 flex justify-center">
+          <Link href={`${base}/c/${first}`} className={buttonVariants({ variant: "outline" })}>첫 채널로 가기</Link>
+        </div>
+      )}
+    </Splash>
+  );
 }
 
 /* 진짜 서버 */
 function LiveChat({ channelId }: { channelId: number }) {
   const ws = useWorkspace();
-  const { messages, send, loadOlder, hasMore } = useMessages(channelId);
-  const { suggestions, act } = useSuggestions(channelId);
+  const { messages, send, loadOlder, hasMore, loadError, loaded, denied } = useMessages(channelId);
+  // 다른 팀원이 카드를 처리해도 내 캘린더와 오른쪽 일정 칸이 새로고침돼요
+  const { suggestions, registered, act } = useSuggestions(channelId, () => ws.reloadEvents());
 
   const onAct = async (s: Suggestion, action: Action, edited?: EventInput) => {
     try {
       const r = await act(s.id, action, edited);
+      // 409: 다른 사람이 먼저 처리했어요. 카드는 이미 지워졌고, 바뀐 일정만 새로 받아요.
+      if (r.conflict) {
+        ws.reloadEvents();
+        return null;
+      }
       if (!r.ok) return errorText(r.error);
       if (action !== "ignored") ws.reloadEvents(); // 캘린더/오른쪽 일정 새로고침
       return null;
@@ -61,6 +88,9 @@ function LiveChat({ channelId }: { channelId: number }) {
     }
   };
 
+  // 서버가 이 채널을 거부했어요(1008): 다시 연결해도 소용없으니 안내만 보여줘요
+  if (denied) return <ChannelNotFound base={ws.base} first={ws.channels.find((c) => c.id !== channelId)?.id} />;
+
   return (
     <ChatView
       channelId={channelId}
@@ -69,8 +99,11 @@ function LiveChat({ channelId }: { channelId: number }) {
       onLoadOlder={loadOlder}
       onSend={send}
       suggestions={suggestions}
+      registered={registered}
       onAct={onAct}
       onReport={onReport}
+      loaded={loaded}
+      loadError={loadError}
     />
   );
 }
@@ -123,13 +156,17 @@ function DemoChat({ channelId }: { channelId: number }) {
 }
 
 /* 공통 화면 */
-function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestions, onAct, onReport }: {
+function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestions, registered = [], onAct, onReport, loaded = true, loadError = false }: {
   channelId: number;
   messages: Message[];
   hasMore: boolean;
   onLoadOlder: () => void | Promise<void>;
-  onSend: (text: string) => unknown;
+  onSend: (text: string, clientId: string) => unknown;
   suggestions: Suggestion[];
+  /** 내가 등록해서 "등록됨"으로 보여 줄 카드 */
+  registered?: Suggestion[];
+  loaded?: boolean;
+  loadError?: boolean;
   onAct: (s: Suggestion, action: Action, edited?: EventInput) => Promise<string | null>;
   onReport: ReportFn;
 }) {
@@ -141,12 +178,14 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   // 캘린더·할 일 화면의 "채팅으로 돌아가기"가 이 채널로 돌아오게 기억해 둬요
   useEffect(() => rememberChannel(ws.base, channelId), [ws.base, channelId]);
 
-  const cards: TimelineCard[] = suggestions.map((s) => ({
+  const doneIds = new Set(registered.map((s) => s.id));
+  const cards: TimelineCard[] = [...suggestions.filter((s) => !doneIds.has(s.id)), ...registered].map((s) => ({
     key: `s${s.id}`,
     created_at: s.created_at,
     node: (
       <ScheduleCard
         suggestion={s}
+        registered={doneIds.has(s.id)}
         current={ws.events.find((e) => e.id === s.payload.event_id)}
         onAct={(action, edited) => onAct(s, action, edited)}
       />
@@ -188,9 +227,13 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
           filterMode={ws.workspace?.filter_mode}
           isOwner={ws.isOwner}
           onReport={onReport}
-          onMakeEvent={(m) => setDraft({ date: todayStr(), title: m.text.slice(0, 40) })}
+          loaded={loaded}
+          historyError={loadError}
+          // 이모지는 글자 두 칸이라 slice로 자르면 반쪽이 남아요: 글자(코드포인트) 단위로 잘라요
+          onMakeEvent={(m) => setDraft({ date: todayStr(), title: Array.from(m.text).slice(0, 40).join("") })}
         />
         <MessageInput
+          draftKey={channelId}
           onSend={onSend}
           placeholder={`#${channel?.name ?? "채널"}에 메시지 보내기`}
           leading={

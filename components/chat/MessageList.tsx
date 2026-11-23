@@ -6,7 +6,7 @@ import type { Message, Workspace } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { clock, dayLabel } from "@/components/ui/format";
-import { IconAI, IconChat, IconEventAdd, IconReport } from "@/components/ui/icons";
+import { IconAI, IconChat, IconEventAdd, IconReport, IconWarning } from "@/components/ui/icons";
 import { MaskedMessage, type ReportFn } from "./MaskedMessage";
 
 /** 메시지 사이에 끼워 넣을 것 (AI 일정 카드). created_at 순서대로 섞여 보여요. */
@@ -14,11 +14,25 @@ export type TimelineCard = { key: string; created_at: string; node: React.ReactN
 
 type Item = { kind: "msg"; m: Message; at: string } | { kind: "card"; c: TimelineCard; at: string };
 
+// 시간순으로 줄 세워요. 시각이 같으면 메시지가 카드보다 먼저, 메시지끼리는 id 순서로 해서 늘 같은 순서가 되게 해요.
+// (소켓으로 순서가 뒤바뀌어 도착해도 화면은 항상 같은 순서예요)
+function byTime(a: Item, b: Item) {
+  const d = Date.parse(a.at) - Date.parse(b.at);
+  if (d) return d;
+  if (a.kind !== b.kind) return a.kind === "msg" ? -1 : 1;
+  if (a.kind === "msg" && b.kind === "msg") return a.m.id - b.m.id;
+  return a.kind === "card" && b.kind === "card" ? a.c.key.localeCompare(b.c.key, undefined, { numeric: true }) : 0;
+}
+
 // 같은 사람이 3분 안에 연달아 보낸 메시지는 이름과 아바타를 한 번만 보여줘요.
 const GROUP_MS = 3 * 60 * 1000;
 
-export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], filterMode, isOwner, onReport, onMakeEvent }: {
+export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], filterMode, isOwner, onReport, onMakeEvent, loaded = true, historyError = false }: {
   messages: Message[];
+  /** 첫 기록을 받았는지. 받기 전에는 "첫 메시지를 보내 보세요"를 보여주지 않아요 */
+  loaded?: boolean;
+  /** 첫 기록을 못 받았어요: 빈 채널처럼 보이지 않게 오류 안내를 보여줘요 */
+  historyError?: boolean;
   hasMore: boolean;
   onLoadOlder: () => void | Promise<void>;
   meId?: number;
@@ -31,14 +45,16 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [reported, setReported] = useState<Set<number>>(new Set());
+  const reporting = useRef(new Set<number>()); // 신고 중인 메시지: 연타해도 한 번만 보내요
   // 스크롤 위치를 맞추려고 직전 상태를 기억해 둬요
   const prev = useRef({ first: undefined as number | undefined, last: undefined as number | undefined, count: 0, height: 0 });
 
   const items: Item[] = [
     ...messages.map((m) => ({ kind: "msg" as const, m, at: m.created_at })),
     ...cards.map((c) => ({ kind: "card" as const, c, at: c.created_at })),
-  ].sort((a, b) => a.at.localeCompare(b.at));
+  ].sort(byTime);
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -64,36 +80,66 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
     if (cards.length) box.current?.scrollTo({ top: box.current.scrollHeight, behavior: "smooth" });
   }, [cards.length]);
 
-  const onScroll = async () => {
+  // 이전 메시지 불러오기. 실패해도 "불러오는 중…"에 멈추지 않게 finally에서 꼭 풀어 줘요.
+  const loadMore = async () => {
     const el = box.current;
-    if (!el || !hasMore || loadingOlder || el.scrollTop > 40) return;
+    if (!el || loadingOlder) return;
     prev.current.height = el.scrollHeight;
     setLoadingOlder(true);
-    await onLoadOlder();
-    setLoadingOlder(false);
+    setLoadError(false);
+    try {
+      await onLoadOlder();
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
+
+  // 맨 위로 스크롤하면 자동으로 불러와요. 실패한 뒤에는 버튼으로 다시 시도할 때까지 멈춰요.
+  const onScroll = () => {
+    const el = box.current;
+    if (!el || !hasMore || loadError || el.scrollTop > 40) return;
+    loadMore();
   };
 
   const reportMissed = async (id: number) => {
-    if (!onReport || !confirm("이 메시지를 욕설로 신고할까요?")) return;
-    const err = await onReport(id, "missed");
-    if (err) alert(err);
-    else setReported((s) => new Set(s).add(id));
+    if (!onReport || reporting.current.has(id)) return;
+    reporting.current.add(id); // 확인 창이 떠 있는 동안에도 막아요
+    try {
+      if (!confirm("이 메시지를 욕설로 신고할까요?")) return;
+      const err = await onReport(id, "missed");
+      if (err) alert(err);
+      else setReported((s) => new Set(s).add(id));
+    } finally {
+      reporting.current.delete(id);
+    }
   };
 
   return (
     <div ref={box} onScroll={onScroll} className="flex-1 overflow-y-auto pb-4 pt-1">
       {hasMore && (
         <div className="mb-3 text-center">
+          {loadError && !loadingOlder && <p className="mb-1 text-xs text-destructive">이전 메시지를 불러오지 못했어요</p>}
           <button
-            onClick={onScroll}
+            onClick={loadMore}
+            disabled={loadingOlder}
             className="rounded-md border bg-card px-4 py-1.5 text-sm text-muted-foreground hover:bg-secondary"
           >
-            {loadingOlder ? "불러오는 중…" : "이전 메시지 더 보기"}
+            {loadingOlder ? "불러오는 중…" : loadError ? "다시 시도" : "이전 메시지 더 보기"}
           </button>
         </div>
       )}
 
-      {items.length === 0 && (
+      {items.length === 0 && historyError && (
+        <div role="alert" className="flex h-full flex-col items-center justify-center gap-2 text-center text-destructive">
+          <IconWarning className="size-6" />
+          <p>메시지를 불러오지 못했어요</p>
+          <p className="text-xs text-muted-foreground">잠시 후 자동으로 다시 불러와요</p>
+        </div>
+      )}
+
+      {items.length === 0 && !historyError && loaded && (
         <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
           <IconChat className="size-6" />
           <p>첫 메시지를 보내 보세요!</p>

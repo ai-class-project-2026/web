@@ -19,17 +19,39 @@ export function logout() {
   localStorage.removeItem(KEY);
 }
 
-/** user: undefined = loading, null = logged out. */
+/**
+ * user: undefined = 불러오는 중, null = 로그아웃 상태.
+ * 서버에 연결 못 했거나 5xx면 로그아웃하지 않고 error를 돌려줘요. retry()로 다시 시도해요.
+ */
 export function useMe() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [error, setError] = useState(false);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
-    // No token → 401 → null; one wasted request is simpler than a sync branch.
-    api.GET("/auth/me").then(({ data }) => {
-      if (!data) logout(); // expired or invalid token
-      setUser(data ?? null);
-    });
-  }, []);
-  return user;
+    let alive = true;
+    // 토큰이 없어도 401로 null이 돼요. 요청 한 번 더 쓰는 쪽이 분기보다 단순해요.
+    api
+      .GET("/auth/me")
+      .then(({ data, response }) => {
+        if (!alive) return;
+        if (data) return setUser(data);
+        // 401(토큰 만료·잘못됨)일 때만 로그아웃해요. 5xx는 잠깐의 서버 문제일 수 있어요.
+        if (response.status === 401) {
+          logout();
+          setUser(null);
+        } else setError(true);
+      })
+      .catch(() => alive && setError(true));
+    return () => {
+      alive = false;
+    };
+  }, [tick]);
+  const retry = () => {
+    setError(false);
+    setUser(undefined);
+    setTick((t) => t + 1);
+  };
+  return { user, error, retry };
 }
 
 export async function login(email: string, password: string) {

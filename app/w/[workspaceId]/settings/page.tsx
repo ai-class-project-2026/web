@@ -133,7 +133,7 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
         }
         side={
           <>
-            <Panel title="초대 링크" desc="이 링크를 받은 사람은 바로 팀원이 돼요.">
+            <Panel title="초대 링크" desc="이 링크를 받은 사람은 안내를 읽고 동의하면 팀원이 돼요.">
               <div className="flex gap-2">
                 <Input readOnly value={inviteUrl} onFocus={(e) => e.target.select()} aria-label="초대 링크" className="font-mono text-xs" />
                 <Button

@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "cn";
 import { AppFrame } from "@/components/app/AppFrame";
 import { UserPanel } from "@/components/app/UserPanel";
@@ -53,15 +53,21 @@ function Sidebar() {
   const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const creating = useRef(false); // Enter를 두 번 눌러도 채널이 한 번만 만들어지게 (state보다 빨리 바뀌는 ref)
   const addChannel = async (e: React.FormEvent) => {
     e.preventDefault();
     const n = name.trim().replace(/^#/, "");
-    if (!n) return;
-    const { channel, error } = await ws.createChannel(n);
-    if (error) return alert(error);
-    setName("");
-    setAdding(false);
-    if (channel) router.push(`${ws.base}/c/${channel.id}`);
+    if (!n || creating.current) return;
+    creating.current = true;
+    try {
+      const { channel, error } = await ws.createChannel(n);
+      if (error) return alert(error);
+      setName("");
+      setAdding(false);
+      if (channel) router.push(`${ws.base}/c/${channel.id}`);
+    } finally {
+      creating.current = false;
+    }
   };
 
   const copyInvite = async () => {

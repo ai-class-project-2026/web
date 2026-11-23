@@ -98,7 +98,8 @@ export default function CalendarPage() {
             if (!start) return info.revert();
             const err = await ws.updateEvent(Number(info.event.id), {
               date: toDateStr(start),
-              ...(info.event.allDay ? {} : { start: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}:00` }),
+              // 종일 칸으로 옮기면 옛 시간을 비워요 (null = 지우기)
+              ...(info.event.allDay ? { start: null } : { start: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}:00` }),
             });
             if (err) {
               info.revert();

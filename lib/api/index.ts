@@ -1,5 +1,5 @@
 import createClient from "openapi-fetch";
-import { getToken } from "@/lib/auth";
+import { getToken, logout } from "@/lib/auth";
 import type { components, paths } from "./schema";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -13,11 +13,25 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000
  */
 export const api = createClient<paths>({ baseUrl: API_URL });
 
+// 로그인·가입 요청의 401은 "비밀번호 틀림"이라서 세션 만료로 보면 안 돼요
+const PUBLIC_PATHS = ["/auth/login", "/auth/signup"];
+let leaving = false;
+
 api.use({
   onRequest({ request }) {
     const token = getToken();
     if (token) request.headers.set("Authorization", `Bearer ${token}`);
     return request;
+  },
+  onResponse({ request, response }) {
+    // 토큰을 보냈는데 401이면 세션이 만료된 거예요: 토큰을 지우고 로그인 화면으로 보내요.
+    // (5xx나 네트워크 오류는 여기로 오지 않아서 로그아웃되지 않아요)
+    if (response.status !== 401 || !request.headers.has("Authorization") || typeof window === "undefined") return;
+    if (PUBLIC_PATHS.some((p) => new URL(request.url).pathname === p)) return;
+    logout();
+    if (leaving || location.pathname.startsWith("/login")) return;
+    leaving = true;
+    location.replace(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
   },
 });
 

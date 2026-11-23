@@ -60,10 +60,27 @@ export function pastel(id: number) {
   return PASTELS[Math.abs(id) % PASTELS.length];
 }
 
-/** API 에러를 사람이 읽을 문구로. error.detail이 문자열이면 그대로, 아니면 기본 문구 */
+// 서버가 영어로 보내는 안내를 쉬운 한국어로 바꿔요
+const KO_DETAIL: Record<string, string> = {
+  "Todo not found": "이 할 일은 이미 지워졌어요",
+  "Event not found": "이 일정은 이미 지워졌어요",
+  "Event was deleted": "이 일정은 이미 지워졌어요",
+  "Channel not found": "이 채널은 없거나 지워졌어요",
+  "Workspace not found": "이 프로젝트를 찾을 수 없어요",
+  "Message not found": "이 메시지는 없거나 지워졌어요",
+  "Suggestion not found": "이 카드는 이미 사라졌어요",
+  "Invalid token": "로그인이 만료됐어요. 다시 로그인해 주세요",
+  "Already handled": "이미 다른 사람이 처리한 카드예요",
+};
+
+/** API 에러를 사람이 읽을 문구로. error.detail이 문자열이면 한국어로 바꿔서(모르는 영어 안내는 기본 문구), 아니면 기본 문구 */
 export function errorText(error: unknown, fallback = "잠시 후 다시 시도해 주세요") {
   const detail = (error as { detail?: unknown } | undefined)?.detail;
-  if (typeof detail === "string") return detail;
+  if (typeof detail === "string") {
+    if (KO_DETAIL[detail]) return KO_DETAIL[detail];
+    if (/ not found$/i.test(detail)) return "찾을 수 없어요. 이미 지워졌는지 확인해 주세요";
+    return detail;
+  }
   if (Array.isArray(detail) && detail[0]?.msg) return String(detail[0].msg);
   return fallback;
 }

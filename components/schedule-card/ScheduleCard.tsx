@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "cn";
 import type { Event, EventInput, Suggestion } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
 import { Field, Input } from "@/components/ui/field";
-import { IconClose, IconEdit, IconEventAdd, IconMembers, IconPlace, IconTime } from "@/components/ui/icons";
+import { IconCheck, IconClose, IconEdit, IconEventAdd, IconMembers, IconPlace, IconTime } from "@/components/ui/icons";
 import { hhmm, shortDate, timeLabel } from "@/components/ui/format";
 
 type Action = "added" | "edited" | "ignored";
@@ -23,8 +23,10 @@ const KIND = {
   cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "bg-destructive/10 text-destructive" },
 } as const;
 
-export function ScheduleCard({ suggestion, onAct, current }: {
+export function ScheduleCard({ suggestion, onAct, current, registered = false }: {
   suggestion: Suggestion;
+  /** 내가 이미 등록한 카드: 버튼 대신 "등록됨"을 보여줘요 (기획서 6.1) */
+  registered?: boolean;
   /** 결과로 에러 문구(string)를 돌려주면 카드에 보여줘요 */
   onAct: (action: Action, edited?: EventInput) => unknown;
   /** update/cancel일 때 바뀌기 전 일정 (있으면 비교해서 보여줘요) */
@@ -36,15 +38,19 @@ export function ScheduleCard({ suggestion, onAct, current }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  const working = useRef(false); // 연타해도 한 번만 처리해요
   const run = async (action: Action, edited?: EventInput) => {
+    if (working.current) return;
+    working.current = true;
     setBusy(true);
     setError("");
     const res = await onAct(action, edited);
+    working.current = false;
     setBusy(false);
     if (typeof res === "string" && res) setError(res);
   };
 
-  const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
+  const question = registered ? "" : kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   // 플래너에서 뜯어낸 쪽지: 왼쪽 달력 한 장(노랑) | 점선(절취선) | 오른쪽 내용
   return (
@@ -53,42 +59,51 @@ export function ScheduleCard({ suggestion, onAct, current }: {
       <div className={cn("min-w-0 flex-1 p-3", !editing && "border-l border-dashed border-foreground/30")}>
         <div className="mb-1.5 flex items-center gap-2 text-xs">
           <span className={cn("rounded-sm px-1.5 py-0.5 font-medium", k.tone)}>{k.badge}</span>
+          {registered && (
+            <span className="flex items-center gap-1 rounded-sm bg-secondary px-1.5 py-0.5 font-medium text-secondary-foreground">
+              <IconCheck className="size-4" aria-hidden /> 등록됨
+            </span>
+          )}
         </div>
-        <p className="mb-2 font-semibold leading-snug">{question}</p>
+        {question && <p className="mb-2 font-semibold leading-snug">{question}</p>}
 
-        {editing ? (
-          <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
+        {editing && !registered ? (
+          <>
+            <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
+            {/* 고쳐서 추가하다 실패해도 이유가 보이게, 수정 중에도 에러를 보여줘요 */}
+            {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+          </>
         ) : (
           <>
             {current && kind === "update" && (
-              <p className="mb-1.5 text-sm text-muted-foreground line-through decoration-destructive decoration-2">
+              <p className="mb-1.5 break-words text-sm text-muted-foreground line-through decoration-destructive decoration-2">
                 <span className="font-mono tabular-nums">{shortDate(current.date)} {timeLabel(current)}</span> · {current.location ?? "장소 미정"} · {current.title}
               </p>
             )}
             <div className={cn("text-sm", kind === "cancel" && "line-through decoration-destructive decoration-2")}>
-              <p className="font-semibold">{event.title}</p>
-              <p className="mt-0.5 flex items-center gap-1.5 font-mono tabular-nums">
+              <p className="break-words font-semibold">{event.title}</p>
+              <p className="mt-0.5 flex min-w-0 items-center gap-1.5 break-words font-mono tabular-nums">
                 <IconTime className="size-4 shrink-0 text-muted-foreground" />
-                {shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}
+                <span className="min-w-0 break-words">{shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}</span>
               </p>
               <ul className="mt-1.5 flex flex-col gap-1 text-muted-foreground">
-                {event.location && <li className="flex items-center gap-1.5"><IconPlace className="size-4 shrink-0" /> {event.location}</li>}
-                {event.attendees.length > 0 && (
-                  <li className="flex items-start gap-1.5">
+                {event.location && <li className="flex min-w-0 items-center gap-1.5"><IconPlace className="size-4 shrink-0" /> <span className="min-w-0 break-words">{event.location}</span></li>}
+                {(event.attendees.length > 0 || event.absent.length > 0) && (
+                  <li className="flex min-w-0 items-start gap-1.5">
                     <IconMembers className="mt-0.5 size-4 shrink-0" />
-                    <span className="flex flex-wrap gap-1">
-                      {event.attendees.map((n) => <span key={n} className="rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">{n}</span>)}
-                      {event.absent.map((n) => <span key={n} className="rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium line-through" title="불참">{n}</span>)}
+                    <span className="flex min-w-0 flex-wrap gap-1">
+                      {event.attendees.map((n) => <span key={n} className="min-w-0 break-words rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">{n}</span>)}
+                      {event.absent.map((n) => <span key={n} className="min-w-0 break-words rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium line-through" title="불참">{n}</span>)}
                     </span>
                   </li>
                 )}
-                {event.note && <li className="flex items-center gap-1.5"><IconTime className="size-4 shrink-0" /> {event.note}</li>}
+                {event.note && <li className="flex min-w-0 items-center gap-1.5"><IconTime className="size-4 shrink-0" /> <span className="min-w-0 break-words">{event.note}</span></li>}
               </ul>
             </div>
 
             {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
-            <div className="mt-3 flex flex-wrap gap-2">
+            {!registered && <div className="mt-3 flex flex-wrap gap-2">
               <Button disabled={busy} onClick={() => run("added")} variant={kind === "cancel" ? "destructive" : "default"}>
                 {kind === "cancel" ? <IconClose /> : <IconEventAdd />} {k.ok}
               </Button>
@@ -100,7 +115,7 @@ export function ScheduleCard({ suggestion, onAct, current }: {
               <Button disabled={busy} variant="ghost" onClick={() => run("ignored")}>
                 무시
               </Button>
-            </div>
+            </div>}
           </>
         )}
       </div>

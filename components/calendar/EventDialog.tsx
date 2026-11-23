@@ -2,7 +2,7 @@
 
 // 캘린더에서 날짜나 일정을 누르면 뜨는 팝업. 새 일정 추가 / 기존 일정 수정·취소·삭제.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "cn";
 import type { Event, EventInput, Member } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -60,9 +60,13 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
   const [error, setError] = useState("");
   const cancelled = ev?.status === "cancelled";
 
-  const done = async (p: Promise<string | null>) => {
+  const working = useRef(false); // 더블클릭으로 두 번 저장되지 않게
+  const done = async (run: () => Promise<string | null>) => {
+    if (working.current) return;
+    working.current = true;
     setBusy(true);
-    const err = await p;
+    const err = await run();
+    working.current = false;
     setBusy(false);
     if (err) setError(err);
     else onClose();
@@ -79,6 +83,26 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
     note: note.trim() || null,
   };
 
+  // 수정할 때는 내가 바꾼 칸만 보내요. 다 보내면, 그 사이 팀원이 고친 다른 칸을
+  // 이 창이 열릴 때의 옛 값(비어 있던 값 포함)으로 덮어써 버려요.
+  const changes = (): EventUpdate => {
+    if (!ev) return body;
+    const patch: EventUpdate = {};
+    if (body.title !== ev.title) patch.title = body.title;
+    if (body.date !== ev.date) patch.date = body.date;
+    if (start !== hhmm(ev.start)) {
+      patch.start = body.start;
+      if (start && ev.time_text) patch.time_text = null; // 시각을 정하면 "저녁쯤" 같은 원래 표현은 비워요
+    }
+    if (body.location !== (ev.location ?? null)) patch.location = body.location;
+    if (body.note !== (ev.note ?? null)) patch.note = body.note;
+    if (JSON.stringify([...attendees].sort()) !== JSON.stringify([...ev.attendees].sort())) {
+      patch.attendees = attendees;
+      if (JSON.stringify(body.absent) !== JSON.stringify(ev.absent)) patch.absent = body.absent;
+    }
+    return patch;
+  };
+
   const toggle = (name: string) =>
     setAttendees((a) => (a.includes(name) ? a.filter((x) => x !== name) : [...a, name]));
 
@@ -88,7 +112,9 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
       onSubmit={(e) => {
         e.preventDefault();
         if (!body.title) return setError("제목을 적어 주세요");
-        done(ev ? onUpdate(ev.id, body) : onCreate(body));
+        if (!ev) return done(() => onCreate(body));
+        const patch = changes();
+        done(async () => (Object.keys(patch).length ? onUpdate(ev.id, patch) : null)); // 바뀐 게 없으면 요청 없이 닫아요
       }}
     >
       {ev && (
@@ -146,7 +172,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
             type="button"
             variant={cancelled ? "outline" : "destructive"}
             disabled={busy}
-            onClick={() => done(onUpdate(ev.id, { status: cancelled ? "confirmed" : "cancelled" }))}
+            onClick={() => done(() => onUpdate(ev.id, { status: cancelled ? "confirmed" : "cancelled" }))}
           >
             {cancelled ? "다시 살리기" : <><IconDelete /> 일정 취소</>}
           </Button>
@@ -157,7 +183,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
             variant="destructive"
             disabled={busy}
             className="ml-auto"
-            onClick={() => confirm("이 일정을 완전히 지울까요?") && done(onDelete(ev.id))}
+            onClick={() => confirm("이 일정을 완전히 지울까요?") && done(() => onDelete(ev.id))}
           >
             <IconDelete /> 삭제
           </Button>

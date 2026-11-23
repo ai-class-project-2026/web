@@ -5,7 +5,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CONSENT_DETAIL, CONSENT_TITLE } from "@/components/app/consent";
 import { BrandCard } from "@/components/ui/brand-card";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
@@ -27,7 +28,8 @@ export default function OnboardingPage() {
     (async () => {
       try {
         const me = await api.GET("/auth/me");
-        if (!me.data) return router.replace("/login?next=/onboarding");
+        if (me.response.status === 401) return router.replace("/login?next=/onboarding");
+        if (!me.data) return setError("서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요");
         const { data } = await api.GET("/workspaces");
         setMine(data ?? []);
       } catch {
@@ -36,8 +38,11 @@ export default function OnboardingPage() {
     })();
   }, [router]);
 
+  const creating = useRef(false); // 더블클릭해도 팀이 한 번만 만들어지게
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (creating.current) return;
+    creating.current = true;
     setBusy(true);
     setError("");
     try {
@@ -47,6 +52,7 @@ export default function OnboardingPage() {
     } catch {
       setError("서버에 연결할 수 없어요");
     }
+    creating.current = false;
     setBusy(false);
   };
 
@@ -82,11 +88,8 @@ export default function OnboardingPage() {
         <label className="flex cursor-pointer gap-3 rounded-md bg-secondary p-3 text-sm">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-primary" />
           <span>
-            <b className="font-medium">대화 분석에 동의해요 (AI 일정 도우미)</b>
-            <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-              채팅에서 정해진 약속을 AI가 찾아 캘린더 등록을 제안해요. 대화는 우리 서버 안에서만 분석하고 AI 학습에 쓰지 않아요.
-              동의하지 않아도 서비스를 쓸 수 있고, 설정에서 언제든 바꿀 수 있어요.
-            </span>
+            <b className="font-medium">{CONSENT_TITLE}</b>
+            <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{CONSENT_DETAIL}</span>
           </span>
         </label>
 
