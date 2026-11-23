@@ -6,17 +6,19 @@
 //
 // 지표마다 그래프를 따로 그려요(한 그래프에 축 두 개 X). 점선은 기획서 4.2의 목표치예요.
 
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cn } from "cn";
+import { Select } from "@/components/ui/field";
+import { Segmented } from "@/components/ui/segmented";
+import { IconBack, IconCheck, IconDashboard } from "@/components/ui/icons";
 
 type Row = Record<string, string>;
 type Metric = { key: string; title: string; target: number; lowerBetter?: boolean; unit: "%" | "ms" };
 
 const SOURCES = {
   schedule: {
-    title: "📅 일정 AI",
+    title: "일정 AI",
     file: "/reports/schedule.csv",
     metrics: [
       { key: "confirmed_f1", title: "확정 일정 F1", target: 0.9, unit: "%" },
@@ -31,7 +33,7 @@ v1 LoRA,real_test.jsonl,120,0.84,0.07,0.79,0.95
 v2 LoRA+보강,real_test.jsonl,120,0.91,0.04,0.88,0.97`,
   },
   moderation: {
-    title: "🧼 욕설 AI",
+    title: "욕설 AI",
     file: "/reports/moderation.csv",
     metrics: [
       { key: "f1", title: "F1", target: 0.9, unit: "%" },
@@ -66,6 +68,9 @@ export default function DashboardPage() {
         if (res.ok) {
           const rows = parseCsv(await res.text());
           if (rows.length) return { rows, sample: false };
+        } else {
+          // 본문을 안 읽고 두면 연결이 열린 채로 남아요 (404 안내 페이지도 본문이 있어요)
+          await res.body?.cancel();
         }
       } catch {}
       return { rows: parseCsv(SOURCES[k].sample), sample: true };
@@ -82,39 +87,29 @@ export default function DashboardPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4 md:px-5">
-      <header className="flex flex-wrap items-center gap-3">
-        <Link href="/" className="rounded-xl p-1.5 text-muted-foreground hover:bg-muted" aria-label="처음으로">
-          <ArrowLeft className="size-5" />
+      <header className="flex items-start gap-3">
+        <Link href="/" className="mt-0.5 rounded-md p-1.5 text-muted-foreground hover:bg-muted" aria-label="처음으로">
+          <IconBack className="size-5" />
         </Link>
         <div>
-          <h1 className="text-2xl">📊 AI 성능 대시보드</h1>
+          <h1 className="flex items-center gap-2 text-2xl"><IconDashboard className="size-5" aria-hidden />AI 성능 대시보드</h1>
           <p className="text-sm text-muted-foreground">버전이 바뀔 때마다 점수가 얼마나 좋아졌는지 보여줘요</p>
         </div>
       </header>
 
       {/* 필터는 그래프 위 한 줄에 */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-2xl bg-muted p-1 text-sm">
-          {(Object.keys(SOURCES) as SourceKey[]).map((k) => (
-            <button
-              key={k}
-              onClick={() => setTab(k)}
-              className={cn("rounded-xl px-4 py-1.5 transition", tab === k ? "bg-card font-medium shadow-sm" : "text-muted-foreground")}
-            >
-              {SOURCES[k].title}
-            </button>
-          ))}
-        </div>
+        <Segmented value={tab} onChange={setTab} options={(Object.keys(SOURCES) as SourceKey[]).map((k) => ({ value: k, label: SOURCES[k].title }))} />
         {testsets.length > 1 && (
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             테스트셋
-            <select value={testset} onChange={(e) => setPick(e.target.value)} className="rounded-xl border bg-card px-2 py-1.5 text-foreground">
+            <Select value={testset} onChange={(e) => setPick(e.target.value)} className="w-auto py-1.5 text-foreground">
               {testsets.map((t) => <option key={t}>{t}</option>)}
-            </select>
+            </Select>
           </label>
         )}
         {cur?.sample && (
-          <span className="rounded-full bg-butter px-3 py-1 text-xs" title={`server의 eval/reports/*.csv를 public/reports/에 복사하면 진짜 점수로 바뀌어요`}>
+          <span className="rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground" title={`server의 eval/reports/*.csv를 public/reports/에 복사하면 진짜 점수로 바뀌어요`}>
             예시 데이터 · 실제 CSV를 public{src.file}에 넣어 주세요
           </span>
         )}
@@ -132,21 +127,21 @@ export default function DashboardPage() {
               ))}
           </div>
 
-          <details className="rounded-3xl border bg-card p-4 text-sm">
+          <details className="rounded-xl border bg-card p-4 text-sm">
             <summary className="cursor-pointer font-medium">표로 보기</summary>
             <div className="mt-3 overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left font-mono tabular-nums">
                 <thead className="text-muted-foreground">
                   <tr>
-                    <th className="py-1.5 pr-4 font-normal">버전</th>
-                    <th className="py-1.5 pr-4 font-normal">n</th>
-                    {src.metrics.map((m) => <th key={m.key} className="py-1.5 pr-4 font-normal">{m.title}</th>)}
+                    <th className="py-1.5 pr-4 font-sans font-normal">버전</th>
+                    <th className="py-1.5 pr-4 font-sans font-normal">n</th>
+                    {src.metrics.map((m) => <th key={m.key} className="py-1.5 pr-4 font-sans font-normal">{m.title}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, i) => (
                     <tr key={i} className="border-t">
-                      <td className="py-1.5 pr-4">{r.label}</td>
+                      <td className="py-1.5 pr-4 font-sans">{r.label}</td>
                       <td className="py-1.5 pr-4 tabular-nums">{r.n}</td>
                       {src.metrics.map((m) => <td key={m.key} className="py-1.5 pr-4 tabular-nums">{fmt(Number(r[m.key]), m.unit)}</td>)}
                     </tr>
@@ -179,12 +174,12 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
   const met = last && (m.lowerBetter ? last.value <= m.target : last.value >= m.target);
 
   return (
-    <section className="rounded-3xl border bg-card p-4 shadow-sm">
+    <section className="rounded-xl border bg-card p-4">
       <div className="mb-1 flex items-baseline justify-between gap-2">
-        <h2 className="text-lg">{m.title}</h2>
+        <h2 className="text-base">{m.title}</h2>
         <span className="text-xs text-muted-foreground">
           목표 {m.lowerBetter ? "≤" : "≥"} {fmt(m.target, m.unit)}
-          {last && <span className={cn("ml-2 rounded-full px-2 py-0.5", met ? "bg-mint" : "bg-muted")}>{met ? "✓ 달성" : "아직"}</span>}
+          {last && <span className={cn("ml-2 inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-medium", met ? "bg-chart-2/20 text-foreground" : "bg-muted")}>{met && <IconCheck className="size-4" aria-hidden />}{met ? "달성" : "아직"}</span>}
         </span>
       </div>
       <p className="mb-2 text-xs text-muted-foreground">{m.lowerBetter ? "낮을수록 좋아요" : "높을수록 좋아요"}</p>
@@ -192,7 +187,7 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
         {/* 바닥선 */}
         <line x1={PAD_L} x2={W - PAD_L} y1={PAD_T + plotH} y2={PAD_T + plotH} stroke="var(--border)" />
         {/* 목표 점선 */}
-        <line x1={PAD_L} x2={W - PAD_L} y1={y(m.target)} y2={y(m.target)} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeWidth={1} />
+        <line x1={PAD_L} x2={W - PAD_L} y1={y(m.target)} y2={y(m.target)} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeWidth={1.5} />
         <text x={W - PAD_L} y={y(m.target) - 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">목표</text>
 
         {rows.map((r, i) => {
@@ -209,13 +204,13 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
             <g key={i} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
               {/* 막대보다 넓은 마우스 영역 */}
               <rect x={cx - slot / 2} y={PAD_T} width={slot} height={plotH} fill="transparent" />
-              <path d={d} fill="var(--chart-1)" opacity={hover === null || hover === i ? (isLast ? 1 : 0.55) : 0.3} />
+              <path d={d} fill={isLast ? "var(--chart-1)" : "var(--muted-foreground)"} opacity={hover === null || hover === i ? (isLast ? 1 : 0.45) : 0.25} />
               {show && (
-                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)">
+                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" fontFamily="var(--font-mono)">
                   {fmt(r.value, m.unit)}
                 </text>
               )}
-              <text x={cx} y={H - PAD_B + 16} textAnchor="middle" fontSize={10} fill="var(--muted-foreground)">
+              <text x={cx} y={H - PAD_B + 16} textAnchor="middle" fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-mono)">
                 {r.label.length > 12 ? `${r.label.slice(0, 11)}…` : r.label}
                 <title>{r.label}</title>
               </text>

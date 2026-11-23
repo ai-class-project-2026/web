@@ -12,6 +12,6 @@ export default function DMPeerPage() {
   const { peer } = useParams<{ peer: string }>();
   if (peer === "demo") return <DMHome />;
   const id = Number(peer.replace(/^demo-/, ""));
-  if (!Number.isInteger(id)) return <Splash emoji="🔍">잘못된 주소예요</Splash>;
+  if (!Number.isInteger(id)) return <Splash tone="empty">잘못된 주소예요</Splash>;
   return <DMConversation key={id} peerId={id} />;
 }

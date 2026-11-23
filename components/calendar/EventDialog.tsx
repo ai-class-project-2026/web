@@ -2,7 +2,6 @@
 
 // 캘린더에서 날짜나 일정을 누르면 뜨는 팝업. 새 일정 추가 / 기존 일정 수정·취소·삭제.
 
-import { Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
 import type { Event, EventInput, Member } from "@/lib/api";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { ErrorText, Field, Input } from "@/components/ui/field";
 import { hhmm } from "@/components/ui/format";
+import { IconAI, IconDelete } from "@/components/ui/icons";
 import type { EventUpdate } from "@/components/workspace/WorkspaceProvider";
 
 /** title: 채팅 메시지에서 일정을 만들 때 미리 채울 제목 */
@@ -24,7 +24,7 @@ export function EventDialog({ draft, members, onClose, onCreate, onUpdate, onDel
   onDelete: (id: number) => Promise<string | null>;
 }) {
   return (
-    <Dialog open={!!draft} onClose={onClose} title={draft?.event ? "일정 보기" : "새 일정 ✏️"}>
+    <Dialog open={!!draft} onClose={onClose} title={draft?.event ? "일정 보기" : "새 일정"}>
       {/* key: 다른 일정을 열면 폼을 새로 채워요 */}
       {draft && (
         <EventForm
@@ -84,7 +84,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
 
   return (
     <form
-      className="flex flex-col gap-3"
+      className="grid grid-cols-2 gap-x-3 gap-y-3"
       onSubmit={(e) => {
         e.preventDefault();
         if (!body.title) return setError("제목을 적어 주세요");
@@ -92,29 +92,27 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
       }}
     >
       {ev && (
-        <div className="flex flex-wrap gap-1.5 text-xs">
+        <div className="col-span-2 flex flex-wrap gap-1.5 text-xs">
           {ev.source === "ai" && (
-            <span className="flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-secondary-foreground">
-              <Sparkles className="size-3" /> AI가 대화에서 찾은 일정
+            <span className="flex items-center gap-1">
+              <IconAI className="size-4" /> <span className="hl font-medium">AI가 대화에서 찾은 일정</span>
             </span>
           )}
-          {cancelled && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">취소된 일정</span>}
+          {cancelled && <span className="rounded-sm bg-muted px-1.5 py-0.5 font-medium text-muted-foreground">취소된 일정</span>}
         </div>
       )}
 
-      <Field label="제목">
+      <Field label="제목" className="col-span-2">
         <Input autoFocus={!ev} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 팀 회의" />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="날짜"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></Field>
-        <Field label="시간" hint={!start && ev?.time_text ? `원래 표현: ${ev.time_text}` : "비우면 하루 종일"}>
-          <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} />
-        </Field>
-      </div>
-      <Field label="장소"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="예: 디스코드, 도서관 3층" /></Field>
+      <Field label="날짜" className="col-span-2 sm:col-span-1"><Input type="date" className="font-mono tabular-nums" value={date} onChange={(e) => setDate(e.target.value)} required /></Field>
+      <Field label="시간" className="col-span-2 sm:col-span-1" hint={!start && ev?.time_text ? `원래 표현: ${ev.time_text}` : "비우면 하루 종일"}>
+        <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} className="font-mono tabular-nums" />
+      </Field>
+      <Field label="장소" className="col-span-2"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="예: 디스코드, 도서관 3층" /></Field>
 
       {members.length > 0 && (
-        <div className="flex flex-col gap-1.5 text-sm">
+        <div className="col-span-2 flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-foreground/80">참석자</span>
           <div className="flex flex-wrap gap-1.5">
             {members.map((m) => {
@@ -125,8 +123,8 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
                   key={m.user_id}
                   onClick={() => toggle(m.name)}
                   className={cn(
-                    "rounded-full border px-3 py-1 text-xs transition",
-                    on ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground line-through hover:bg-muted",
+                    "rounded-md border px-2.5 py-1 text-xs transition",
+                    on ? "border-primary bg-secondary text-secondary-foreground" : "text-muted-foreground line-through hover:bg-muted",
                   )}
                 >
                   {m.name}
@@ -137,21 +135,20 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
         </div>
       )}
 
-      <Field label="메모"><Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 지호 10분 늦게 합류" /></Field>
+      <Field label="메모" className="col-span-2"><Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 지호 10분 늦게 합류" /></Field>
 
-      <ErrorText>{error}</ErrorText>
+      <div className="col-span-2 empty:hidden"><ErrorText>{error}</ErrorText></div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Button type="submit" disabled={busy} className="rounded-xl">{ev ? "저장" : "추가하기"}</Button>
+      <div className="col-span-2 mt-2 flex flex-wrap items-center gap-2">
+        <Button type="submit" disabled={busy}>{ev ? "저장" : "추가하기"}</Button>
         {ev && (
           <Button
             type="button"
-            variant="outline"
+            variant={cancelled ? "outline" : "destructive"}
             disabled={busy}
-            className="rounded-xl"
             onClick={() => done(onUpdate(ev.id, { status: cancelled ? "confirmed" : "cancelled" }))}
           >
-            {cancelled ? "다시 살리기" : "일정 취소"}
+            {cancelled ? "다시 살리기" : <><IconDelete /> 일정 취소</>}
           </Button>
         )}
         {ev && (
@@ -159,10 +156,10 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
             type="button"
             variant="destructive"
             disabled={busy}
-            className="ml-auto rounded-xl"
+            className="ml-auto"
             onClick={() => confirm("이 일정을 완전히 지울까요?") && done(onDelete(ev.id))}
           >
-            <Trash2 /> 삭제
+            <IconDelete /> 삭제
           </Button>
         )}
       </div>

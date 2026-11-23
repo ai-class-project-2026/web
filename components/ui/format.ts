@@ -54,7 +54,7 @@ export function dDay(date: string) {
   return { diff, label: diff === 0 ? "D-Day" : diff > 0 ? `D-${diff}` : `D+${-diff}` };
 }
 
-/** 사람마다 고정된 파스텔 색 (아바타, 담당자 표시) */
+/** 사람마다 고정된 연한 색 (아바타, 담당자 표시) */
 const PASTELS = ["bg-lavender", "bg-mint", "bg-peach", "bg-pink", "bg-sky", "bg-butter"];
 export function pastel(id: number) {
   return PASTELS[Math.abs(id) % PASTELS.length];

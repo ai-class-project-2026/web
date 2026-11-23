@@ -3,7 +3,6 @@
 // 워크스페이스 만들기 + "대화 분석 동의" (사용자 대부분이 미성년자라 명시적으로 물어봐요, 기획서 11장)
 // 동의 체크 값이 그대로 ai_schedule_on이 돼요. 초대 코드가 있으면 바로 참가할 수도 있어요.
 
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +10,7 @@ import { BrandCard } from "@/components/ui/brand-card";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
 import { errorText } from "@/components/ui/format";
+import { IconNext } from "@/components/ui/icons";
 import { api, type Workspace } from "@/lib/api";
 
 export default function OnboardingPage() {
@@ -58,15 +58,15 @@ export default function OnboardingPage() {
   };
 
   return (
-    <BrandCard title="우리 팀 공간 만들기 🏡" subtitle="팀 이름만 정하면 바로 시작할 수 있어요">
+    <BrandCard title="우리 팀 공간 만들기" subtitle="팀 이름만 정하면 바로 시작할 수 있어요">
       {mine.length > 0 && (
         <div className="mb-5">
           <p className="mb-2 text-sm font-medium text-foreground/80">내 워크스페이스</p>
           <ul className="flex flex-col gap-1.5">
             {mine.map((w) => (
               <li key={w.id}>
-                <Link href={`/w/${w.id}`} className="flex items-center justify-between rounded-xl border px-3 py-2 text-sm hover:bg-muted">
-                  {w.name} <ChevronRight className="size-4 text-muted-foreground" />
+                <Link href={`/w/${w.id}`} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  {w.name} <IconNext className="size-4 text-muted-foreground" aria-hidden />
                 </Link>
               </li>
             ))}
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
           <Input value={name} onChange={(e) => setName(e.target.value)} required maxLength={40} placeholder="예: 과학탐구 팀플" />
         </Field>
 
-        <label className="flex cursor-pointer gap-3 rounded-2xl bg-secondary/70 p-3 text-sm">
+        <label className="flex cursor-pointer gap-3 rounded-md bg-secondary p-3 text-sm">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-primary" />
           <span>
             <b className="font-medium">대화 분석에 동의해요 (AI 일정 도우미)</b>
@@ -90,8 +90,8 @@ export default function OnboardingPage() {
           </span>
         </label>
 
-        <ErrorText>{error}</ErrorText>
-        <Button type="submit" disabled={busy} className="h-10 rounded-xl text-base">{busy ? "만드는 중…" : "만들기"}</Button>
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button type="submit" disabled={busy} size="lg" className="w-full">{busy ? "만드는 중…" : "만들기"}</Button>
       </form>
 
       <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
@@ -100,7 +100,7 @@ export default function OnboardingPage() {
 
       <form onSubmit={join} className="flex gap-2">
         <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="초대 링크나 코드 붙여넣기" aria-label="초대 코드" />
-        <Button type="submit" variant="outline" className="h-auto shrink-0 rounded-xl">참가</Button>
+        <Button type="submit" variant="outline" className="h-auto shrink-0 px-4">참가</Button>
       </form>
     </BrandCard>
   );

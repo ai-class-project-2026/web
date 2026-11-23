@@ -1,9 +1,10 @@
 import { cn } from "cn";
 import type { ComponentProps } from "react";
+import { IconWarning } from "@/components/ui/icons";
 
 // 입력창 모양을 한 곳에서 관리해요. 모든 폼에서 같은 모양이 나와요.
 const base =
-  "w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-3 focus:ring-primary/15 disabled:opacity-60";
+  "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-3 focus:ring-ring/30 disabled:opacity-60";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(base, className)} {...props} />;
@@ -33,8 +34,13 @@ export function Field({ label, hint, children, className }: {
   );
 }
 
-/** 빨간 안내 문구 (에러가 없으면 아무것도 안 그림) */
+/** 빨간 안내 문구: 경고 아이콘 + 글 (에러가 없으면 아무것도 안 그림). 모든 폼이 이걸 써요 */
 export function ErrorText({ children }: { children?: React.ReactNode }) {
   if (!children) return null;
-  return <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{children}</p>;
+  return (
+    <p role="alert" className="flex items-start gap-2 text-sm text-destructive">
+      <IconWarning className="mt-0.5 size-4 shrink-0" />
+      {children}
+    </p>
+  );
 }

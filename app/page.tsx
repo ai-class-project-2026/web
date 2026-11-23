@@ -4,11 +4,12 @@
 // 서버가 꺼져 있으면 소개 화면과 "데모로 둘러보기" 버튼을 보여줘요.
 // 맨 아래에는 개발할 때 쓰는 모든 화면 바로가기가 있어요.
 
-import { CalendarHeart, MessageCircleHeart, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { DateLeaf } from "@/components/ui/date-leaf";
+import { IconCalendar, IconChat, IconHidden, IconLoading, IconPlace, IconTime } from "@/components/ui/icons";
 import { api } from "@/lib/api";
 
 const screens = [
@@ -27,9 +28,16 @@ const screens = [
 ];
 
 const features = [
-  { icon: MessageCircleHeart, color: "bg-lavender", title: "팀 채팅", desc: "채널별로 편하게 이야기해요" },
-  { icon: CalendarHeart, color: "bg-mint", title: "AI 일정 정리", desc: "“목 7시 확정!” 하면 캘린더 등록을 제안해요" },
-  { icon: ShieldCheck, color: "bg-peach", title: "욕설 필터", desc: "ㅅ1발, tlqkf 같은 우회 욕설도 가려줘요" },
+  { icon: IconChat, title: "팀 채팅", desc: "채널별로 편하게 이야기해요" },
+  { icon: IconCalendar, title: "AI 일정 정리", desc: "“목 7시 확정!” 하면 캘린더 등록을 제안해요" },
+  { icon: IconHidden, title: "욕설 필터", desc: "ㅅ1발, tlqkf 같은 우회 욕설도 가려줘요" },
+];
+
+// 오른쪽 견본 그림에 쓰는 대화 (그림일 뿐이라 동작하지 않아요)
+const sampleChat = [
+  { who: "서연", before: "발표 연습 언제 해?", hl: "", after: "" },
+  { who: "지호", before: "나는 ", hl: "목요일 7시", after: " 괜찮아" },
+  { who: "하은", before: "좋아, ", hl: "목요일 7시", after: " 확정!" },
 ];
 
 export default function Home() {
@@ -50,53 +58,74 @@ export default function Home() {
   }, [router]);
 
   return (
-    <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-12">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-20 top-0 size-80 rounded-full bg-lavender/60 blur-3xl" />
-        <div className="absolute -right-10 bottom-0 size-96 rounded-full bg-peach/50 blur-3xl" />
-        <div className="absolute left-1/2 top-1/3 size-56 rounded-full bg-mint/40 blur-3xl" />
-      </div>
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-10 md:py-14">
+      <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
+        {/* 왼쪽: 로고, 한 줄 소개, 버튼 */}
+        <div>
+          <p className="font-heading text-xl font-bold"><span className="hl">팀플</span>메이트</p>
+          <h1 className="mt-5 break-keep text-4xl leading-snug md:text-5xl md:leading-snug">
+            대화만 하면 AI가 <span className="hl">약속을 캘린더에 정리</span>해 주는 우리 팀 협업 공간
+          </h1>
 
-      <div className="relative flex max-w-2xl flex-col items-center text-center">
-        <span className="mb-4 flex size-16 items-center justify-center rounded-3xl bg-butter text-4xl shadow-sm">🐣</span>
-        <h1 className="text-4xl text-primary md:text-5xl">팀플메이트</h1>
-        <p className="mt-3 text-lg text-foreground/80">대화만 하면 AI가 약속을 캘린더에 정리해 주는<br className="sm:hidden" /> 우리 팀 협업 공간</p>
-
-        <div className="mt-8 grid w-full gap-3 sm:grid-cols-3">
-          {features.map((f) => (
-            <div key={f.title} className="rounded-3xl border bg-card/80 p-4 text-left shadow-sm backdrop-blur">
-              <span className={`mb-2 flex size-10 items-center justify-center rounded-2xl ${f.color}`}>
-                <f.icon className="size-5 text-foreground/70" />
-              </span>
-              <p className="font-heading text-lg">{f.title}</p>
-              <p className="text-sm text-muted-foreground">{f.desc}</p>
-            </div>
-          ))}
+          <div className="mt-7 flex flex-wrap gap-2">
+            {offline ? (
+              <>
+                <Link href="/w/demo" className={buttonVariants({ size: "lg", className: "px-5" })}>데모로 둘러보기</Link>
+                <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline", className: "px-5" })}>로그인</Link>
+              </>
+            ) : (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground"><IconLoading className="size-4 animate-spin" />들어가는 중…</p>
+            )}
+          </div>
+          {offline && <p className="mt-3 text-xs text-muted-foreground">서버에 연결할 수 없어서 소개 화면을 보여주고 있어요</p>}
         </div>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {offline ? (
-            <>
-              <Link href="/w/demo" className={buttonVariants({ size: "lg", className: "h-11 rounded-2xl px-6 text-base" })}>데모로 둘러보기</Link>
-              <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline", className: "h-11 rounded-2xl px-6 text-base" })}>로그인</Link>
-            </>
-          ) : (
-            <p className="text-sm text-muted-foreground">들어가는 중…</p>
-          )}
-        </div>
-        {offline && <p className="mt-3 text-xs text-muted-foreground">서버에 연결할 수 없어서 소개 화면을 보여주고 있어요</p>}
-
-        <details className="mt-10 text-sm text-muted-foreground">
-          <summary className="cursor-pointer">개발용 화면 바로가기</summary>
-          <ul className="mt-2 flex flex-wrap justify-center gap-2">
-            {screens.map(([href, label]) => (
-              <li key={href}>
-                <Link href={href} className="rounded-full border bg-card px-3 py-1 hover:bg-muted">{label}</Link>
+        {/* 오른쪽: 채팅에서 일정 쪽지가 나오는 모습 (그림) */}
+        <div aria-hidden className="flex flex-col gap-3 rounded-xl border bg-muted p-4">
+          <ul className="flex flex-col gap-2.5">
+            {sampleChat.map((m) => (
+              <li key={m.who} className="flex gap-2.5 text-sm">
+                <span className="w-9 shrink-0 pt-px font-medium">{m.who}</span>
+                <span>
+                  {m.before}
+                  {m.hl && <span className="hl">{m.hl}</span>}
+                  {m.after}
+                </span>
               </li>
             ))}
           </ul>
-        </details>
+          <div className="flex overflow-hidden rounded-xl border bg-card">
+            <DateLeaf date="2026-11-26" ai size="lg" className="self-stretch rounded-none" />
+            <div className="border-l border-dashed" />
+            <div className="min-w-0 flex-1 p-3">
+              <p className="font-semibold">발표 연습</p>
+              <p className="mt-1 flex items-center gap-1.5 font-mono text-sm tabular-nums"><IconTime className="size-4" />19:00</p>
+              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground"><IconPlace className="size-4" />스터디카페</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <ul className="mt-12 grid gap-6 border-t pt-8 sm:grid-cols-3">
+        {features.map((f) => (
+          <li key={f.title}>
+            <f.icon className="size-5 text-primary" aria-hidden />
+            <p className="mt-2 font-semibold">{f.title}</p>
+            <p className="text-sm text-muted-foreground">{f.desc}</p>
+          </li>
+        ))}
+      </ul>
+
+      <details className="mt-10 text-sm text-muted-foreground">
+        <summary className="cursor-pointer">개발용 화면 바로가기</summary>
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {screens.map(([href, label]) => (
+            <li key={href}>
+              <Link href={href} className="block rounded-md border bg-card px-3 py-1 hover:bg-muted">{label}</Link>
+            </li>
+          ))}
+        </ul>
+      </details>
     </main>
   );
 }

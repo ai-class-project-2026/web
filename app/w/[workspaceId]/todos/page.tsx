@@ -3,14 +3,15 @@
 // 할 일 화면: 추가(제목·담당자·마감일), 완료 체크, 담당자 바꾸기, 삭제.
 // 담당자는 멤버 목록에서 골라요.
 
-import { ListTodo, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
+import { Segmented } from "@/components/ui/segmented";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Input, Select } from "@/components/ui/field";
 import { dDay, shortDate } from "@/components/ui/format";
+import { IconAdd, IconCheck, IconDelete, IconTodo } from "@/components/ui/icons";
 import { Panel, PanelPage } from "@/components/ui/panel";
 import { DueBadge } from "@/components/workspace/UpcomingPanel";
 import { BackToChat } from "@/components/workspace/BackToChat";
@@ -59,8 +60,8 @@ export default function TodosPage() {
       <TopBar>
         <BackToChat />
         <TopBarDivider />
-        <TopBarTitle icon={ListTodo}>할 일</TopBarTitle>
-        <span className="ml-auto shrink-0 text-sm text-muted-foreground">{doneCount}/{ws.todos.length} 완료</span>
+        <TopBarTitle icon={IconTodo}>할 일</TopBarTitle>
+        <span className="ml-auto shrink-0 text-sm text-muted-foreground"><span className="font-mono tabular-nums">{doneCount}/{ws.todos.length}</span> 완료</span>
       </TopBar>
       <PanelPage
         main={
@@ -73,7 +74,7 @@ export default function TodosPage() {
                   {ws.members.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
                 </Select>
                 <Input type="date" value={due} onChange={(e) => setDue(e.target.value)} className="sm:w-40" aria-label="마감일" />
-                <Button type="submit" className="h-auto py-2"><Plus /> 추가</Button>
+                <Button type="submit" className="h-auto py-2"><IconAdd /> 추가</Button>
               </form>
               {error && <div className="mt-2"><ErrorText>{error}</ErrorText></div>}
             </Panel>
@@ -83,22 +84,12 @@ export default function TodosPage() {
               title={`${TABS.find((t) => t.key === tab)?.label} ${sorted.length}개`}
               bodyClassName="p-0"
               action={
-                <div className="flex gap-0.5 rounded-md bg-background p-0.5 text-sm">
-                  {TABS.map((t) => (
-                    <button
-                      key={t.key}
-                      onClick={() => setTab(t.key)}
-                      className={cn("rounded px-2.5 py-1 transition", tab === t.key ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:text-foreground")}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
+                <Segmented value={tab} onChange={setTab} options={TABS.map((t) => ({ value: t.key, label: t.label }))} />
               }
             >
               {sorted.length === 0 ? (
-                <p className="p-10 text-center text-muted-foreground">
-                  {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅! 💪" : "할 일이 없어요 🎉"}
+                <p className="p-10 text-center text-sm text-muted-foreground">
+                  {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅!" : "할 일이 없어요"}
                 </p>
               ) : (
                 <ul className="divide-y">
@@ -131,9 +122,9 @@ function Summary() {
 
   return (
     <>
-      <Panel title="진행 상황" action={<span className="text-sm font-semibold text-primary">{pct}%</span>}>
-        <div className="h-2.5 overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+      <Panel title="진행 상황" action={<span className="font-mono text-sm font-semibold tabular-nums text-primary">{pct}%</span>}>
+        <div className="h-2 overflow-hidden rounded-sm bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+          <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
         </div>
         <dl className="mt-3 grid grid-cols-3 divide-x rounded-md border text-center">
           <Stat label="남음" value={left.length} />
@@ -148,14 +139,14 @@ function Summary() {
             <li key={m.user_id} className="flex h-10 items-center gap-2.5 rounded-md px-2">
               <Avatar id={m.user_id} name={m.name} className="size-7 text-xs" />
               <span className="min-w-0 flex-1 truncate text-sm">{m.name}{m.user_id === ws.me?.id && <span className="text-muted-foreground"> (나)</span>}</span>
-              <span className={cn("text-sm font-semibold", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
+              <span className={cn("font-mono text-sm font-semibold tabular-nums", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
             </li>
           ))}
           {nobody > 0 && (
             <li className="flex h-10 items-center gap-2.5 rounded-md px-2 text-muted-foreground">
               <span className="size-7 rounded-full border border-dashed" />
               <span className="flex-1 text-sm">담당자 없음</span>
-              <span className="text-sm font-semibold">{nobody}</span>
+              <span className="font-mono text-sm font-semibold tabular-nums">{nobody}</span>
             </li>
           )}
         </ul>
@@ -168,7 +159,7 @@ function Stat({ label, value, warn }: { label: string; value: number; warn?: boo
   return (
     <div className="py-2">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className={cn("text-lg font-semibold", warn && "text-destructive")}>{value}</dd>
+      <dd className={cn("font-mono text-lg font-semibold tabular-nums", warn && "text-destructive")}>{value}</dd>
     </div>
   );
 }
@@ -182,16 +173,20 @@ function TodoRow({ todo: t, onChange, onDelete }: {
   const who = ws.members.find((m) => m.user_id === t.assignee_id);
   return (
     <li className={cn("group flex min-h-14 items-center gap-3 px-4 py-2 transition hover:bg-muted/40", t.done && "bg-muted/30")}>
-      <input
-        type="checkbox"
-        checked={t.done}
-        onChange={() => onChange({ done: !t.done })}
-        className="size-5 shrink-0 cursor-pointer accent-primary"
-        aria-label={`${t.title} 완료`}
-      />
+      {/* 네모 체크박스: 진짜 input은 숨기고(키보드로 누를 수 있어요) 옆 칸이 모양을 그려요 */}
+      <span className="relative flex size-5 shrink-0">
+        <input
+          type="checkbox"
+          checked={t.done}
+          onChange={() => onChange({ done: !t.done })}
+          className="peer absolute inset-0 cursor-pointer appearance-none rounded-sm border border-input bg-card checked:border-primary checked:bg-primary focus-visible:ring-3 focus-visible:ring-ring/50"
+          aria-label={`${t.title} 완료`}
+        />
+        <IconCheck className="pointer-events-none absolute inset-0 m-auto size-4 text-primary-foreground opacity-0 peer-checked:opacity-100" />
+      </span>
       <div className="min-w-0 flex-1">
         <p className={cn("truncate", t.done && "text-muted-foreground line-through")}>{t.title}</p>
-        {t.due_date && <p className="text-xs text-muted-foreground">마감 {shortDate(t.due_date)}</p>}
+        {t.due_date && <p className="text-xs text-muted-foreground">마감 <span className="font-mono tabular-nums">{shortDate(t.due_date)}</span></p>}
       </div>
       {t.due_date && !t.done && <DueBadge date={t.due_date} />}
       <label className="flex items-center gap-1.5" title="담당자 바꾸기">
@@ -210,9 +205,9 @@ function TodoRow({ todo: t, onChange, onDelete }: {
         onClick={() => confirm(`"${t.title}"을(를) 지울까요?`) && onDelete()}
         aria-label="삭제"
         title="삭제"
-        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
       >
-        <Trash2 className="size-4" />
+        <IconDelete className="size-4" />
       </button>
     </li>
   );

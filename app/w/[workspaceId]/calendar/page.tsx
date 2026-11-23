@@ -2,7 +2,7 @@
 
 // 캘린더 화면 (FullCalendar v7: 플러그인은 @fullcalendar/react/daygrid 처럼 하위 경로에서 가져와요)
 //  - 날짜 누르기: 새 일정 / 일정 누르기: 수정·취소·삭제 / 끌어다 놓기: 날짜 옮기기
-//  - AI가 만든 일정은 ✨ 표시, 취소된 일정은 회색 (기본은 숨김)
+//  - AI가 찾은 일정은 노란 형광펜색, 직접 만든 일정은 파란색, 취소된 일정은 회색 (기본은 숨김)
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
@@ -13,21 +13,15 @@ import timeGridPlugin from "@fullcalendar/react/timegrid";
 import "@fullcalendar/react/skeleton.css";
 import "@fullcalendar/react/themes/breezy/theme.css";
 import "@fullcalendar/react/themes/breezy/palettes/indigo.css";
-import { CalendarDays, Plus } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
 import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { EventDialog, type EventDraft } from "@/components/calendar/EventDialog";
 import { Button } from "@/components/ui/button";
+import { IconAdd, IconCalendar } from "@/components/ui/icons";
 import { todayStr, toDateStr } from "@/components/ui/format";
 import { BackToChat } from "@/components/workspace/BackToChat";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
-
-const COLORS = {
-  ai: "oklch(0.62 0.15 285)", // 라벤더(보라): AI가 만든 일정
-  manual: "oklch(0.66 0.12 175)", // 민트: 직접 추가한 일정
-  cancelled: "oklch(0.8 0.01 285)", // 회색: 취소됨
-};
 
 export default function CalendarPage() {
   const ws = useWorkspace();
@@ -40,11 +34,11 @@ export default function CalendarPage() {
       const cancelled = e.status === "cancelled";
       return {
         id: String(e.id),
-        title: `${e.source === "ai" ? "✨ " : ""}${e.title}${e.location ? ` · ${e.location}` : ""}`,
+        // 색은 이벤트 모양 클래스(eventClass)가 정해요. 여기서는 종류만 넘겨요.
+        title: `${e.title}${e.location ? ` · ${e.location}` : ""}`,
         start: e.start ? `${e.date}T${e.start}` : e.date,
         allDay: !e.start,
-        color: cancelled ? COLORS.cancelled : COLORS[e.source],
-        className: cancelled ? "line-through opacity-70" : "",
+        extendedProps: { kind: cancelled ? "cancelled" : e.source },
       };
     });
 
@@ -53,22 +47,23 @@ export default function CalendarPage() {
       <TopBar>
         <BackToChat />
         <TopBarDivider />
-        <TopBarTitle icon={CalendarDays}>캘린더</TopBarTitle>
+        <TopBarTitle icon={IconCalendar}>캘린더</TopBarTitle>
         <div className="hidden items-center gap-3 text-xs text-muted-foreground lg:flex">
-          <Legend color={COLORS.ai}>✨ AI가 찾은 일정</Legend>
-          <Legend color={COLORS.manual}>직접 추가</Legend>
+          <Legend swatch="bg-highlight">AI가 찾은 일정</Legend>
+          <Legend swatch="border border-l-[3px] border-border border-l-primary bg-secondary">직접 추가</Legend>
           <label className="flex cursor-pointer items-center gap-1.5">
-            <input type="checkbox" className="accent-primary" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
+            <input type="checkbox" className="accent-primary dark:scheme-dark" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
             취소된 일정도 보기
           </label>
         </div>
         <Button className="ml-auto" onClick={() => setDraft({ date: todayStr() })}>
-          <Plus /> 일정 추가
+          <IconAdd /> 일정 추가
         </Button>
       </TopBar>
 
-    <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-muted/60 p-4">
-      <div className="calendar-wrap min-h-[32rem] flex-1 rounded-lg border bg-card p-3 shadow-xs">
+    <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background p-4">
+      {/* 종이 카드 한 장: 테두리는 여기 한 번만 (FullCalendar 안쪽 테두리는 globals.css에서 지워요) */}
+      <div className="calendar-wrap min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-card">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, breezyTheme]}
           locale={koLocale}
@@ -80,6 +75,14 @@ export default function CalendarPage() {
           // 날짜 칸 구분: 주말·다른 달·오늘에 각각 다른 배경 (모양은 globals.css의 .cal-*)
           dayCellClass={(d) => cn(d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat", d.isOther && "cal-other", d.isToday && "cal-today")}
           dayHeaderClass={(d) => cn("cal-head", d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat")}
+          // 오늘 날짜 숫자는 파란 칩 (칸 전체를 칠하지 않아요)
+          dayCellTopInnerClass={(d) => cn("cal-daynum", d.isToday && "cal-today-num")}
+          // 버튼: 선택된 보기(월/주)는 cal-btn-on
+          buttonClass={(b) => cn("cal-btn", b.isSelected && "cal-btn-on")}
+          toolbarTitleClass="cal-title"
+          // 일정 색: AI = 노랑, 직접 = 파랑, 취소 = 회색 + 취소선
+          eventClass={(i) => cn("cal-ev", `cal-${(i.event.extendedProps as { kind: string }).kind}`)}
+          eventTimeClass="font-mono tabular-nums"
           editable
           events={events}
           dateClick={(info) => {
@@ -118,10 +121,10 @@ export default function CalendarPage() {
   );
 }
 
-function Legend({ color, children }: { color: string; children: React.ReactNode }) {
+function Legend({ swatch, children }: { swatch: string; children: React.ReactNode }) {
   return (
     <span className="flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full" style={{ background: color }} />
+      <span aria-hidden className={`size-3 shrink-0 ${swatch}`} />
       {children}
     </span>
   );

@@ -9,15 +9,16 @@
 // TODO(part 1): API가 생기면 아래 changePassword / deleteAccount 의 LIVE 부분만 연결하면 돼요.
 //   예) PUT /auth/password { current_password, new_password },  DELETE /auth/me
 
-import { ArrowLeft, KeyRound, LogOut, Monitor, Palette, TriangleAlert, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "cn";
+import { Segmented } from "@/components/ui/segmented";
 import type { User } from "@/lib/api";
 import { logout, useMe } from "@/lib/auth";
 import { dummyMe } from "@/lib/dummy";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { IconBack, IconDisplay, IconLock, IconLogout, IconPassword, IconProfile, IconWarning, type AppIcon } from "@/components/ui/icons";
 import { ErrorText, Field, Input } from "@/components/ui/field";
 import { Panel, PanelPage } from "@/components/ui/panel";
 import { SectionLabel, Splash, navItemClass } from "@/components/workspace/WorkspaceShell";
@@ -26,11 +27,11 @@ import { setPrefs, usePrefs, type TextSize, type Theme } from "./preferences";
 import { TopBar, TopBarDivider, TopBarTitle } from "./TopBar";
 import { UserPanel } from "./UserPanel";
 
-const SECTIONS = [
-  { id: "profile", label: "내 프로필", icon: UserRound },
-  { id: "password", label: "비밀번호 변경", icon: KeyRound },
-  { id: "display", label: "화면 설정", icon: Palette },
-  { id: "account", label: "로그아웃 · 회원 탈퇴", icon: LogOut },
+const SECTIONS: { id: string; label: string; icon: AppIcon }[] = [
+  { id: "profile", label: "내 프로필", icon: IconProfile },
+  { id: "password", label: "비밀번호 변경", icon: IconPassword },
+  { id: "display", label: "화면 설정", icon: IconDisplay },
+  { id: "account", label: "로그아웃 · 회원 탈퇴", icon: IconLogout },
 ];
 
 export function MyPage({ demo }: { demo: boolean }) {
@@ -54,13 +55,13 @@ function MyPageView({ demo, me }: { demo: boolean; me: User }) {
       <TopBar>
         <button
           onClick={() => (history.length > 1 ? router.back() : router.push(demo ? "/w/demo" : "/"))}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border bg-card px-2.5 text-sm font-medium transition hover:bg-secondary"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium transition hover:bg-secondary"
         >
-          <ArrowLeft className="size-4" /> 돌아가기
+          <IconBack className="size-4" /> 돌아가기
         </button>
         <TopBarDivider />
-        <TopBarTitle icon={UserRound}>마이페이지</TopBarTitle>
-        {demo && <span className="ml-auto text-xs text-muted-foreground">데모 모드 · 실제 계정은 바뀌지 않아요</span>}
+        <TopBarTitle icon={IconProfile}>마이페이지</TopBarTitle>
+        {demo && <span className="ml-auto hidden text-xs text-muted-foreground sm:block">데모 모드 · 실제 계정은 바뀌지 않아요</span>}
       </TopBar>
 
       <PanelPage
@@ -78,6 +79,8 @@ function MyPageView({ demo, me }: { demo: boolean; me: User }) {
 }
 
 function Sidebar({ demo, me }: { demo: boolean; me: User }) {
+  // 방금 누른 묶음을 "선택됨"으로 보여줘요
+  const [current, setCurrent] = useState("profile");
   return (
     <>
       <div className="flex h-12 shrink-0 items-center border-b border-sidebar-border pl-4 pr-10 md:pr-4">
@@ -86,8 +89,14 @@ function Sidebar({ demo, me }: { demo: boolean; me: User }) {
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
         <SectionLabel>사용자 설정</SectionLabel>
         {SECTIONS.map((s) => (
-          <a key={s.id} href={`#${s.id}`} className={navItemClass(false)}>
-            <s.icon className="size-5 shrink-0 text-muted-foreground" />
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            onClick={() => setCurrent(s.id)}
+            aria-current={current === s.id ? "true" : undefined}
+            className={navItemClass(current === s.id)}
+          >
+            <s.icon className={cn("size-5 shrink-0", current === s.id ? "text-primary" : "text-muted-foreground")} weight={current === s.id ? "fill" : "regular"} />
             {s.label}
           </a>
         ))}
@@ -102,12 +111,12 @@ function ProfilePanel({ me }: { me: User }) {
     <div id="profile" className="scroll-mt-4">
       <Panel title="내 프로필">
         <div className="flex items-center gap-4">
-          <Avatar id={me.id} name={me.name} className="size-16 text-2xl" />
-          <dl className="grid flex-1 grid-cols-[4rem_1fr] gap-y-1.5 text-sm">
-            <dt className="text-muted-foreground">이름</dt>
-            <dd className="font-medium">{me.name}</dd>
-            <dt className="text-muted-foreground">이메일</dt>
-            <dd className="truncate">{me.email}</dd>
+          <Avatar id={me.id} name={me.name} className="size-20 text-3xl" />
+          <dl className="min-w-0 flex-1">
+            <dt className="sr-only">이름</dt>
+            <dd className="truncate font-heading text-2xl font-bold">{me.name}</dd>
+            <dt className="sr-only">이메일</dt>
+            <dd className="mt-1 truncate font-mono text-sm text-muted-foreground">{me.email}</dd>
           </dl>
         </div>
       </Panel>
@@ -138,7 +147,13 @@ function PasswordPanel({ demo }: { demo: boolean }) {
 
   return (
     <div id="password" className="scroll-mt-4">
-      <Panel title="비밀번호 변경" desc={demo ? undefined : "🛠️ 서버(파트 1)에 비밀번호 변경 기능이 준비되면 바로 쓸 수 있어요."}>
+      <Panel title="비밀번호 변경">
+        {!demo && (
+          <p className="mb-3 flex items-center gap-2 rounded-md border bg-muted px-3 py-2.5 text-sm text-muted-foreground">
+            <IconLock className="size-4 shrink-0" />
+            서버(파트 1)에 비밀번호 변경 기능이 준비되면 바로 쓸 수 있어요.
+          </p>
+        )}
         <form onSubmit={changePassword} className="grid gap-3 sm:grid-cols-3">
           <Field label="지금 비밀번호"><Input type="password" autoComplete="current-password" value={f.current} onChange={set("current")} required /></Field>
           <Field label="새 비밀번호" hint="8자 이상"><Input type="password" autoComplete="new-password" value={f.next} onChange={set("next")} required /></Field>
@@ -161,18 +176,18 @@ function DisplayPanel() {
       <Panel title="화면 설정" desc="이 브라우저에만 저장돼요.">
         <div className="flex flex-col divide-y">
           <Row label="테마" sub="어두운 화면은 밤에 눈이 덜 피곤해요">
-            <Segment<Theme>
+            <Segmented<Theme>
               value={prefs.theme}
               onChange={(theme) => setPrefs({ theme })}
               options={[
                 { value: "light", label: "밝게" },
                 { value: "dark", label: "어둡게" },
-                { value: "system", label: "컴퓨터 설정", icon: Monitor },
+                { value: "system", label: "컴퓨터 설정", icon: IconDisplay },
               ]}
             />
           </Row>
           <Row label="글자 크기" sub="크게: 글자와 버튼을 모두 12% 키워요">
-            <Segment<TextSize>
+            <Segmented<TextSize>
               value={prefs.text}
               onChange={(text) => setPrefs({ text })}
               options={[
@@ -209,11 +224,11 @@ function AccountPanels({ demo }: { demo: boolean }) {
     <div id="account" className="flex scroll-mt-4 flex-col gap-3">
       <Panel title="계정">
         <Button variant="outline" className="w-full" onClick={signOut}>
-          <LogOut /> 로그아웃
+          <IconLogout /> 로그아웃
         </Button>
       </Panel>
 
-      <Panel title="회원 탈퇴" danger desc="모든 프로젝트에서 나가고 계정이 지워져요. 되돌릴 수 없어요.">
+      <Panel title={<span className="flex items-center gap-2"><IconWarning className="size-4" />회원 탈퇴</span>} danger desc="모든 프로젝트에서 나가고 계정이 지워져요. 되돌릴 수 없어요.">
         <Field label="확인을 위해 ‘탈퇴’라고 입력해 주세요">
           <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="탈퇴" />
         </Field>
@@ -223,7 +238,7 @@ function AccountPanels({ demo }: { demo: boolean }) {
           disabled={confirmText.trim() !== "탈퇴"}
           onClick={deleteAccount}
         >
-          <TriangleAlert /> 회원 탈퇴
+          <IconWarning /> 회원 탈퇴
         </Button>
         {error && <div className="mt-2"><ErrorText>{error}</ErrorText></div>}
       </Panel>
@@ -234,37 +249,11 @@ function AccountPanels({ demo }: { demo: boolean }) {
 function Row({ label, sub, children }: { label: string; sub?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-40">
         <p className="text-sm font-medium">{label}</p>
         {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
       </div>
       {children}
-    </div>
-  );
-}
-
-function Segment<T extends string>({ value, onChange, options }: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { value: T; label: string; icon?: React.ComponentType<{ className?: string }> }[];
-}) {
-  return (
-    <div className="flex gap-0.5 rounded-md bg-muted p-0.5">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          aria-pressed={value === o.value}
-          onClick={() => onChange(o.value)}
-          className={cn(
-            "flex items-center gap-1 rounded px-3 py-1.5 text-sm transition",
-            value === o.value ? "bg-card font-medium shadow-xs" : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {o.icon && <o.icon className="size-4" />}
-          {o.label}
-        </button>
-      ))}
     </div>
   );
 }

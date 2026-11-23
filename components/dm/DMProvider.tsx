@@ -91,11 +91,11 @@ function DemoDM({ children }: { children: React.ReactNode }) {
     messagesOf: (id) => threads[id] ?? [],
     async send(peerId, text) {
       push(peerId, { id: Date.now(), channel_id: -peerId, user_id: dummyMe.id, user_name: dummyMe.name, text, created_at: new Date().toISOString(), ...demoModerate(text) });
-      // 데모라서 상대가 잠시 뒤 귀엽게 답장해요
+      // 데모라서 상대가 잠시 뒤 자동으로 답장해요
       const peer = people.find((p) => p.id === peerId);
       if (peer) {
         setTimeout(() => {
-          const replies = ["확인했어요! 👍", "오케이~ 고마워 😊", "좋아요! 이따 봐요 🙌", "넵 알겠어요!"];
+          const replies = ["확인했어요!", "오케이~ 고마워요", "좋아요! 이따 봐요", "넵 알겠어요!"];
           push(peerId, {
             id: Date.now() + 1, channel_id: -peerId, user_id: peer.id, user_name: peer.name,
             text: replies[Math.floor(Math.random() * replies.length)], created_at: new Date().toISOString(),

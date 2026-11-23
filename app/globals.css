@@ -4,6 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── 디자인 규칙 ("학교 플래너") ──────────────────────────────────
+   색은 네 가지 재료만 쓰고, 각각 뜻이 하나예요.
+     종이   background / card      바탕과 칸 (흰 종이)
+     파란펜 primary                누를 수 있는 것, 선택된 것, "나"
+     형광펜 highlight (노랑)       AI가 찾거나 쓴 모든 것 (일정 쪽지, AI 일정, AI 표시)
+     빨간펜 destructive            위험, 삭제, 욕설 경고
+   글자는 푸른 먹색, 보조 글자는 연필색. 그라데이션·번짐·유리·반짝임·이모지·마스코트는 쓰지 않아요.
+   모양 규칙
+     동그라미 = 사람(아바타), 둥근 네모(rounded-lg) = 프로젝트/공간(레일 탭). 섞어 쓰지 않아요.
+     버튼·입력·메뉴 줄·태그는 rounded-md, 칸·패널·팝업은 rounded-xl. 알약(rounded-full)은 아바타·스위치·개수 점만.
+     칸은 1px 테두리만, 그림자는 떠 있는 것(팝업·서랍)에만 shadow-lg.
+   아이콘 규칙
+     아이콘은 전부 @/components/ui/icons 에서만 가져와요. 크기는 size-4 / size-5 / size-6 세 가지.
+     굵기는 기본 regular, 선택된 메뉴·토글에서만 fill. 이모지나 글자(✓ → 등)로 아이콘을 대신하지 않아요.
+   글꼴: 제목(h1)·로고·큰 날짜 숫자는 Sunflower, 나머지는 IBM Plex Sans KR, 시각·날짜·개수는 IBM Plex Mono(.font-mono tabular-nums).
+   ─────────────────────────────────────────────────────────────── */
+
 /* 글자 크기만 한 단계씩 키워요 (여백·버튼 크기는 그대로라 화면이 헐렁해지지 않아요)
    text-xs 12→13px, text-sm 14→15px (text-base는 기본 16px) */
 @theme {
@@ -37,9 +54,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-noto), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, monospace;
-  --font-heading: var(--font-jua), var(--font-noto), sans-serif;
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  /* 숫자·영문만 고정폭으로, 한글은 본문 글꼴 그대로 (한글까지 고정폭이면 글자 사이가 벌어져요) */
+  --font-mono: var(--font-plex-mono), var(--font-plex), ui-monospace, monospace;
+  --font-heading: var(--font-sunflower), var(--font-plex), sans-serif;
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
   --color-mint: var(--mint);
   --color-peach: var(--peach);
   --color-pink: var(--pink);
@@ -84,87 +104,92 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* 토큰은 spec 그대로: 이름은 그대로 두고 값만 플래너 색으로 */
 :root {
-  /* 차분한 회백색 바탕 + 남색 포인트 하나. 눈이 덜 피곤하도록 채도를 낮췄어요 */
-  --background: oklch(0.975 0.003 260);
-  --foreground: oklch(0.25 0.015 260);
+  --background: oklch(0.985 0.003 250);
+  --foreground: oklch(0.24 0.03 265);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.015 260);
+  --card-foreground: oklch(0.24 0.03 265);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.015 260);
-  --primary: oklch(0.5 0.11 265);
+  --popover-foreground: oklch(0.24 0.03 265);
+  --primary: oklch(0.48 0.19 264);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.012 265);
-  --secondary-foreground: oklch(0.38 0.07 265);
-  --muted: oklch(0.955 0.004 260);
-  --muted-foreground: oklch(0.5 0.015 260);
-  --accent: oklch(0.95 0.02 70);
-  --accent-foreground: oklch(0.45 0.07 60);
-  --destructive: oklch(0.55 0.17 25);
-  --border: oklch(0.9 0.006 260);
-  --input: oklch(0.87 0.008 260);
-  --ring: oklch(0.62 0.09 265);
-  /* 아바타·프로젝트 구분용 색: 거의 회색에 가까운 옅은 색이라 여러 개가 모여도 쨍하지 않아요 */
-  --lavender: oklch(0.9 0.03 290);
-  --mint: oklch(0.91 0.03 170);
-  --peach: oklch(0.91 0.03 55);
-  --pink: oklch(0.91 0.03 0);
-  --sky: oklch(0.91 0.03 235);
-  --butter: oklch(0.94 0.035 95);
-  --chart-1: oklch(0.5 0.11 265);
-  --chart-2: oklch(0.62 0.1 165);
-  --chart-3: oklch(0.68 0.1 60);
-  --chart-4: oklch(0.6 0.1 0);
-  --chart-5: oklch(0.6 0.09 235);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.96 0.004 260);
-  --sidebar-foreground: oklch(0.3 0.015 260);
-  --sidebar-primary: oklch(0.5 0.11 265);
+  --secondary: oklch(0.95 0.025 264);
+  --secondary-foreground: oklch(0.36 0.15 264);
+  --muted: oklch(0.962 0.005 250);
+  --muted-foreground: oklch(0.5 0.022 262);
+  --accent: oklch(0.95 0.025 264);
+  --accent-foreground: oklch(0.36 0.15 264);
+  --highlight: oklch(0.93 0.17 104);
+  --highlight-foreground: oklch(0.24 0.03 265);
+  --destructive: oklch(0.56 0.21 27);
+  --border: oklch(0.905 0.012 255);
+  --input: oklch(0.86 0.016 255);
+  --ring: oklch(0.6 0.15 264);
+  /* 아바타·프로젝트 인덱스 탭 색 */
+  --lavender: oklch(0.9 0.05 290);
+  --mint: oklch(0.9 0.05 170);
+  --peach: oklch(0.9 0.05 55);
+  --pink: oklch(0.9 0.05 0);
+  --sky: oklch(0.9 0.05 235);
+  --butter: oklch(0.9 0.05 95);
+  --chart-1: oklch(0.48 0.19 264);
+  --chart-2: oklch(0.62 0.13 165);
+  --chart-3: oklch(0.8 0.15 95);
+  --chart-4: oklch(0.56 0.21 27);
+  --chart-5: oklch(0.6 0.02 262);
+  --radius: 0.5rem;
+  /* 사이드바 = 종이 밑의 책상 */
+  --sidebar: oklch(0.965 0.006 250);
+  --sidebar-foreground: oklch(0.24 0.03 265);
+  --sidebar-primary: oklch(0.48 0.19 264);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.915 0.012 265);
-  --sidebar-accent-foreground: oklch(0.3 0.06 265);
-  --sidebar-border: oklch(0.9 0.006 260);
-  --sidebar-ring: oklch(0.62 0.09 265);
+  --sidebar-accent: oklch(1 0 0);
+  --sidebar-accent-foreground: oklch(0.24 0.03 265);
+  --sidebar-border: oklch(0.905 0.012 255);
+  --sidebar-ring: oklch(0.6 0.15 264);
 }
 
 .dark {
-  --background: oklch(0.2 0.008 260);
-  --foreground: oklch(0.93 0.005 260);
-  --card: oklch(0.24 0.01 260);
-  --card-foreground: oklch(0.93 0.005 260);
-  --popover: oklch(0.24 0.01 260);
-  --popover-foreground: oklch(0.93 0.005 260);
-  --primary: oklch(0.7 0.1 265);
-  --primary-foreground: oklch(0.2 0.02 265);
-  --secondary: oklch(0.29 0.02 265);
-  --secondary-foreground: oklch(0.88 0.03 265);
-  --muted: oklch(0.27 0.008 260);
-  --muted-foreground: oklch(0.7 0.01 260);
-  --accent: oklch(0.3 0.02 60);
-  --accent-foreground: oklch(0.88 0.04 60);
-  --destructive: oklch(0.68 0.15 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.08 265);
-  --lavender: oklch(0.38 0.03 290);
-  --mint: oklch(0.38 0.03 170);
-  --peach: oklch(0.4 0.03 55);
-  --pink: oklch(0.38 0.03 0);
-  --sky: oklch(0.38 0.03 235);
-  --butter: oklch(0.42 0.03 95);
-  --chart-1: oklch(0.7 0.1 265);
-  --chart-2: oklch(0.7 0.09 165);
-  --chart-3: oklch(0.74 0.09 60);
-  --chart-4: oklch(0.7 0.09 0);
-  --chart-5: oklch(0.7 0.08 235);
-  --sidebar: oklch(0.22 0.008 260);
-  --sidebar-foreground: oklch(0.9 0.005 260);
-  --sidebar-primary: oklch(0.7 0.1 265);
-  --sidebar-primary-foreground: oklch(0.2 0.02 265);
-  --sidebar-accent: oklch(0.29 0.02 265);
-  --sidebar-accent-foreground: oklch(0.95 0.005 260);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.08 265);
+  --background: oklch(0.19 0.022 265);
+  --foreground: oklch(0.93 0.008 255);
+  --card: oklch(0.235 0.024 265);
+  --card-foreground: oklch(0.93 0.008 255);
+  --popover: oklch(0.235 0.024 265);
+  --popover-foreground: oklch(0.93 0.008 255);
+  --primary: oklch(0.72 0.14 264);
+  --primary-foreground: oklch(0.18 0.03 265);
+  --secondary: oklch(0.3 0.045 264);
+  --secondary-foreground: oklch(0.88 0.06 264);
+  --muted: oklch(0.26 0.02 265);
+  --muted-foreground: oklch(0.7 0.015 260);
+  --accent: oklch(0.3 0.045 264);
+  --accent-foreground: oklch(0.88 0.06 264);
+  --highlight: oklch(0.86 0.16 104);
+  --highlight-foreground: oklch(0.2 0.03 265);
+  --destructive: oklch(0.68 0.18 27);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 17%);
+  --ring: oklch(0.62 0.12 264);
+  --lavender: oklch(0.4 0.05 290);
+  --mint: oklch(0.4 0.05 170);
+  --peach: oklch(0.4 0.05 55);
+  --pink: oklch(0.4 0.05 0);
+  --sky: oklch(0.4 0.05 235);
+  --butter: oklch(0.4 0.05 95);
+  --chart-1: oklch(0.72 0.14 264);
+  --chart-2: oklch(0.62 0.13 165);
+  --chart-3: oklch(0.8 0.15 95);
+  --chart-4: oklch(0.68 0.18 27);
+  --chart-5: oklch(0.6 0.02 262);
+  --sidebar: oklch(0.165 0.022 265);
+  --sidebar-foreground: oklch(0.93 0.008 255);
+  --sidebar-primary: oklch(0.72 0.14 264);
+  --sidebar-primary-foreground: oklch(0.18 0.03 265);
+  --sidebar-accent: oklch(0.26 0.03 265);
+  --sidebar-accent-foreground: oklch(0.93 0.008 255);
+  --sidebar-border: oklch(1 0 0 / 11%);
+  --sidebar-ring: oklch(0.62 0.12 264);
 }
 
 @layer base {
@@ -181,9 +206,17 @@
   html[data-text="large"] {
     font-size: 112.5%;
   }
-  h1, h2, h3 {
+  /* 큰 제목(h1)만 Sunflower, h2·h3(패널 제목 등)은 본문 글꼴 600 */
+  h1 {
     font-family: var(--font-heading);
-    font-weight: 400;
+    font-weight: 700;
+  }
+  /* 제목 글꼴(Sunflower)은 글자 사이가 넓어서 살짝 좁혀요 */
+  h1, .font-heading {
+    letter-spacing: -0.03em;
+  }
+  h2, h3 {
+    font-weight: 600;
   }
 }
 
@@ -200,6 +233,40 @@
 }
 .animate-pop {
   animation: pop-in 0.22s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop { animation: none; }
+}
+
+/* 형광펜 줄: AI가 찾은 글자 뒤에 노란 줄을 그어요 (.hl) */
+.hl {
+  background: linear-gradient(transparent 36%, var(--highlight) 36%, var(--highlight) 90%, transparent 90%);
+  padding-inline: 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  color: var(--highlight-foreground);
+}
+.dark .hl {
+  background: linear-gradient(transparent 36%, color-mix(in oklch, var(--highlight) 38%, transparent) 36%, color-mix(in oklch, var(--highlight) 38%, transparent) 90%, transparent 90%);
+  color: inherit;
+}
+
+/* Sunflower 글자는 칸 안에서 위쪽에 앉아 있어서 줄을 조금 위로 올려요 */
+.font-heading .hl, h1 .hl {
+  background-position: 0 -0.18em;
+}
+
+/* 욕설 가림: 마커로 칠한 검은 줄 (이모지·●●● 대신) */
+.redact {
+  background: var(--foreground);
+  color: transparent;
+  border-radius: var(--radius-sm);
+  user-select: none;
+}
+
+/* 숫자 글꼴은 글자 폭이 넓어서 "오전 9:13"처럼 한글과 섞이면 띄어쓰기가 벌어져 보여요. 단어 사이를 살짝 좁혀요 */
+.font-mono {
+  word-spacing: -0.2em;
 }
 
 /* FullCalendar(breezy 테마)를 사이트 색에 맞추기 */
@@ -219,26 +286,113 @@
 .calendar-wrap .fc-event {
   cursor: pointer;
 }
-/* 칸 구분: 선을 진하게, 요일 줄은 회색 띠, 주말은 옅은 회색, 다른 달은 더 흐리게, 오늘은 남색 빛 */
+/* 칸 구분: 선은 border 색, 요일 줄은 옅은 종이색, 주말·다른 달은 은은하게, 오늘은 날짜 숫자만 파란 칩 */
 .calendar-wrap {
-  --fc-breezy-border: var(--input);
+  --fc-breezy-border: var(--border);
   --fc-breezy-muted-border: var(--border);
-  --fc-breezy-strong-border: var(--input);
+  --fc-breezy-strong-border: var(--border);
+  --fc-breezy-event-contrast: var(--primary-foreground);
+  --fc-breezy-highlight: transparent;
+  border-radius: var(--radius-xl);
+}
+/* 바깥 카드의 테두리만 남기고, FullCalendar 안쪽 상자의 옆·아래 테두리와 둥근 모서리는 지워요 (위쪽 줄은 제목 줄 구분선) */
+.calendar-wrap > :first-child > :first-child {
+  border-inline-width: 0;
+  border-bottom-width: 0;
+  border-radius: 0;
 }
 .calendar-wrap .cal-head {
   background: var(--muted);
   font-weight: 600;
+  font-size: var(--text-sm, 0.875rem);
 }
 .calendar-wrap .cal-sat,
 .calendar-wrap .cal-sun {
-  background: color-mix(in oklch, var(--muted) 70%, var(--card));
+  background: color-mix(in oklch, var(--muted) 55%, var(--card));
 }
-.calendar-wrap .cal-head.cal-sun { color: var(--destructive); }
-.calendar-wrap .cal-head.cal-sat { color: var(--primary); }
+.calendar-wrap .cal-head.cal-sun, .calendar-wrap .cal-head.cal-sun * { color: var(--destructive); }
+.calendar-wrap .cal-head.cal-sat, .calendar-wrap .cal-head.cal-sat * { color: var(--primary); }
 .calendar-wrap .cal-other {
   background: var(--muted);
   color: var(--muted-foreground);
 }
-.calendar-wrap .cal-today {
-  background: color-mix(in oklch, var(--primary) 9%, var(--card));
+.calendar-wrap .cal-daynum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
 }
+.calendar-wrap .cal-other .cal-daynum {
+  color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
+}
+.calendar-wrap .cal-daynum.cal-today-num {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: var(--radius-md);
+  padding-inline: 0.4rem;
+  font-weight: 600;
+}
+
+/* 위쪽 줄: 제목은 제목 글꼴, 버튼은 앱 버튼처럼 (테두리 + rounded-md, 선택된 보기는 파란 틴트) */
+.calendar-wrap .cal-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-size: 1.25rem;
+  color: var(--foreground);
+}
+.calendar-wrap .cal-btn {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--input);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.calendar-wrap .cal-btn:hover:not(:disabled) {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+.calendar-wrap .cal-btn.cal-btn-on {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-color: var(--primary);
+}
+.calendar-wrap .cal-btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* 일정: AI가 찾은 일정 = 노란 형광펜 + 먹색 글자, 직접 추가 = 파란 틴트 + 파란 왼쪽 선, 취소 = 회색 + 취소선 */
+.calendar-wrap .cal-ev {
+  --fc-event-color: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.calendar-wrap .cal-ev.cal-ai {
+  background: var(--highlight);
+}
+/* 글자색은 안쪽 칸(시간·제목)에도 같이 입혀요 */
+.calendar-wrap .cal-ev.cal-ai,
+.calendar-wrap .cal-ev.cal-ai * {
+  color: var(--highlight-foreground);
+}
+.calendar-wrap .cal-ev.cal-manual *,
+.calendar-wrap .cal-ev.cal-cancelled * {
+  color: inherit;
+}
+.calendar-wrap .cal-ev.cal-manual {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-left: 3px solid var(--primary);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.calendar-wrap .cal-ev.cal-cancelled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+}
+

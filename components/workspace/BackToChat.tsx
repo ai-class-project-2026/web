@@ -3,7 +3,7 @@
 // 캘린더·할 일·설정처럼 채팅 밖의 큰 화면 맨 위에 두는 "← 채팅으로 돌아가기" 버튼.
 // 마지막으로 보던 채널을 기억해 두었다가 그리로 돌려보내요. (기억이 없으면 첫 번째 채널)
 
-import { ArrowLeft } from "lucide-react";
+import { IconBack } from "@/components/ui/icons";
 import Link from "next/link";
 import { useWorkspace } from "./WorkspaceProvider";
 
@@ -24,9 +24,9 @@ export function BackToChat() {
   return (
     <Link
       href={href}
-      className="flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border bg-card px-2.5 text-sm font-medium text-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+      className="flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium text-foreground transition hover:bg-secondary hover:text-secondary-foreground"
     >
-      <ArrowLeft className="size-4" />
+      <IconBack className="size-4" />
       <span className="max-w-48 truncate">{channel ? `#${channel.name} 채팅으로` : "채팅으로 돌아가기"}</span>
     </Link>
   );

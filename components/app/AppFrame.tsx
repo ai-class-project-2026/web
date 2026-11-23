@@ -5,7 +5,7 @@
 // 마우스가 한 방향으로만 움직이면 원하는 곳에 도착해요.
 // 휴대폰처럼 좁은 화면에서는 레일+목록이 서랍처럼 숨고 ☰ 버튼으로 열어요.
 
-import { Menu, X } from "lucide-react";
+import { IconClose, IconMenu } from "@/components/ui/icons";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "cn";
@@ -30,26 +30,26 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      {open && <div className="fixed inset-0 z-30 bg-foreground/20 md:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 z-30 bg-foreground/30 md:hidden" onClick={() => setOpen(false)} />}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex transition-transform md:static md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex transition-transform md:static max-md:shadow-lg md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <ProjectRail demo={demo} active={active} />
         <aside className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-          <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-sidebar-accent md:hidden" onClick={() => setOpen(false)}>
-            <X className="size-5" />
+          <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-foreground/5 md:hidden" onClick={() => setOpen(false)}>
+            <IconClose className="size-5" />
           </button>
           {sidebar}
         </aside>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3 md:hidden">
-          <button aria-label="메뉴 열기" className="rounded-lg p-1.5 hover:bg-muted" onClick={() => setOpen(true)}>
-            <Menu className="size-5" />
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 md:hidden">
+          <button aria-label="메뉴 열기" className="rounded-md p-1.5 hover:bg-foreground/5" onClick={() => setOpen(true)}>
+            <IconMenu className="size-5" />
           </button>
           <span className="truncate text-base font-semibold">{title}</span>
         </header>

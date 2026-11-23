@@ -3,15 +3,16 @@
 // 1:1 대화 화면의 뼈대: [프로젝트 레일] [대화 목록] [본문]
 // 목록 맨 위에 "대화 찾기" 검색창을 둬서, 사람 이름만 치면 바로 대화로 갈 수 있어요.
 
-import { Search, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { cn } from "cn";
 import { AppFrame } from "@/components/app/AppFrame";
 import { UserPanel } from "@/components/app/UserPanel";
 import { Avatar } from "@/components/ui/avatar";
+import { IconMembers, IconSearch } from "@/components/ui/icons";
 import { clock } from "@/components/ui/format";
-import { NavItem, SectionLabel, Splash } from "@/components/workspace/WorkspaceShell";
+import { NavItem, SectionLabel, Splash, navItemClass } from "@/components/workspace/WorkspaceShell";
 import { DMProvider, useDM } from "./DMProvider";
 
 export function DMShell({ children }: { children: React.ReactNode }) {
@@ -24,11 +25,16 @@ export function DMShell({ children }: { children: React.ReactNode }) {
 
 function Frame({ children }: { children: React.ReactNode }) {
   const dm = useDM();
-  if (dm.status === "loading") return <Splash>대화 목록을 불러오는 중…</Splash>;
-  if (dm.status === "error") return <Splash emoji="🥲">{dm.errorMessage}</Splash>;
+  if (dm.status === "error") return <Splash tone="error">{dm.errorMessage}</Splash>;
   return (
     <AppFrame demo={dm.demo} active="dm" title="1:1 대화" sidebar={<Sidebar />}>
-      {children}
+      {/* 불러오는 동안에도 화면(children)은 그대로 그려 두고 숨겨요. 안내 문구만 먼저 보여 줘요 */}
+      {dm.status === "loading" ? (
+        <>
+          <Splash>대화 목록을 불러오는 중…</Splash>
+          <div hidden>{children}</div>
+        </>
+      ) : children}
     </AppFrame>
   );
 }
@@ -46,8 +52,8 @@ function Sidebar() {
     <>
       {/* 맨 위 줄: 대화 찾기 (본문 상단 바와 같은 48px) */}
       <div className="flex h-12 shrink-0 items-center border-b border-sidebar-border pl-2.5 pr-10 md:pr-2.5">
-        <label className="flex h-8 w-full items-center gap-2 rounded-md bg-background px-2.5 text-sm focus-within:ring-2 focus-within:ring-primary/30">
-          <Search className="size-4 shrink-0 text-muted-foreground" />
+        <label className="flex h-8 w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-sm focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/30">
+          <IconSearch className="size-4 shrink-0 text-muted-foreground" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름으로 대화 찾기" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" />
         </label>
       </div>
@@ -62,7 +68,7 @@ function Sidebar() {
         ) : (
           <>
             <div className="-mx-2 mb-1 border-b border-sidebar-border px-2 py-2">
-              <NavItem href={dm.homeHref} active={pathname === dm.homeHref} icon={Users}>팀원 전체 보기</NavItem>
+              <NavItem href={dm.homeHref} active={pathname === dm.homeHref} icon={IconMembers}>팀원 전체 보기</NavItem>
             </div>
 
             <SectionLabel>최근 대화</SectionLabel>
@@ -72,7 +78,7 @@ function Sidebar() {
               </p>
             )}
             {dm.threads.map((t) => (
-              <PersonLink key={t.peer.id} id={t.peer.id} name={t.peer.name} sub={t.last.is_profane ? "🙈 가려진 메시지" : t.last.text} time={clock(t.last.created_at)} />
+              <PersonLink key={t.peer.id} id={t.peer.id} name={t.peer.name} sub={t.last.is_profane ? "가려진 메시지" : t.last.text} time={clock(t.last.created_at)} />
             ))}
 
             {others.length > 0 && <SectionLabel>팀원</SectionLabel>}
@@ -95,13 +101,13 @@ function PersonLink({ id, name, sub, time }: { id: number; name: string; sub: st
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex h-12 shrink-0 items-center gap-2.5 rounded-md px-2 transition ${active ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60"}`}
+      className={cn(navItemClass(active), "h-12 gap-2.5")}
     >
       <Avatar id={id} name={name} className="size-8 text-xs" />
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
-          <span className={`truncate text-sm ${active ? "font-medium" : ""}`}>{name}</span>
-          {time && <span className="shrink-0 text-xs text-muted-foreground">{time}</span>}
+          <span className="truncate text-sm">{name}</span>
+          {time && <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">{time}</span>}
         </span>
         <span className="block truncate text-xs text-muted-foreground">{sub}</span>
       </span>

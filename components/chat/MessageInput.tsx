@@ -1,12 +1,12 @@
 "use client";
 
-import { SendHorizonal } from "lucide-react";
 import { useRef, useState } from "react";
+import { IconSend } from "@/components/ui/icons";
 
 // Enter로 전송, Shift+Enter로 줄바꿈. 한글 조합 중(isComposing)에는 Enter를 무시해야
 // 마지막 글자가 두 번 보내지는 문제가 안 생겨요.
 
-// leading: 입력창 왼쪽에 붙는 빠른 버튼 자리 (예: 📅 일정 추가). 손이 이미 입력창 근처에 있으니 멀리 안 가도 돼요.
+// leading: 입력창 왼쪽에 붙는 빠른 버튼 자리 (예: 일정 추가). 손이 이미 입력창 근처에 있으니 멀리 안 가도 돼요.
 
 export function MessageInput({ onSend, placeholder = "메시지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)", leading, disabled }: {
   /** 결과에 ok: false가 오면 입력했던 글을 되살려요 */
@@ -41,7 +41,7 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
       }}
     >
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
-      <div className={`flex min-h-14 items-end gap-2 rounded-lg bg-muted p-2.5 pl-2 transition focus-within:ring-2 focus-within:ring-primary/30 ${disabled ? "opacity-60" : ""}`}>
+      <div className={`flex min-h-14 items-end gap-2 rounded-md border border-input bg-card p-2.5 pl-2 transition-colors focus-within:border-primary ${disabled ? "opacity-60" : ""}`}>
         {leading}
         <textarea
           disabled={disabled}
@@ -65,9 +65,9 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
           type="submit"
           disabled={disabled || !text.trim()}
           aria-label="보내기"
-          className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+          className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
         >
-          <SendHorizonal className="size-5" />
+          <IconSend className="size-5" />
         </button>
       </div>
     </form>

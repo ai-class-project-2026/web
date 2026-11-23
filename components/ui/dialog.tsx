@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { IconClose } from "./icons";
 import { useEffect } from "react";
 
 /** 화면 가운데 뜨는 팝업. 바깥을 누르거나 Esc를 누르면 닫혀요. */
@@ -20,14 +20,14 @@ export function Dialog({ open, onClose, title, children }: {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div role="dialog" aria-modal aria-label={title} className="animate-pop w-full max-w-md rounded-3xl border bg-card p-6 shadow-xl">
+      <div role="dialog" aria-modal aria-label={title} className="animate-pop w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl">{title}</h2>
-          <button onClick={onClose} aria-label="닫기" className="rounded-full p-1 text-muted-foreground hover:bg-muted">
-            <X className="size-5" />
+          <h2 className="text-lg font-semibold">{title}</h2>
+          <button onClick={onClose} aria-label="닫기" className="rounded-md p-1 text-muted-foreground hover:bg-foreground/5">
+            <IconClose className="size-5" />
           </button>
         </div>
         {children}

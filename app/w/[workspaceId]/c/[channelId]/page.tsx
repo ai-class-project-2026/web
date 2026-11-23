@@ -5,9 +5,8 @@
 //
 // 마우스 이동 줄이기
 //  - 오른쪽 칸 전환 버튼은 채널 제목 줄 오른쪽 끝 한곳에 모았어요.
-//  - 일정 추가는 입력창 왼쪽 📅 버튼, 또는 메시지에 마우스를 올려 나오는 📅 버튼으로 바로.
+//  - 일정 추가는 입력창 왼쪽 일정 버튼, 또는 메시지에 마우스를 올려 나오는 일정 버튼으로 바로.
 
-import { CalendarDays, CalendarPlus, Hash, Sparkles, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "cn";
@@ -18,6 +17,7 @@ import { MessageList, type TimelineCard } from "@/components/chat/MessageList";
 import type { ReportFn } from "@/components/chat/MaskedMessage";
 import { ScheduleCard } from "@/components/schedule-card/ScheduleCard";
 import { errorText, todayStr } from "@/components/ui/format";
+import { IconAI, IconCalendar, IconChannel, IconEventAdd, IconMembers } from "@/components/ui/icons";
 import { rememberChannel } from "@/components/workspace/BackToChat";
 import { MembersPanel } from "@/components/workspace/MembersPanel";
 import { UpcomingPanel } from "@/components/workspace/UpcomingPanel";
@@ -160,21 +160,21 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* 상단 바: 왼쪽 채널 이름, 오른쪽 끝에 오른쪽 칸 전환 버튼 */}
         <TopBar>
-          <TopBarTitle icon={Hash}>{channel?.name ?? "채널"}</TopBarTitle>
+          <TopBarTitle icon={IconChannel}>{channel?.name ?? "채널"}</TopBarTitle>
           {ws.workspace?.ai_schedule_on && (
             <>
               <TopBarDivider />
-              <span className="hidden items-center gap-1 truncate text-sm text-muted-foreground sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
-                <Sparkles className="size-4 text-primary" /> AI 일정 도우미 켜짐
+              <span className="hidden items-center gap-1.5 truncate text-sm sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
+                <IconAI className="size-4 shrink-0" /> <span className="hl truncate">AI 일정 도우미 켜짐</span>
               </span>
             </>
           )}
           <div className="ml-auto hidden items-center gap-1 xl:flex">
             <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">
-              <CalendarDays className="size-5" /> 일정
+              <IconCalendar className="size-5" weight={panel === "schedule" ? "fill" : "regular"} /> 일정
             </ToolButton>
             <ToolButton active={panel === "members"} onClick={() => toggle("members")} label="멤버 목록 보기">
-              <Users className="size-5" /> 멤버 {ws.members.length}
+              <IconMembers className="size-5" weight={panel === "members" ? "fill" : "regular"} /> 멤버 <span className="font-mono tabular-nums">{ws.members.length}</span>
             </ToolButton>
           </div>
         </TopBar>
@@ -199,9 +199,9 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
               onClick={() => setDraft({ date: todayStr() })}
               title="일정 바로 추가"
               aria-label="일정 바로 추가"
-              className="flex h-9 shrink-0 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground transition hover:bg-background hover:text-primary"
+              className="flex h-9 shrink-0 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
             >
-              <CalendarPlus className="size-5" /> 일정
+              <IconEventAdd className="size-5" /> 일정
             </button>
           }
         />
@@ -234,7 +234,7 @@ function ToolButton({ active, onClick, label, children }: { active: boolean; onC
       aria-pressed={active}
       className={cn(
         "flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm transition",
-        active ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        active ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
       )}
     >
       {children}

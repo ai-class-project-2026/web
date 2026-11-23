@@ -2,6 +2,7 @@
 // "제목은 왼쪽, 이 화면에서 할 수 있는 버튼은 오른쪽"을 어디서나 똑같이 찾을 수 있어요.
 
 import { cn } from "cn";
+import type { AppIcon } from "@/components/ui/icons";
 
 export function TopBar({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -12,10 +13,10 @@ export function TopBar({ children, className }: { children: React.ReactNode; cla
 }
 
 /** 상단 바 제목: 아이콘 + 굵은 글자 */
-export function TopBarTitle({ icon: Icon, children }: { icon?: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+export function TopBarTitle({ icon: Icon, children }: { icon?: AppIcon; children: React.ReactNode }) {
   return (
-    <h1 className="flex min-w-0 items-center gap-2 font-sans text-base font-semibold">
-      {Icon && <Icon className="size-5 shrink-0 text-muted-foreground" />}
+    <h1 className="flex min-w-fit shrink-0 items-center gap-2 font-sans text-base font-semibold">
+      {Icon && <Icon className="size-5 shrink-0 text-primary" />}
       <span className="truncate">{children}</span>
     </h1>
   );

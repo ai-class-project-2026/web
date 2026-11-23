@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarPlus, Clock, MapPin, Pencil, Users, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "cn";
 import type { Event, EventInput, Suggestion } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { DateLeaf } from "@/components/ui/date-leaf";
 import { Field, Input } from "@/components/ui/field";
+import { IconClose, IconEdit, IconEventAdd, IconMembers, IconPlace, IconTime } from "@/components/ui/icons";
 import { hhmm, shortDate, timeLabel } from "@/components/ui/format";
 
 type Action = "added" | "edited" | "ignored";
@@ -17,9 +18,9 @@ type Action = "added" | "edited" | "ignored";
 // 누가 버튼을 누르면 서버가 다른 팀원 화면의 카드도 지워줘요 (useSuggestions).
 
 const KIND = {
-  add: { badge: "새 일정", question: "이 일정을 캘린더에 추가할까요?", ok: "캘린더에 추가", tone: "border-l-primary" },
-  update: { badge: "일정 변경", question: "기존 일정을 이렇게 바꿀까요?", ok: "이렇게 바꾸기", tone: "border-l-chart-3" },
-  cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "border-l-destructive" },
+  add: { badge: "새 일정", question: "이 일정을 캘린더에 추가할까요?", ok: "캘린더에 추가", tone: "bg-highlight text-highlight-foreground" },
+  update: { badge: "일정 변경", question: "기존 일정을 이렇게 바꿀까요?", ok: "이렇게 바꾸기", tone: "bg-highlight text-highlight-foreground" },
+  cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "bg-destructive/10 text-destructive" },
 } as const;
 
 export function ScheduleCard({ suggestion, onAct, current }: {
@@ -45,59 +46,64 @@ export function ScheduleCard({ suggestion, onAct, current }: {
 
   const question = kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
+  // 플래너에서 뜯어낸 쪽지: 왼쪽 달력 한 장(노랑) | 점선(절취선) | 오른쪽 내용
   return (
-    <div className={cn("mt-1 w-full rounded-lg border border-l-4 bg-card p-3 text-chat shadow-xs", k.tone)}>
-      <div className="mb-2 flex items-center gap-2 text-xs">
-        <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{k.badge}</span>
-      </div>
-      <p className="mb-2 font-semibold leading-snug">{question}</p>
+    <div className={cn("mt-1 flex w-full overflow-hidden rounded-xl border bg-card text-chat", kind === "cancel" && "opacity-90")}>
+      {!editing && <DateLeaf date={event.date} ai size="lg" className="w-16 self-stretch rounded-none" />}
+      <div className={cn("min-w-0 flex-1 p-3", !editing && "border-l border-dashed border-foreground/30")}>
+        <div className="mb-1.5 flex items-center gap-2 text-xs">
+          <span className={cn("rounded-sm px-1.5 py-0.5 font-medium", k.tone)}>{k.badge}</span>
+        </div>
+        <p className="mb-2 font-semibold leading-snug">{question}</p>
 
-      {editing ? (
-        <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
-      ) : (
-        <>
-          {current && kind === "update" && (
-            <p className="mb-2 rounded-xl bg-muted px-3 py-1.5 text-xs text-muted-foreground line-through">
-              기존: {shortDate(current.date)} {timeLabel(current)} · {current.location ?? "장소 미정"} · {current.title}
-            </p>
-          )}
-          <div className={cn("rounded-xl bg-muted/60 p-3 text-sm", kind === "cancel" && "opacity-70")}>
-            <p className="font-heading text-xl">
-              {shortDate(event.date, event.weekday)} <span className="text-primary">{timeLabel(event) || "시간 미정"}</span>
-            </p>
-            <p className="mt-0.5 font-medium">{event.title}</p>
-            <ul className="mt-2 flex flex-col gap-1 text-muted-foreground">
-              {event.location && <li className="flex items-center gap-1.5"><MapPin className="size-3.5" /> {event.location}</li>}
-              {event.attendees.length > 0 && (
-                <li className="flex items-start gap-1.5">
-                  <Users className="mt-0.5 size-3.5 shrink-0" />
-                  <span className="flex flex-wrap gap-1">
-                    {event.attendees.map((n) => <span key={n} className="rounded-full bg-secondary px-2 text-secondary-foreground">{n}</span>)}
-                    {event.absent.map((n) => <span key={n} className="rounded-full bg-muted px-2 line-through" title="불참">{n}</span>)}
-                  </span>
-                </li>
-              )}
-              {event.note && <li className="flex items-center gap-1.5"><Clock className="size-3.5" /> {event.note}</li>}
-            </ul>
-          </div>
-
-          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-
-          <div className="mt-2.5 flex flex-wrap gap-2">
-            <Button disabled={busy} onClick={() => run("added")} className="rounded-xl" variant={kind === "cancel" ? "destructive" : "default"}>
-              {kind === "cancel" ? <X /> : <CalendarPlus />} {k.ok}
-            </Button>
-            {kind !== "cancel" && (
-              <Button disabled={busy} variant="outline" className="rounded-xl" onClick={() => setEditing(true)}>
-                <Pencil /> 수정
-              </Button>
+        {editing ? (
+          <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
+        ) : (
+          <>
+            {current && kind === "update" && (
+              <p className="mb-1.5 text-sm text-muted-foreground line-through decoration-destructive decoration-2">
+                <span className="font-mono tabular-nums">{shortDate(current.date)} {timeLabel(current)}</span> · {current.location ?? "장소 미정"} · {current.title}
+              </p>
             )}
-            <Button disabled={busy} variant="ghost" className="rounded-xl" onClick={() => run("ignored")}>
-              무시
-            </Button>
-          </div>
-        </>
-      )}
+            <div className={cn("text-sm", kind === "cancel" && "line-through decoration-destructive decoration-2")}>
+              <p className="font-semibold">{event.title}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 font-mono tabular-nums">
+                <IconTime className="size-4 shrink-0 text-muted-foreground" />
+                {shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}
+              </p>
+              <ul className="mt-1.5 flex flex-col gap-1 text-muted-foreground">
+                {event.location && <li className="flex items-center gap-1.5"><IconPlace className="size-4 shrink-0" /> {event.location}</li>}
+                {event.attendees.length > 0 && (
+                  <li className="flex items-start gap-1.5">
+                    <IconMembers className="mt-0.5 size-4 shrink-0" />
+                    <span className="flex flex-wrap gap-1">
+                      {event.attendees.map((n) => <span key={n} className="rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">{n}</span>)}
+                      {event.absent.map((n) => <span key={n} className="rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium line-through" title="불참">{n}</span>)}
+                    </span>
+                  </li>
+                )}
+                {event.note && <li className="flex items-center gap-1.5"><IconTime className="size-4 shrink-0" /> {event.note}</li>}
+              </ul>
+            </div>
+
+            {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button disabled={busy} onClick={() => run("added")} variant={kind === "cancel" ? "destructive" : "default"}>
+                {kind === "cancel" ? <IconClose /> : <IconEventAdd />} {k.ok}
+              </Button>
+              {kind !== "cancel" && (
+                <Button disabled={busy} variant="outline" onClick={() => setEditing(true)}>
+                  <IconEdit /> 수정
+                </Button>
+              )}
+              <Button disabled={busy} variant="ghost" onClick={() => run("ignored")}>
+                무시
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -123,7 +129,7 @@ function EditForm({ event, busy, onSave, onCancel }: {
 
   return (
     <form
-      className="grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-3"
+      className="grid grid-cols-2 gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         onSave({
@@ -146,8 +152,8 @@ function EditForm({ event, busy, onSave, onCancel }: {
       <Field label="불참"><Input value={f.absent} onChange={set("absent")} /></Field>
       <Field label="메모"><Input value={f.note} onChange={set("note")} /></Field>
       <div className="col-span-2 mt-1 flex gap-2">
-        <Button type="submit" disabled={busy} className="rounded-xl">고친 내용으로 추가</Button>
-        <Button type="button" variant="ghost" className="rounded-xl" onClick={onCancel}>돌아가기</Button>
+        <Button type="submit" disabled={busy}>고친 내용으로 추가</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>돌아가기</Button>
       </div>
     </form>
   );

@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { cn } from "cn";
+import { Segmented } from "@/components/ui/segmented";
 import { BrandCard } from "@/components/ui/brand-card";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Field, Input } from "@/components/ui/field";
@@ -44,24 +44,19 @@ export default function LoginPage() {
 
   return (
     <BrandCard
-      title={isSignup ? "반가워요! 👋" : "다시 만나서 반가워요"}
+      title={isSignup ? "반가워요!" : "다시 만나서 반가워요"}
       subtitle={isSignup ? "이메일로 간단하게 가입해요" : "팀 채팅과 일정을 한곳에서"}
     >
-      <div className="mb-5 flex gap-1 rounded-2xl bg-muted p-1 text-sm">
-        {(["login", "signup"] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => {
-              setMode(m);
-              setError("");
-            }}
-            className={cn("flex-1 rounded-xl py-1.5 transition", mode === m ? "bg-card font-medium shadow-sm" : "text-muted-foreground")}
-          >
-            {m === "login" ? "로그인" : "회원가입"}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        fill
+        className="mb-5"
+        value={mode}
+        onChange={(m) => {
+          setMode(m);
+          setError("");
+        }}
+        options={[{ value: "login", label: "로그인" }, { value: "signup", label: "회원가입" }]}
+      />
 
       <form onSubmit={submit} className="flex flex-col gap-3">
         {isSignup && (
@@ -83,8 +78,8 @@ export default function LoginPage() {
             placeholder={isSignup ? "8자 이상" : ""}
           />
         </Field>
-        <ErrorText>{error}</ErrorText>
-        <Button type="submit" disabled={busy} className="mt-1 h-10 rounded-xl text-base">
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button type="submit" disabled={busy} size="lg" className="mt-1 w-full">
           {busy ? "잠시만요…" : isSignup ? "가입하고 시작하기" : "로그인"}
         </Button>
       </form>

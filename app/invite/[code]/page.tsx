@@ -9,6 +9,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BrandCard } from "@/components/ui/brand-card";
 import { buttonVariants } from "@/components/ui/button";
+import { ErrorText } from "@/components/ui/field";
+import { IconLoading } from "@/components/ui/icons";
 import { api } from "@/lib/api";
 import { DEMO_ID } from "@/lib/dummy";
 
@@ -33,16 +35,17 @@ export default function InvitePage() {
   }, [code, router]);
 
   return (
-    <BrandCard title={error ? "앗, 문제가 생겼어요 🥲" : "팀에 합류하는 중… 🎈"} subtitle={error || `초대 코드 ${code}`}>
+    <BrandCard title={error ? "앗, 문제가 생겼어요" : "팀에 합류하는 중…"} subtitle={error ? undefined : `초대 코드 ${code}`}>
       {error ? (
-        <div className="flex gap-2">
-          <Link href="/onboarding" className={buttonVariants({ className: "rounded-xl" })}>내 워크스페이스로</Link>
-          <Link href="/login" className={buttonVariants({ variant: "outline", className: "rounded-xl" })}>다른 계정으로 로그인</Link>
+        <div className="flex flex-col gap-4">
+          <ErrorText>{error}</ErrorText>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/onboarding" className={buttonVariants()}>내 워크스페이스로</Link>
+            <Link href="/login" className={buttonVariants({ variant: "outline" })}>다른 계정으로 로그인</Link>
+          </div>
         </div>
       ) : (
-        <div className="flex justify-center py-4 text-4xl">
-          <span className="animate-bounce">🐣</span>
-        </div>
+        <p className="flex items-center gap-2 text-sm text-muted-foreground"><IconLoading className="size-4 animate-spin" aria-hidden />잠시만 기다려 주세요</p>
       )}
     </BrandCard>
   );
