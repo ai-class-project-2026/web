@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "gen:api": "openapi-typescript ../server/openapi.json -o lib/api/schema.d.ts",
-    "test": "node --test lib/*.test.ts"
+    "test": "node --experimental-strip-types --test lib/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
