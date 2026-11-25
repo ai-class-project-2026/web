@@ -48,6 +48,10 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
   const [loadError, setLoadError] = useState(false);
   const [reported, setReported] = useState<Set<number>>(new Set());
   const reporting = useRef(new Set<number>()); // 신고 중인 메시지: 연타해도 한 번만 보내요
+  // 화면을 연 뒤에 새로 온 것만 나타나는 효과를 줘요 (채널을 열거나 옛 대화를 불러올 때는 조용히)
+  // ponytail: 서버 시계가 내 시계보다 느리면 효과만 빠져요
+  const [openedAt] = useState(() => Date.now());
+  const isNew = (at: string) => Date.parse(at) > openedAt;
   // 스크롤 위치를 맞추려고 직전 상태를 기억해 둬요
   const prev = useRef({ first: undefined as number | undefined, last: undefined as number | undefined, count: 0, height: 0 });
 
@@ -142,7 +146,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
       {items.length === 0 && !historyError && loaded && (
         <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
           <IconChat className="size-6" />
-          <p>첫 메시지를 보내 보세요!</p>
+          <p>첫 메시지를 보내 보세요</p>
           <p className="text-xs">“목요일 7시에 회의 어때?”처럼 일정을 이야기하면 AI가 캘린더 등록을 도와줘요</p>
         </div>
       )}
@@ -164,14 +168,13 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
               <Fragment key={it.c.key}>
                 {sep}
                 {/* AI 일정 카드는 "AI 일정 도우미"가 보낸 메시지처럼 다른 메시지와 같은 줄 모양으로 */}
-                <li className="animate-pop mt-chat-group flex gap-4 px-4 py-0.5">
+                <li className={cn("mt-chat-group flex gap-4 px-4 py-0.5", isNew(it.at) && "animate-card")}>
                   <span aria-hidden className="mt-0.5 flex size-chat-avatar shrink-0 items-center justify-center rounded-lg bg-highlight text-highlight-foreground">
                     <IconAI className="size-5" />
                   </span>
                   <div className="min-w-0 max-w-lg flex-1">
                     <p className="flex items-baseline gap-2">
                       <span className="text-chat font-medium">AI 일정 도우미</span>
-                      <span className="rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">제안</span>
                       <span className="font-mono text-meta tabular-nums text-muted-foreground">{clock(it.at)}</span>
                     </p>
                     {it.c.node}
@@ -192,13 +195,13 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           return (
             <Fragment key={m.id}>
               {sep}
-              <li className={cn("animate-pop group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group")}>
+              <li className={cn("group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group", isNew(it.at) && "animate-pop")}>
                 {grouped ? (
                   <span className="w-chat-avatar shrink-0 text-right font-mono text-meta tabular-nums leading-[1.375rem] text-muted-foreground opacity-0 group-hover:opacity-100">
                     {clock(m.created_at).replace(/^(오전|오후) /, "")}
                   </span>
                 ) : (
-                  <Avatar id={m.user_id} name={m.user_name} className="mt-0.5 size-chat-avatar text-base" />
+                  <Avatar id={m.user_id} className="mt-0.5 size-chat-avatar" />
                 )}
                 <div className="min-w-0 flex-1">
                   {!grouped && (

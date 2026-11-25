@@ -242,7 +242,7 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
               <rect x={cx - slot / 2} y={PAD_T} width={slot} height={plotH} fill="transparent" />
               <path d={d} fill={isLast ? "var(--chart-1)" : "var(--muted-foreground)"} opacity={hover === null || hover === i ? (isLast ? 1 : 0.45) : 0.25} />
               {show && (
-                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" fontFamily="var(--font-mono)">
+                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" stroke="var(--card)" strokeWidth={4} paintOrder="stroke" fontFamily="var(--font-mono)">
                   {fmt(r.value, m.unit)}
                 </text>
               )}

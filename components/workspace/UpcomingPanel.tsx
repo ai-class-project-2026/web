@@ -52,7 +52,7 @@ export function UpcomingPanel() {
         {todos.length === 0 ? (
           <Empty>할 일을 모두 끝냈어요</Empty>
         ) : (
-          <ul className="flex flex-col gap-1.5">
+          <ul className="flex flex-col gap-2">
             {todos.map((t) => (
               <li key={t.id} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
                 <input

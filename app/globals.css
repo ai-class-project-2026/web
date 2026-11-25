@@ -10,7 +10,7 @@
      파란펜 primary                누를 수 있는 것, 선택된 것, "나"
      형광펜 highlight (노랑)       AI가 찾거나 쓴 모든 것 (일정 쪽지, AI 일정, AI 표시)
      빨간펜 destructive            위험, 삭제, 욕설 경고
-   글자는 푸른 먹색, 보조 글자는 연필색. 그라데이션·번짐·유리·반짝임·이모지·마스코트는 쓰지 않아요.
+   글자는 푸른 먹색, 보조 글자는 연필색. 그라데이션·번짐·유리·반짝임·이모지·마스코트는 쓰지 않아요 (사람 아바타의 blobatar 얼굴만 예외).
    모양 규칙
      동그라미 = 사람(아바타), 둥근 네모(rounded-lg) = 프로젝트/공간(레일 탭). 섞어 쓰지 않아요.
      버튼·입력·메뉴 줄·태그는 rounded-md, 칸·패널·팝업은 rounded-xl. 알약(rounded-full)은 아바타·스위치·개수 점만.
@@ -49,6 +49,17 @@
   --spacing-chat-avatar: 2.5rem;
   --spacing-chat-group: 1.0625rem;
   --spacing-chat-line: 0rem;
+}
+
+/* ── 움직임 규칙 ──────────────────────────────────────────────────
+   나타날 때는 ease-out, 서랍은 ease-drawer. 300ms를 넘기지 않고, transform·opacity·clip-path만 움직여요.
+   transition-all은 쓰지 않아요. 자주 보는 것(채널 열기, 메뉴 이동, 키보드 조작)은 움직이지 않아요.
+   노란 줄이 그어지는 효과는 AI 일정 카드가 새로 올 때만 써요.
+   ─────────────────────────────────────────────────────────────── */
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-timing-function: var(--ease-out);
 }
 
 @theme inline {
@@ -231,11 +242,36 @@
   from { opacity: 0; transform: translateY(6px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
-.animate-pop {
-  animation: pop-in 0.22s ease-out both;
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+/* AI 일정 카드: 쪽지가 올라온 뒤 날짜 칸에 형광펜이 왼쪽에서 오른쪽으로 그어져요 */
+@keyframes hl-draw {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0); }
+}
+.animate-pop, .animate-card {
+  animation: pop-in 0.2s var(--ease-out) both;
+}
+.animate-fade {
+  animation: fade-in 0.2s var(--ease-out) both;
+}
+.animate-card .card-leaf {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+.animate-card .card-leaf::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--highlight);
+  animation: hl-draw 0.28s var(--ease-out) 0.12s both;
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-pop { animation: none; }
+  .animate-pop, .animate-card { animation-name: fade-in; }
+  .animate-card .card-leaf::before { animation: none; }
 }
 
 /* 형광펜 줄: AI가 찾은 글자 뒤에 노란 줄을 그어요 (.hl) */
@@ -396,3 +432,15 @@
   text-decoration: line-through;
 }
 
+/* 칸보다 긴 일정은 제목 끝에 …을 붙여요. 시간은 줄이지 않아요 */
+.calendar-wrap .cal-ev * {
+  text-overflow: ellipsis;
+}
+.calendar-wrap .cal-ev .cal-time {
+  flex-shrink: 0;
+}
+/* 좁은 화면: 제목과 버튼을 줄여서 위쪽 줄이 두 줄로 넘치지 않게 */
+@media (max-width: 40rem) {
+  .calendar-wrap .cal-title { font-size: 1rem; }
+  .calendar-wrap .cal-btn { padding-inline: 0.5rem; }
+}

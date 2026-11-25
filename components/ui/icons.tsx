@@ -4,9 +4,8 @@
 
 import {
   ArrowLeft, Bell, CalendarBlank, CalendarPlus, CaretRight, ChartBar, ChatCircle, Check, CheckSquare,
-  CircleNotch, Clock, Crown, EyeSlash, Flag, GearSix, Hash, Key, List, LinkSimple, Lock, MagnifyingGlass,
-  MapPin, Monitor, PaperPlaneRight, PencilSimple, Plus, SignOut, Sparkle, Trash, UserCircle, Users, Warning, X,
-
+  CircleNotch, Clock, Crown, EyeSlash, Flag, GearSix, Hash, Highlighter, Key, List, LinkSimple, Lock, MagnifyingGlass,
+  MapPin, Monitor, Note, PaperPlaneRight, PencilSimple, Plus, SignOut, Trash, UserCircle, Users, Warning, X,
 } from "@phosphor-icons/react/ssr";
 import type { IconProps as IconBaseProps } from "@phosphor-icons/react";
 import { cn } from "cn";
@@ -32,7 +31,8 @@ function make(Glyph: React.ComponentType<IconBaseProps>, extra?: string) {
   };
 }
 
-export const IconAI = make(Sparkle);
+/** AI = 형광펜 (반짝이 대신, "AI가 찾은 것은 노란 줄"과 같은 뜻) */
+export const IconAI = make(Highlighter);
 export const IconCalendar = make(CalendarBlank);
 export const IconEventAdd = make(CalendarPlus);
 export const IconTodo = make(CheckSquare);
@@ -51,6 +51,7 @@ export const IconSend = make(PaperPlaneRight);
 export const IconEdit = make(PencilSimple);
 export const IconDelete = make(Trash);
 export const IconTime = make(Clock);
+export const IconNote = make(Note);
 export const IconPlace = make(MapPin);
 export const IconOwner = make(Crown);
 export const IconSearch = make(MagnifyingGlass);

@@ -103,7 +103,7 @@ function PersonLink({ id, name, sub, time }: { id: number; name: string; sub: st
       aria-current={active ? "page" : undefined}
       className={cn(navItemClass(active), "h-12 gap-2.5")}
     >
-      <Avatar id={id} name={name} className="size-8 text-xs" />
+      <Avatar id={id} className="size-8" />
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
           <span className="truncate text-sm">{name}</span>

@@ -24,7 +24,7 @@ export function DMConversation({ peerId }: { peerId: number }) {
     <div className="flex min-h-0 flex-1">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col">
         <TopBar>
-          <Avatar id={peer.id} name={peer.name} className="size-7 text-xs" />
+          <Avatar id={peer.id} className="size-7" />
           <TopBarTitle>{peer.name}</TopBarTitle>
           <TopBarDivider />
           <span className="truncate text-sm text-muted-foreground">{peer.projects.map((w) => w.name).join(" · ")}</span>
@@ -76,7 +76,7 @@ function Profile({ peer }: { peer: Person }) {
     <aside className="hidden w-72 shrink-0 flex-col overflow-y-auto border-l bg-sidebar xl:flex">
       <div className={`h-24 ${pastel(peer.id)}`} />
       <div className="-mt-10 px-4">
-        <Avatar id={peer.id} name={peer.name} className="size-20 border-4 border-background text-2xl" />
+        <Avatar id={peer.id} className="size-20 border-4 border-background" />
         <p className="mt-2 font-heading text-xl font-bold">{peer.name}</p>
       </div>
 

@@ -109,7 +109,7 @@ function Sidebar() {
         <NavItem href={`${ws.base}/todos`} active={pathname.startsWith(`${ws.base}/todos`)} icon={IconTodo} count={todoCount}>할 일</NavItem>
         <button onClick={copyInvite} className={navItemClass(false)}>
           {copied ? <IconCheck className="size-5 shrink-0 text-primary" /> : <IconLink className="size-5 shrink-0 text-muted-foreground" />}
-          <span className="min-w-0 flex-1 truncate text-left">{copied ? "초대 링크 복사됐어요!" : "팀원 초대 링크 복사"}</span>
+          <span className="min-w-0 flex-1 truncate text-left">{copied ? "초대 링크를 복사했어요" : "팀원 초대 링크 복사"}</span>
         </button>
       </div>
 
@@ -119,7 +119,7 @@ function Sidebar() {
             데모 모드 · 서버 없이 둘러보는 중
           </p>
         )}
-        <SectionLabel>채널 — {ws.channels.length}</SectionLabel>
+        <SectionLabel action={<span className="font-mono tabular-nums">{ws.channels.length}</span>}>채널</SectionLabel>
         {ws.channels.map((c) => {
           const href = `${ws.base}/c/${c.id}`;
           return <NavItem key={c.id} href={href} active={pathname === href} icon={IconChannel}>{c.name}</NavItem>;

@@ -16,7 +16,7 @@ export function UserPanel({ me, sub, demo }: { me: User | null; sub?: string; de
     <div className="flex h-14 shrink-0 items-center gap-1 border-t border-sidebar-border bg-sidebar px-2">
       <Link href={href} className="flex min-w-0 flex-1 items-center gap-2 rounded-md p-1 transition hover:bg-foreground/5">
         <span className="relative">
-          <Avatar id={me.id} name={me.name} className="size-9" />
+          <Avatar id={me.id} className="size-9" />
           {/* 접속 중 표시 */}
           <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-sidebar bg-chart-2" />
         </span>

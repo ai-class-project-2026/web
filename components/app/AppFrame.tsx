@@ -30,11 +30,11 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      {open && <div className="fixed inset-0 z-30 bg-foreground/30 md:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="fixed inset-0 z-30 animate-fade bg-foreground/30 md:hidden" onClick={() => setOpen(false)} />}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex transition-transform md:static max-md:shadow-lg md:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-40 flex transition-[translate,visibility] duration-250 ease-drawer motion-reduce:transition-none md:static md:translate-x-0",
+          open ? "translate-x-0 max-md:shadow-lg" : "-translate-x-full max-md:invisible",
         )}
       >
         <ProjectRail demo={demo} active={active} />

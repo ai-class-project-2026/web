@@ -27,7 +27,7 @@ export function MembersPanel() {
               const isMe = m.user_id === ws.me?.id;
               return (
                 <li key={m.user_id} className="group flex h-[2.625rem] items-center gap-3 rounded-md px-2 transition hover:bg-sidebar-accent/60">
-                  <Avatar id={m.user_id} name={m.name} className="size-8 text-xs" />
+                  <Avatar id={m.user_id} className="size-8" />
                   <span className="min-w-0 flex-1 truncate text-chat">
                     {m.name}
                     {isMe && <span className="ml-1 text-meta text-muted-foreground">(나)</span>}

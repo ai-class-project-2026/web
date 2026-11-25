@@ -96,7 +96,7 @@ export default function TodosPage() {
             >
               {sorted.length === 0 ? (
                 <p className="p-10 text-center text-sm text-muted-foreground">
-                  {tab === "done" ? "아직 끝낸 일이 없어요. 화이팅!" : "할 일이 없어요"}
+                  {tab === "done" ? "아직 끝낸 일이 없어요" : "할 일이 없어요"}
                 </p>
               ) : (
                 <ul className="divide-y">
@@ -131,7 +131,7 @@ function Summary() {
     <>
       <Panel title="진행 상황" action={<span className="font-mono text-sm font-semibold tabular-nums text-primary">{pct}%</span>}>
         <div className="h-2 overflow-hidden rounded-sm bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+          <div className="h-full origin-left bg-primary transition-transform duration-250" style={{ transform: `scaleX(${pct / 100})` }} />
         </div>
         <dl className="mt-3 grid grid-cols-3 divide-x rounded-md border text-center">
           <Stat label="남음" value={left.length} />
@@ -144,7 +144,7 @@ function Summary() {
         <ul className="flex flex-col">
           {byMember.map(({ m, n }) => (
             <li key={m.user_id} className="flex h-10 items-center gap-2.5 rounded-md px-2">
-              <Avatar id={m.user_id} name={m.name} className="size-7 text-xs" />
+              <Avatar id={m.user_id} className="size-7" />
               <span className="min-w-0 flex-1 truncate text-sm">{m.name}{m.user_id === ws.me?.id && <span className="text-muted-foreground"> (나)</span>}</span>
               <span className={cn("font-mono text-sm font-semibold tabular-nums", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
             </li>
@@ -197,7 +197,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
       </div>
       {t.due_date && !t.done && <DueBadge date={t.due_date} />}
       <label className="flex items-center gap-1.5" title="담당자 바꾸기">
-        {who ? <Avatar id={who.user_id} name={who.name} className="size-7 text-xs" /> : <span className="size-7 rounded-full border border-dashed" />}
+        {who ? <Avatar id={who.user_id} className="size-7" /> : <span className="size-7 rounded-full border border-dashed" />}
         <select
           value={t.assignee_id ?? ""}
           onChange={(e) => onChange({ assignee_id: e.target.value ? Number(e.target.value) : null })}

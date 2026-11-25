@@ -49,7 +49,7 @@ export default function LoginPage() {
 
   return (
     <BrandCard
-      title={isSignup ? "반가워요!" : "다시 만나서 반가워요"}
+      title={isSignup ? "반가워요" : "다시 만나서 반가워요"}
       subtitle={isSignup ? "이메일로 간단하게 가입해요" : "팀 채팅과 일정을 한곳에서"}
     >
       <Segmented

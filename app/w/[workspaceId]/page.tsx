@@ -16,5 +16,5 @@ export default function WorkspaceHome() {
     if (first) router.replace(`${base}/c/${first.id}`);
   }, [first, base, router]);
 
-  return <Splash tone={first ? "loading" : "empty"}>{first ? "채널로 이동하는 중…" : "아직 채널이 없어요. 왼쪽 '채널 추가' 버튼으로 만들어 보세요!"}</Splash>;
+  return <Splash tone={first ? "loading" : "empty"}>{first ? "채널로 이동하는 중…" : "아직 채널이 없어요. 왼쪽 '채널 추가' 버튼으로 만들어 보세요"}</Splash>;
 }

@@ -122,7 +122,7 @@ function ProfilePanel({ me }: { me: User }) {
     <div id="profile" className="scroll-mt-4">
       <Panel title="내 프로필">
         <div className="flex items-center gap-4">
-          <Avatar id={me.id} name={me.name} className="size-20 text-3xl" />
+          <Avatar id={me.id} className="size-20" />
           <dl className="min-w-0 flex-1">
             <dt className="sr-only">이름</dt>
             <dd className="truncate font-heading text-2xl font-bold">{me.name}</dd>

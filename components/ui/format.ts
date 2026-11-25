@@ -60,6 +60,12 @@ export function pastel(id: number) {
   return PASTELS[Math.abs(id) % PASTELS.length];
 }
 
+/** 위 색과 같은 순서의 색조(globals.css의 --lavender … --butter). 아바타 얼굴색이 바탕색과 맞게 */
+const PASTEL_HUES = [290, 170, 55, 0, 235, 95];
+export function pastelHue(id: number) {
+  return PASTEL_HUES[Math.abs(id) % PASTEL_HUES.length];
+}
+
 // 서버가 영어로 보내는 안내를 쉬운 한국어로 바꿔요
 const KO_DETAIL: Record<string, string> = {
   "Todo not found": "이 할 일은 이미 지워졌어요",

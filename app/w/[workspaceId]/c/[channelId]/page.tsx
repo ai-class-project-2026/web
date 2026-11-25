@@ -201,12 +201,12 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
         <TopBar>
           <TopBarTitle icon={IconChannel}>{channel?.name ?? "채널"}</TopBarTitle>
           {ws.workspace?.ai_schedule_on && (
-            <>
+            <div className="hidden min-w-0 items-center gap-3 sm:flex">
               <TopBarDivider />
-              <span className="hidden items-center gap-1.5 truncate text-sm sm:flex" title="대화에서 일정을 찾아 카드로 알려줘요">
+              <span className="flex min-w-0 items-center gap-1.5 truncate text-sm" title="대화에서 일정을 찾아 카드로 알려줘요">
                 <IconAI className="size-4 shrink-0" /> <span className="hl truncate">AI 일정 도우미 켜짐</span>
               </span>
-            </>
+            </div>
           )}
           <div className="ml-auto hidden items-center gap-1 xl:flex">
             <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">

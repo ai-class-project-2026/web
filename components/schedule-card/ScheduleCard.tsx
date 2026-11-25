@@ -6,7 +6,7 @@ import type { Event, EventInput, Suggestion } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
 import { Field, Input } from "@/components/ui/field";
-import { IconCheck, IconClose, IconEdit, IconEventAdd, IconMembers, IconPlace, IconTime } from "@/components/ui/icons";
+import { IconCheck, IconClose, IconEdit, IconEventAdd, IconMembers, IconNote, IconPlace, IconTime } from "@/components/ui/icons";
 import { hhmm, shortDate, timeLabel } from "@/components/ui/format";
 
 type Action = "added" | "edited" | "ignored";
@@ -55,17 +55,17 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
   // 플래너에서 뜯어낸 쪽지: 왼쪽 달력 한 장(노랑) | 점선(절취선) | 오른쪽 내용
   return (
     <div className={cn("mt-1 flex w-full overflow-hidden rounded-xl border bg-card text-chat", kind === "cancel" && "opacity-90")}>
-      {!editing && <DateLeaf date={event.date} ai size="lg" className="w-16 self-stretch rounded-none" />}
+      {!editing && <DateLeaf date={event.date} ai size="lg" className="card-leaf w-12 self-stretch rounded-none sm:w-16" />}
       <div className={cn("min-w-0 flex-1 p-3", !editing && "border-l border-dashed border-foreground/30")}>
-        <div className="mb-1.5 flex items-center gap-2 text-xs">
-          <span className={cn("rounded-sm px-1.5 py-0.5 font-medium", k.tone)}>{k.badge}</span>
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+          <span className={cn("shrink-0 rounded-sm px-1.5 py-0.5 font-medium", k.tone)}>{k.badge}</span>
           {registered && (
             <span className="flex items-center gap-1 rounded-sm bg-secondary px-1.5 py-0.5 font-medium text-secondary-foreground">
               <IconCheck className="size-4" aria-hidden /> 등록됨
             </span>
           )}
+          {question && <p className="min-w-0 break-words text-sm text-muted-foreground">{question}</p>}
         </div>
-        {question && <p className="mb-2 font-semibold leading-snug">{question}</p>}
 
         {editing && !registered ? (
           <>
@@ -81,12 +81,12 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
               </p>
             )}
             <div className={cn("text-sm", kind === "cancel" && "line-through decoration-destructive decoration-2")}>
-              <p className="break-words font-semibold">{event.title}</p>
-              <p className="mt-0.5 flex min-w-0 items-center gap-1.5 break-words font-mono tabular-nums">
+              <p className="break-words text-chat font-semibold">{event.title}</p>
+              <p className="mt-1 flex min-w-0 items-center gap-1.5 break-words font-mono tabular-nums">
                 <IconTime className="size-4 shrink-0 text-muted-foreground" />
                 <span className="min-w-0 break-words">{shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}</span>
               </p>
-              <ul className="mt-1.5 flex flex-col gap-1 text-muted-foreground">
+              <ul className="mt-1 flex flex-col gap-1 text-muted-foreground">
                 {event.location && <li className="flex min-w-0 items-center gap-1.5"><IconPlace className="size-4 shrink-0" /> <span className="min-w-0 break-words">{event.location}</span></li>}
                 {(event.attendees.length > 0 || event.absent.length > 0) && (
                   <li className="flex min-w-0 items-start gap-1.5">
@@ -97,7 +97,7 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
                     </span>
                   </li>
                 )}
-                {event.note && <li className="flex min-w-0 items-center gap-1.5"><IconTime className="size-4 shrink-0" /> <span className="min-w-0 break-words">{event.note}</span></li>}
+                {event.note && <li className="flex min-w-0 items-center gap-1.5"><IconNote className="size-4 shrink-0" /> <span className="min-w-0 break-words">{event.note}</span></li>}
               </ul>
             </div>
 
@@ -105,11 +105,11 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
 
             {!registered && <div className="mt-3 flex flex-wrap gap-2">
               <Button disabled={busy} onClick={() => run("added")} variant={kind === "cancel" ? "destructive" : "default"}>
-                {kind === "cancel" ? <IconClose /> : <IconEventAdd />} {k.ok}
+                {kind === "cancel" ? <IconClose className="max-sm:hidden" /> : <IconEventAdd className="max-sm:hidden" />} {k.ok}
               </Button>
               {kind !== "cancel" && (
                 <Button disabled={busy} variant="outline" onClick={() => setEditing(true)}>
-                  <IconEdit /> 수정
+                  <IconEdit className="max-sm:hidden" /> 수정
                 </Button>
               )}
               <Button disabled={busy} variant="ghost" onClick={() => run("ignored")}>

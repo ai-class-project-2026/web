@@ -157,7 +157,7 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
               <ul className="flex flex-col">
                 {ws.members.map((m) => (
                   <li key={m.user_id} className="flex h-11 items-center gap-2.5 rounded-md px-2">
-                    <Avatar id={m.user_id} name={m.name} className="size-8 text-xs" />
+                    <Avatar id={m.user_id} className="size-8" />
                     <span className="min-w-0 flex-1 truncate text-sm">
                       {m.name} {m.user_id === ws.me?.id && <span className="text-xs text-muted-foreground">(나)</span>}
                     </span>

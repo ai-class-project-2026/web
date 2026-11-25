@@ -51,12 +51,12 @@ export function DMHome() {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="검색하기" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" />
           </label>
 
-          <p className="mb-2 mt-5 text-xs font-semibold text-muted-foreground">{tabName} — <span className="font-mono tabular-nums">{list.length}</span>명</p>
+          <p className="mb-2 mt-5 text-xs font-semibold text-muted-foreground">{tabName} <span className="font-mono tabular-nums">{list.length}</span>명</p>
 
           {dm.people.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-10 text-center text-muted-foreground">
               <IconMembers className="size-6" />
-              <p>아직 같은 프로젝트에 있는 팀원이 없어요. 왼쪽 <b>+</b> 버튼으로 프로젝트를 만들고 초대해 보세요!</p>
+              <p>아직 같은 프로젝트에 있는 팀원이 없어요. 왼쪽 <b>+</b> 버튼으로 프로젝트를 만들고 초대해 보세요</p>
             </div>
           ) : list.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-10 text-center text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ export function DMHome() {
                 <li key={p.id} className="border-t first:border-t-0">
                   {/* 한 줄 전체가 대화로 가는 링크라 어디를 눌러도 돼요 */}
                   <Link href={dm.peerHref(p.id)} className="group -mx-2 flex h-16 items-center gap-3 rounded-md px-2 transition hover:bg-foreground/5">
-                    <Avatar id={p.id} name={p.name} className="size-10" />
+                    <Avatar id={p.id} className="size-10" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-semibold">{p.name}</span>
                       <span className="block truncate text-sm text-muted-foreground">{p.projects.map((w) => w.name).join(" · ")}</span>
@@ -110,7 +110,7 @@ function RecentPanel() {
           {dm.threads.slice(0, 6).map((t) => (
             <li key={t.peer.id}>
               <Link href={dm.peerHref(t.peer.id)} className="flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:bg-secondary">
-                <Avatar id={t.peer.id} name={t.peer.name} className="size-9" />
+                <Avatar id={t.peer.id} className="size-9" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">
                     <span className="truncate text-sm font-semibold">{t.peer.name}</span>
