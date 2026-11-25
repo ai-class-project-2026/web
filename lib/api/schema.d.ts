@@ -733,6 +733,8 @@ export interface components {
         SuggestionActionIn: {
             action: components["schemas"]["SuggestionAction"];
             event?: components["schemas"]["EventIn"] | null;
+            /** Changed */
+            changed?: ("title" | "date" | "start" | "time_text" | "location" | "attendees" | "absent" | "note")[] | null;
         };
         /**
          * SuggestionKind

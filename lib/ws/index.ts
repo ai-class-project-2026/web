@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL, api, type EventInput, type Member, type Message, type Suggestion, type SuggestionResult, type Workspace } from "@/lib/api";
+import { API_URL, api, type EventField, type EventInput, type Member, type Message, type Suggestion, type SuggestionResult, type Workspace } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 type Push =
@@ -9,7 +9,8 @@ type Push =
   | { type: "suggestion"; data: Suggestion }
   | { type: "suggestion_resolved"; data: SuggestionResult }
   | { type: "member_joined"; data: Member }
-  | { type: "workspace_updated"; data: Workspace };
+  | { type: "workspace_updated"; data: Workspace }
+  | { type: "events_changed"; data: { event_id: number } };
 // ready: 인증이 끝나 이벤트를 받을 수 있게 된 순간 (처음 연결과 재연결 모두)
 // denied: 서버가 1008로 닫았어요 (없는 채널, 멤버 아님, 토큰 문제). 다시 연결해도 소용없어요
 type Handler = (push: Push | { type: "ready" } | { type: "denied" }) => void;
@@ -276,6 +277,23 @@ export function useWorkspaceChanged(channelId: number | undefined, onChange: () 
   }, [channelId]);
 }
 
+/**
+ * 누가(나 포함) 일정을 추가·수정·삭제하거나 카드를 받아 일정이 바뀌면 불려요 (프로젝트의 모든 채널 소켓으로 알림이 와요).
+ * 일정 목록을 다시 받을 때 쓰세요. 연결이 (다시) 열릴 때도 불러서, 끊긴 동안 놓친 변화도 채워요.
+ */
+export function useEventsChanged(channelId: number | undefined, onChange: () => void) {
+  const ref = useRef(onChange);
+  useEffect(() => {
+    ref.current = onChange;
+  });
+  useEffect(() => {
+    if (channelId === undefined) return;
+    return subscribe(channelId, (p) => {
+      if (p.type === "ready" || p.type === "events_changed") ref.current();
+    });
+  }, [channelId]);
+}
+
 type SugState = { channelId: number; suggestions: Suggestion[]; registered: Suggestion[] };
 
 /**
@@ -364,11 +382,13 @@ export function useSuggestions(
       id: number,
       action: "added" | "edited" | "ignored",
       event?: EventInput,
+      /** 내가 고친 칸. 주면 서버가 이 칸만 event 값으로 바꾸고 나머지는 카드의 지금 값을 써요 (그 사이 팀원이 말로 고친 칸을 지키려고) */
+      changed?: EventField[],
     ) => {
       const card = known.current.get(id);
       const { data, error, response } = await api.POST("/suggestions/{suggestion_id}/action", {
         params: { path: { suggestion_id: id } },
-        body: { action, event },
+        body: { action, event, changed },
       });
       // 409 = 다른 사람이 먼저 처리한 카드예요. 이미 끝난 일이니 카드를 지워요.
       const conflict = response.status === 409;
@@ -378,9 +398,10 @@ export function useSuggestions(
         update((s) => ({
           ...s,
           suggestions: s.suggestions.filter((x) => x.id !== id),
-          // 내가 등록한 카드는 "등록됨"으로 남겨요 (고쳐서 등록했다면 고친 내용으로)
+          // 내가 등록한 카드는 "등록됨"으로 남겨요. 내용은 서버가 실제로 저장한 일정으로 (고친 칸과 팀원이 고친 칸이 합쳐진 값)
+          // 요일은 날짜로 다시 계산해요 (날짜를 고쳤으면 카드의 옛 요일이 맞지 않아요)
           registered: keep
-            ? [...s.registered.filter((x) => x.id !== id), { ...card, payload: { ...card.payload, event: { ...card.payload.event, ...(event ?? {}) } as Suggestion["payload"]["event"] } }]
+            ? [...s.registered.filter((x) => x.id !== id), { ...card, payload: { ...card.payload, event: { ...card.payload.event, ...(data.event ?? event ?? {}), weekday: data.event ? null : card.payload.event.weekday } as Suggestion["payload"]["event"] } }]
             : s.registered,
         }));
       }

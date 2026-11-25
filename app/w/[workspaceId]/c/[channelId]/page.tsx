@@ -25,7 +25,7 @@ import { Splash } from "@/components/workspace/WorkspaceShell";
 import { MembersPanel } from "@/components/workspace/MembersPanel";
 import { UpcomingPanel } from "@/components/workspace/UpcomingPanel";
 import { useWorkspace } from "@/components/workspace/WorkspaceProvider";
-import { api, type EventInput, type Message, type Suggestion } from "@/lib/api";
+import { api, type Event, type EventField, type EventInput, type Message, type Suggestion } from "@/lib/api";
 import { demoModerate } from "@/lib/dummy";
 import { useMessages, useSuggestions } from "@/lib/ws";
 
@@ -60,12 +60,12 @@ function ChannelNotFound({ base, first }: { base: string; first?: number }) {
 function LiveChat({ channelId }: { channelId: number }) {
   const ws = useWorkspace();
   const { messages, send, loadOlder, hasMore, loadError, loaded, denied } = useMessages(channelId);
-  // 다른 팀원이 카드를 처리해도 내 캘린더와 오른쪽 일정 칸이 새로고침돼요
-  const { suggestions, registered, act, revise } = useSuggestions(channelId, () => ws.reloadEvents());
+  // 다른 팀원이 카드를 처리해 일정이 바뀌면 WorkspaceProvider가 "일정 바뀜" 알림을 받아 캘린더와 오른쪽 일정 칸을 새로고침해요
+  const { suggestions, registered, act, revise } = useSuggestions(channelId);
 
-  const onAct = async (s: Suggestion, action: Action, edited?: EventInput) => {
+  const onAct = async (s: Suggestion, action: Action, edited?: EventInput, changed?: EventField[]) => {
     try {
-      const r = await act(s.id, action, edited);
+      const r = await act(s.id, action, edited, changed);
       // 409: 다른 사람이 먼저 처리했어요. 카드는 이미 지워졌고, 바뀐 일정만 새로 받아요.
       if (r.conflict) {
         ws.reloadEvents();
@@ -177,7 +177,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   registered?: Suggestion[];
   loaded?: boolean;
   loadError?: boolean;
-  onAct: (s: Suggestion, action: Action, edited?: EventInput) => Promise<string | null>;
+  onAct: (s: Suggestion, action: Action, edited?: EventInput, changed?: EventField[]) => Promise<string | null>;
   /** 카드를 한 줄 말로 고치기 (데모에는 없어요) */
   onRevise?: (s: Suggestion, text: string) => Promise<string[] | string>;
   onReport: ReportFn;
@@ -186,6 +186,8 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   const channel = ws.channels.find((c) => c.id === channelId);
   const [panel, setPanel] = useState<"schedule" | "members" | null>("schedule");
   const [draft, setDraft] = useState<EventDraft | null>(null);
+  // 일정 변경 카드를 누른 순간의 원래 일정. "등록됨" 카드의 줄 그은 줄은 바뀐 뒤의 일정이 아니라 이 값을 보여 줘요
+  const [before, setBefore] = useState<Record<number, Event | undefined>>({});
 
   // 캘린더·할 일 화면의 "채팅으로 돌아가기"가 이 채널로 돌아오게 기억해 둬요
   useEffect(() => rememberChannel(ws.base, channelId), [ws.base, channelId]);
@@ -198,8 +200,11 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
       <ScheduleCard
         suggestion={s}
         registered={doneIds.has(s.id)}
-        current={ws.events.find((e) => e.id === s.payload.event_id)}
-        onAct={(action, edited) => onAct(s, action, edited)}
+        current={doneIds.has(s.id) ? before[s.id] : ws.events.find((e) => e.id === s.payload.event_id)}
+        onAct={(action, edited, changed) => {
+          if (!doneIds.has(s.id)) setBefore((b) => ({ ...b, [s.id]: ws.events.find((e) => e.id === s.payload.event_id) }));
+          return onAct(s, action, edited, changed);
+        }}
         onRevise={onRevise && ((text) => onRevise(s, text))}
       />
     ),

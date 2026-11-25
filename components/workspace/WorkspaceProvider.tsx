@@ -9,7 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
-import { useWorkspaceChanged } from "@/lib/ws";
+import { useEventsChanged, useWorkspaceChanged } from "@/lib/ws";
 import { demoProjects, demoWorkspaceId, dummyMe } from "@/lib/dummy";
 import { demoCache } from "@/components/demo/cache";
 import { errorText } from "@/components/ui/format";
@@ -118,12 +118,18 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
   }, [id]);
   // 채팅 화면이면 보고 있는 채널의 소켓을 같이 써서 새로 열지 않아요. 다른 화면(캘린더 등)에서는 첫 채널 소켓으로 들어요
   const { channelId } = useParams<{ channelId?: string }>();
-  useWorkspaceChanged(channels.find((c) => String(c.id) === channelId)?.id ?? channels[0]?.id, reloadShared);
+  const listenOn = channels.find((c) => String(c.id) === channelId)?.id ?? channels[0]?.id;
+  useWorkspaceChanged(listenOn, reloadShared);
 
+  // 알림이 연달아 오면 요청도 여러 개 나가요. 늦게 온 옛 답이 새 목록을 덮어쓰지 못하게 마지막 요청만 반영해요
+  const eventSeq = useRef(0);
   const reloadEvents = useCallback(() => {
+    const my = ++eventSeq.current;
     safe(api.GET("/workspaces/{workspace_id}/events", { params: { path: { workspace_id: id } } }))
-      .then(({ data }) => data && setEvents(data));
+      .then(({ data }) => data && my === eventSeq.current && setEvents(data));
   }, [id]);
+  // 다른 팀원이 일정을 추가·수정·삭제하면(카드로 받은 것도) 캘린더와 "다가오는 일정"이 바로 바뀌어요
+  useEventsChanged(listenOn, reloadEvents);
 
   useEffect(() => {
     let alive = true;

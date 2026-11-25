@@ -43,6 +43,8 @@ export type Channel = S["ChannelOut"];
 export type Message = S["MessageOut"];
 export type Event = S["EventOut"];
 export type EventInput = S["EventIn"];
+/** 일정 칸 이름 (카드를 고쳐 등록할 때 "내가 고친 칸"으로 보내요) */
+export type EventField = NonNullable<S["SuggestionActionIn"]["changed"]>[number];
 export type Todo = S["TodoOut"];
 export type Suggestion = S["SuggestionOut"];
 export type SuggestionResult = S["SuggestionResult"];
