@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL, api, type EventInput, type Message, type Suggestion, type SuggestionResult } from "@/lib/api";
+import { API_URL, api, type EventInput, type Member, type Message, type Suggestion, type SuggestionResult } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 type Push =
   | { type: "message"; data: Message }
   | { type: "suggestion"; data: Suggestion }
-  | { type: "suggestion_resolved"; data: SuggestionResult };
+  | { type: "suggestion_resolved"; data: SuggestionResult }
+  | { type: "member_joined"; data: Member };
 // ready: 인증이 끝나 이벤트를 받을 수 있게 된 순간 (처음 연결과 재연결 모두)
 // denied: 서버가 1008로 닫았어요 (없는 채널, 멤버 아님, 토큰 문제). 다시 연결해도 소용없어요
 type Handler = (push: Push | { type: "ready" } | { type: "denied" }) => void;
@@ -255,6 +256,23 @@ export function useMessages(channelId: number) {
     loaded: state.loaded,
     denied: state.denied,
   };
+}
+
+/**
+ * 누가 프로젝트에 새로 들어오면 불려요 (이 채널 소켓으로 알림이 와요). 멤버 목록을 다시 받을 때 쓰세요.
+ * 연결이 (다시) 열릴 때도 불러서, 끊긴 동안 놓친 변화도 채워요.
+ */
+export function useMembersChanged(channelId: number | undefined, onChange: () => void) {
+  const ref = useRef(onChange);
+  useEffect(() => {
+    ref.current = onChange;
+  });
+  useEffect(() => {
+    if (channelId === undefined) return;
+    return subscribe(channelId, (p) => {
+      if (p.type === "ready" || p.type === "member_joined") ref.current();
+    });
+  }, [channelId]);
 }
 
 type SugState = { channelId: number; suggestions: Suggestion[]; registered: Suggestion[] };

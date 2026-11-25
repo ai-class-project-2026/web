@@ -4,11 +4,12 @@
 // 주소가 /w/demo, /w/demo-2 … 이면 lib/dummy.ts의 가짜 데이터로, 아니면 진짜 서버(@/lib/api)로 동작해요.
 // 화면에서는 const ws = useWorkspace(); 로 꺼내 쓰면 되고, 데모인지 아닌지 신경 쓰지 않아도 돼요.
 
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
+import { useMembersChanged } from "@/lib/ws";
 import { demoProjects, demoWorkspaceId, dummyMe } from "@/lib/dummy";
 import { demoCache } from "@/components/demo/cache";
 import { errorText } from "@/components/ui/format";
@@ -106,6 +107,17 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
     return safe(api.GET("/workspaces/{workspace_id}/todos", { params: { path: { workspace_id: id } } }))
       .then(({ data }) => !!data && (setTodos(data), true));
   }, [id]);
+
+  // 누가 들어오면 멤버 목록을 다시 받아요. 늦게 온 옛 답이 새 목록을 덮어쓰지 못하게 마지막 요청만 반영해요
+  const memberSeq = useRef(0);
+  const reloadMembers = useCallback(() => {
+    const my = ++memberSeq.current;
+    safe(api.GET("/workspaces/{workspace_id}/members", { params: { path: { workspace_id: id } } }))
+      .then(({ data }) => data && my === memberSeq.current && setMembers(data));
+  }, [id]);
+  // 채팅 화면이면 보고 있는 채널의 소켓을 같이 써서 새로 열지 않아요. 다른 화면(캘린더 등)에서는 첫 채널 소켓으로 들어요
+  const { channelId } = useParams<{ channelId?: string }>();
+  useMembersChanged(channels.find((c) => String(c.id) === channelId)?.id ?? channels[0]?.id, reloadMembers);
 
   const reloadEvents = useCallback(() => {
     safe(api.GET("/workspaces/{workspace_id}/events", { params: { path: { workspace_id: id } } }))

@@ -14,6 +14,7 @@ import { newClientId } from "@/lib/ws";
 const drafts = new Map<string, string>();
 // 실패한 글을 다시 보낼 때 같은 번호(client_id)를 써서 서버에 두 번 저장되지 않게 해요
 const attempts = new Map<string, { text: string; id: string }>();
+const MAX_TEXT = 2000; // 서버 MessageIn.text 제한(schemas.py)과 같은 값
 
 export function MessageInput({ onSend, placeholder = "메시지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)", leading, disabled, draftKey = "" }: {
   /** 결과에 ok: false가 오면 입력했던 글을 되살려요. clientId는 다시 보내도 같은 글이면 같은 값이에요 */
@@ -47,6 +48,11 @@ export function MessageInput({ onSend, placeholder = "메시지를 입력하세�
   const submit = async () => {
     const t = text.trim();
     if (!t || disabled) return;
+    const len = [...t].length; // 서버(파이썬)처럼 글자 단위로 세요: 이모지도 한 글자
+    if (len > MAX_TEXT) {
+      setError(`메시지는 ${MAX_TEXT}자까지 쓸 수 있어요 (지금 ${len}자)`);
+      return;
+    }
     const sentKey = key;
     // 같은 글을 다시 보내는 거면 처음 번호를 그대로 써요
     const prev = attempts.get(sentKey);
