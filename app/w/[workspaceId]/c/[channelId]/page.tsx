@@ -213,7 +213,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
               <IconCalendar className="size-5" weight={panel === "schedule" ? "fill" : "regular"} /> 일정
             </ToolButton>
             <ToolButton active={panel === "members"} onClick={() => toggle("members")} label="멤버 목록 보기">
-              <IconMembers className="size-5" weight={panel === "members" ? "fill" : "regular"} /> 멤버 <span className="font-mono tabular-nums">{ws.members.length}</span>
+              <IconMembers className="size-5" weight={panel === "members" ? "fill" : "regular"} /> 멤버 <span className="tabular-nums">{ws.members.length}</span>
             </ToolButton>
           </div>
         </TopBar>

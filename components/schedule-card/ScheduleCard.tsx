@@ -77,12 +77,12 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
           <>
             {current && kind === "update" && (
               <p className="mb-1.5 break-words text-sm text-muted-foreground line-through decoration-destructive decoration-2">
-                <span className="font-mono tabular-nums">{shortDate(current.date)} {timeLabel(current)}</span> · {current.location ?? "장소 미정"} · {current.title}
+                <span className="tabular-nums">{shortDate(current.date)} {timeLabel(current)}</span> · {current.location ?? "장소 미정"} · {current.title}
               </p>
             )}
             <div className={cn("text-sm", kind === "cancel" && "line-through decoration-destructive decoration-2")}>
               <p className="break-words text-chat font-semibold">{event.title}</p>
-              <p className="mt-1 flex min-w-0 items-center gap-1.5 break-words font-mono tabular-nums">
+              <p className="mt-1 flex min-w-0 items-center gap-1.5 break-words tabular-nums">
                 <IconTime className="size-4 shrink-0 text-muted-foreground" />
                 <span className="min-w-0 break-words">{shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}</span>
               </p>

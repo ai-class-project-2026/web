@@ -68,7 +68,7 @@ export default function TodosPage() {
         <BackToChat />
         <TopBarDivider />
         <TopBarTitle icon={IconTodo}>할 일</TopBarTitle>
-        <span className="ml-auto shrink-0 text-sm text-muted-foreground"><span className="font-mono tabular-nums">{doneCount}/{ws.todos.length}</span> 완료</span>
+        <span className="ml-auto shrink-0 text-sm text-muted-foreground"><span className="tabular-nums">{doneCount}/{ws.todos.length}</span> 완료</span>
       </TopBar>
       <PanelPage
         main={
@@ -129,7 +129,7 @@ function Summary() {
 
   return (
     <>
-      <Panel title="진행 상황" action={<span className="font-mono text-sm font-semibold tabular-nums text-primary">{pct}%</span>}>
+      <Panel title="진행 상황" action={<span className="text-sm font-semibold tabular-nums text-primary">{pct}%</span>}>
         <div className="h-2 overflow-hidden rounded-sm bg-muted" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full origin-left bg-primary transition-transform duration-250" style={{ transform: `scaleX(${pct / 100})` }} />
         </div>
@@ -146,14 +146,14 @@ function Summary() {
             <li key={m.user_id} className="flex h-10 items-center gap-2.5 rounded-md px-2">
               <Avatar id={m.user_id} className="size-7" />
               <span className="min-w-0 flex-1 truncate text-sm">{m.name}{m.user_id === ws.me?.id && <span className="text-muted-foreground"> (나)</span>}</span>
-              <span className={cn("font-mono text-sm font-semibold tabular-nums", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
+              <span className={cn("text-sm font-semibold tabular-nums", n === 0 && "font-normal text-muted-foreground")}>{n}</span>
             </li>
           ))}
           {nobody > 0 && (
             <li className="flex h-10 items-center gap-2.5 rounded-md px-2 text-muted-foreground">
               <span className="size-7 rounded-full border border-dashed" />
               <span className="flex-1 text-sm">담당자 없음</span>
-              <span className="font-mono text-sm font-semibold tabular-nums">{nobody}</span>
+              <span className="text-sm font-semibold tabular-nums">{nobody}</span>
             </li>
           )}
         </ul>
@@ -166,7 +166,7 @@ function Stat({ label, value, warn }: { label: string; value: number; warn?: boo
   return (
     <div className="py-2">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className={cn("font-mono text-lg font-semibold tabular-nums", warn && "text-destructive")}>{value}</dd>
+      <dd className={cn("text-lg font-semibold tabular-nums", warn && "text-destructive")}>{value}</dd>
     </div>
   );
 }
@@ -193,7 +193,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
       </span>
       <div className="min-w-0 flex-1">
         <p className={cn("truncate", t.done && "text-muted-foreground line-through")}>{t.title}</p>
-        {t.due_date && <p className="text-xs text-muted-foreground">마감 <span className="font-mono tabular-nums">{shortDate(t.due_date)}</span></p>}
+        {t.due_date && <p className="text-xs text-muted-foreground">마감 <span className="tabular-nums">{shortDate(t.due_date)}</span></p>}
       </div>
       {t.due_date && !t.done && <DueBadge date={t.due_date} />}
       <label className="flex items-center gap-1.5" title="담당자 바꾸기">

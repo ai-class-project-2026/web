@@ -107,7 +107,7 @@ function PersonLink({ id, name, sub, time }: { id: number; name: string; sub: st
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline justify-between gap-2">
           <span className="truncate text-sm">{name}</span>
-          {time && <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">{time}</span>}
+          {time && <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{time}</span>}
         </span>
         <span className="block truncate text-xs text-muted-foreground">{sub}</span>
       </span>

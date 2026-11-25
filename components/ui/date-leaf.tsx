@@ -20,8 +20,8 @@ export function DateLeaf({ date, ai, size = "sm", className }: {
         className,
       )}
     >
-      <span className="font-mono text-xs tabular-nums">{d.getMonth() + 1}월</span>
-      <span className={cn("font-heading font-bold tabular-nums", lg ? "text-3xl" : "text-lg")}>{d.getDate()}</span>
+      <span className="text-xs tabular-nums">{d.getMonth() + 1}월</span>
+      <span className={cn("font-bold tabular-nums", lg ? "text-3xl" : "text-lg")}>{d.getDate()}</span>
       <span className="text-xs">{weekdayOf(date)}</span>
     </div>
   );

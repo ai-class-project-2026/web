@@ -131,9 +131,9 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
       <Field label="제목" className="col-span-2">
         <Input autoFocus={!ev} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 팀 회의" />
       </Field>
-      <Field label="날짜" className="col-span-2 sm:col-span-1"><Input type="date" className="font-mono tabular-nums" value={date} onChange={(e) => setDate(e.target.value)} required /></Field>
+      <Field label="날짜" className="col-span-2 sm:col-span-1"><Input type="date" className="tabular-nums" value={date} onChange={(e) => setDate(e.target.value)} required /></Field>
       <Field label="시간" className="col-span-2 sm:col-span-1" hint={!start && ev?.time_text ? `원래 표현: ${ev.time_text}` : "비우면 하루 종일"}>
-        <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} className="font-mono tabular-nums" />
+        <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} className="tabular-nums" />
       </Field>
       <Field label="장소" className="col-span-2"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="예: 디스코드, 도서관 3층" /></Field>
 

@@ -63,7 +63,7 @@ export default function Home() {
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         {/* 왼쪽: 로고, 한 줄 소개, 버튼 */}
         <div>
-          <p className="font-heading text-xl font-bold"><span className="hl">팀플</span>메이트</p>
+          <p className="text-xl font-bold"><span className="hl">팀플</span>메이트</p>
           <h1 className="mt-5 break-keep text-4xl leading-snug md:text-5xl md:leading-snug">
             대화만 하면 AI가 <span className="hl">약속을 캘린더에 정리</span>해 주는 우리 팀 협업 공간
           </h1>
@@ -100,7 +100,7 @@ export default function Home() {
             <div className="border-l border-dashed" />
             <div className="min-w-0 flex-1 p-3">
               <p className="font-semibold">발표 연습</p>
-              <p className="mt-1 flex items-center gap-1.5 font-mono text-sm tabular-nums"><IconTime className="size-4" />19:00</p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm tabular-nums"><IconTime className="size-4" />19:00</p>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground"><IconPlace className="size-4" />스터디카페</p>
             </div>
           </div>

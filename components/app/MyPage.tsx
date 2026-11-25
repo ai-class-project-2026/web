@@ -125,9 +125,9 @@ function ProfilePanel({ me }: { me: User }) {
           <Avatar id={me.id} className="size-20" />
           <dl className="min-w-0 flex-1">
             <dt className="sr-only">이름</dt>
-            <dd className="truncate font-heading text-2xl font-bold">{me.name}</dd>
+            <dd className="truncate text-2xl font-bold">{me.name}</dd>
             <dt className="sr-only">이메일</dt>
-            <dd className="mt-1 truncate font-mono text-sm text-muted-foreground">{me.email}</dd>
+            <dd className="mt-1 truncate text-sm text-muted-foreground">{me.email}</dd>
           </dl>
         </div>
       </Panel>

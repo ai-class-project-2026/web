@@ -5,7 +5,7 @@ export function BrandCard({ title, subtitle, children }: { title: string; subtit
   return (
     <main className="flex flex-1 items-center justify-center p-4">
       <div className="animate-pop w-full max-w-sm rounded-xl border bg-card p-7">
-        <Link href="/" className="mb-5 inline-block font-heading text-xl font-bold">
+        <Link href="/" className="mb-5 inline-block text-xl font-bold">
           <span className="hl">팀플</span>메이트
         </Link>
         <h1 className="text-2xl">{title}</h1>

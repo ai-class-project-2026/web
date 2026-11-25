@@ -15,7 +15,7 @@ export function TopBar({ children, className }: { children: React.ReactNode; cla
 /** 상단 바 제목: 아이콘 + 굵은 글자 */
 export function TopBarTitle({ icon: Icon, children }: { icon?: AppIcon; children: React.ReactNode }) {
   return (
-    <h1 className="flex min-w-fit shrink-0 items-center gap-2 font-sans text-base font-semibold">
+    <h1 className="flex min-w-fit shrink-0 items-center gap-2 text-base font-semibold">
       {Icon && <Icon className="size-5 shrink-0 text-primary" />}
       <span className="truncate">{children}</span>
     </h1>

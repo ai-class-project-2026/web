@@ -119,7 +119,7 @@ function Sidebar() {
             데모 모드 · 서버 없이 둘러보는 중
           </p>
         )}
-        <SectionLabel action={<span className="font-mono tabular-nums">{ws.channels.length}</span>}>채널</SectionLabel>
+        <SectionLabel action={<span className="tabular-nums">{ws.channels.length}</span>}>채널</SectionLabel>
         {ws.channels.map((c) => {
           const href = `${ws.base}/c/${c.id}`;
           return <NavItem key={c.id} href={href} active={pathname === href} icon={IconChannel}>{c.name}</NavItem>;
@@ -168,7 +168,7 @@ export function NavItem({ href, active, icon: Icon, count, children }: {
     <Link href={href} aria-current={active ? "page" : undefined} className={navItemClass(active)}>
       {Icon && <Icon className={cn("size-5 shrink-0", active ? "text-primary" : "text-muted-foreground")} weight={active ? "fill" : "regular"} />}
       <span className="min-w-0 flex-1 truncate">{children}</span>
-      {!!count && <span className="rounded-full bg-primary px-2 font-mono text-xs tabular-nums text-primary-foreground">{count}</span>}
+      {!!count && <span className="rounded-full bg-primary px-2 text-xs tabular-nums text-primary-foreground">{count}</span>}
     </Link>
   );
 }

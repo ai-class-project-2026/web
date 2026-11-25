@@ -19,8 +19,8 @@ export function MembersPanel() {
     <div className="flex flex-col gap-6">
       {groups.map((g) => (
         <section key={g.title}>
-          <h2 className="mb-1 px-2 font-sans text-sm font-semibold">
-            {g.title} <span className="font-mono tabular-nums text-muted-foreground">{g.list.length}</span>
+          <h2 className="mb-1 px-2 text-sm font-semibold">
+            {g.title} <span className="tabular-nums text-muted-foreground">{g.list.length}</span>
           </h2>
           <ul className="flex flex-col gap-0.5">
             {g.list.map((m) => {

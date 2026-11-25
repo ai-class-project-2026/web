@@ -156,7 +156,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           const before = items[i - 1];
           const newDay = !before || dayLabel(before.at) !== dayLabel(it.at);
           const sep = newDay && (
-            <li className="mx-4 mb-2 mt-6 flex items-center gap-2 font-mono text-meta tabular-nums text-muted-foreground">
+            <li className="mx-4 mb-2 mt-6 flex items-center gap-2 text-meta tabular-nums text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
               {dayLabel(it.at)}
               <span className="h-px flex-1 bg-border" />
@@ -175,7 +175,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                   <div className="min-w-0 max-w-lg flex-1">
                     <p className="flex items-baseline gap-2">
                       <span className="text-chat font-medium">AI 일정 도우미</span>
-                      <span className="font-mono text-meta tabular-nums text-muted-foreground">{clock(it.at)}</span>
+                      <span className="text-meta tabular-nums text-muted-foreground">{clock(it.at)}</span>
                     </p>
                     {it.c.node}
                   </div>
@@ -197,7 +197,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
               {sep}
               <li className={cn("group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group", isNew(it.at) && "animate-pop")}>
                 {grouped ? (
-                  <span className="w-chat-avatar shrink-0 text-right font-mono text-meta tabular-nums leading-[1.375rem] text-muted-foreground opacity-0 group-hover:opacity-100">
+                  <span className="w-chat-avatar shrink-0 text-right text-meta tabular-nums leading-[1.375rem] text-muted-foreground opacity-0 group-hover:opacity-100">
                     {clock(m.created_at).replace(/^(오전|오후) /, "")}
                   </span>
                 ) : (
@@ -207,7 +207,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                   {!grouped && (
                     <p className="flex items-baseline gap-2">
                       <span className={cn("text-chat font-medium", mine && "text-primary")}>{m.user_name}</span>
-                      <span className="font-mono text-meta tabular-nums text-muted-foreground">{clock(m.created_at)}</span>
+                      <span className="text-meta tabular-nums text-muted-foreground">{clock(m.created_at)}</span>
                     </p>
                   )}
                   <div className="text-chat">

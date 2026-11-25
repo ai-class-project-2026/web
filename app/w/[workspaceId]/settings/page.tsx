@@ -135,7 +135,7 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
           <>
             <Panel title="초대 링크" desc="이 링크를 받은 사람은 안내를 읽고 동의하면 팀원이 돼요.">
               <div className="flex gap-2">
-                <Input readOnly value={inviteUrl} onFocus={(e) => e.target.select()} aria-label="초대 링크" className="font-mono text-xs" />
+                <Input readOnly value={inviteUrl} onFocus={(e) => e.target.select()} aria-label="초대 링크" className="text-xs" />
                 <Button
                   type="button"
                   variant="outline"
@@ -153,7 +153,7 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
               </div>
             </Panel>
 
-            <Panel title="멤버" action={<span className="text-sm text-muted-foreground"><span className="font-mono tabular-nums">{ws.members.length}</span>명</span>} bodyClassName="p-2">
+            <Panel title="멤버" action={<span className="text-sm text-muted-foreground"><span className="tabular-nums">{ws.members.length}</span>명</span>} bodyClassName="p-2">
               <ul className="flex flex-col">
                 {ws.members.map((m) => (
                   <li key={m.user_id} className="flex h-11 items-center gap-2.5 rounded-md px-2">

@@ -34,7 +34,7 @@ export function UpcomingPanel() {
                   <DateLeaf date={e.date} ai={e.source === "ai"} size="sm" />
                   <div className="min-w-0 text-sm">
                     <p className="truncate font-medium">{e.title}</p>
-                    <p className="truncate font-mono text-xs tabular-nums text-muted-foreground">
+                    <p className="truncate text-xs tabular-nums text-muted-foreground">
                       {diff === 0 ? "오늘" : diff === 1 ? "내일" : `${diff}일 뒤`}
                       {timeLabel(e) && ` · ${timeLabel(e)}`}
                       {e.location && ` · ${e.location}`}
@@ -77,7 +77,7 @@ export function UpcomingPanel() {
 export function DueBadge({ date }: { date: string }) {
   const { diff, label } = dDay(date);
   return (
-    <span className={cn("shrink-0 font-mono text-xs font-medium tabular-nums", diff < 0 ? "text-destructive" : "text-muted-foreground")}>
+    <span className={cn("shrink-0 text-xs font-medium tabular-nums", diff < 0 ? "text-destructive" : "text-muted-foreground")}>
       {label}
     </span>
   );
@@ -86,7 +86,7 @@ export function DueBadge({ date }: { date: string }) {
 function Heading({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <div className="mb-2 flex items-center justify-between px-1">
-      <h2 className="flex items-center gap-1.5 font-sans text-sm font-semibold">{children}</h2>
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold">{children}</h2>
       <Link href={href} className="flex items-center text-xs text-muted-foreground hover:text-primary">
         전체 <IconNext className="size-4" />
       </Link>

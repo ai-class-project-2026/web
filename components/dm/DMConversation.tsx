@@ -77,7 +77,7 @@ function Profile({ peer }: { peer: Person }) {
       <div className={`h-24 ${pastel(peer.id)}`} />
       <div className="-mt-10 px-4">
         <Avatar id={peer.id} className="size-20 border-4 border-background" />
-        <p className="mt-2 font-heading text-xl font-bold">{peer.name}</p>
+        <p className="mt-2 text-xl font-bold">{peer.name}</p>
       </div>
 
       <section className="m-4 rounded-xl border bg-card p-3">
@@ -108,7 +108,7 @@ function Profile({ peer }: { peer: Person }) {
                   <IconCalendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <span className="min-w-0">
                     <span className="block truncate">{e.title}</span>
-                    <span className="block font-mono text-xs tabular-nums text-muted-foreground">
+                    <span className="block text-xs tabular-nums text-muted-foreground">
                       {shortDate(e.date)} {timeLabel(e)} · {w.name}
                     </span>
                   </span>

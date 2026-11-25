@@ -51,7 +51,7 @@ export function DMHome() {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="검색하기" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" />
           </label>
 
-          <p className="mb-2 mt-5 text-xs font-semibold text-muted-foreground">{tabName} <span className="font-mono tabular-nums">{list.length}</span>명</p>
+          <p className="mb-2 mt-5 text-xs font-semibold text-muted-foreground">{tabName} <span className="tabular-nums">{list.length}</span>명</p>
 
           {dm.people.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-10 text-center text-muted-foreground">
@@ -114,7 +114,7 @@ function RecentPanel() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">
                     <span className="truncate text-sm font-semibold">{t.peer.name}</span>
-                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">{clock(t.last.created_at)}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{clock(t.last.created_at)}</span>
                   </span>
                   <span className="block truncate text-sm text-muted-foreground">
                     {t.last.is_profane ? "가려진 메시지" : t.last.text}

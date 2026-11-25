@@ -166,18 +166,18 @@ export default function DashboardPage() {
           <details className="rounded-xl border bg-card p-4 text-sm">
             <summary className="cursor-pointer font-medium">표로 보기</summary>
             <div className="mt-3 overflow-x-auto">
-              <table className="w-full text-left font-mono tabular-nums">
+              <table className="w-full text-left tabular-nums">
                 <thead className="text-muted-foreground">
                   <tr>
-                    <th className="py-1.5 pr-4 font-sans font-normal">버전</th>
-                    <th className="py-1.5 pr-4 font-sans font-normal">n</th>
-                    {src.metrics.map((m) => <th key={m.key} className="py-1.5 pr-4 font-sans font-normal">{m.title}</th>)}
+                    <th className="py-1.5 pr-4 font-normal">버전</th>
+                    <th className="py-1.5 pr-4 font-normal">n</th>
+                    {src.metrics.map((m) => <th key={m.key} className="py-1.5 pr-4 font-normal">{m.title}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, i) => (
                     <tr key={i} className="border-t">
-                      <td className="py-1.5 pr-4 font-sans">{r.label || "(이름 없음)"}</td>
+                      <td className="py-1.5 pr-4">{r.label || "(이름 없음)"}</td>
                       <td className="py-1.5 pr-4 tabular-nums">{r.n}</td>
                       {src.metrics.map((m) => <td key={m.key} className="py-1.5 pr-4 tabular-nums">{fmt(num(r[m.key], m.unit), m.unit)}</td>)}
                     </tr>
@@ -242,11 +242,11 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
               <rect x={cx - slot / 2} y={PAD_T} width={slot} height={plotH} fill="transparent" />
               <path d={d} fill={isLast ? "var(--chart-1)" : "var(--muted-foreground)"} opacity={hover === null || hover === i ? (isLast ? 1 : 0.45) : 0.25} />
               {show && (
-                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" stroke="var(--card)" strokeWidth={4} paintOrder="stroke" fontFamily="var(--font-mono)">
+                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" stroke="var(--card)" strokeWidth={4} paintOrder="stroke">
                   {fmt(r.value, m.unit)}
                 </text>
               )}
-              <text x={cx} y={H - PAD_B + 16} textAnchor="middle" fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-mono)">
+              <text x={cx} y={H - PAD_B + 16} textAnchor="middle" fontSize={10} fill="var(--muted-foreground)">
                 {r.label.length > 12 ? `${r.label.slice(0, 11)}…` : r.label}
                 <title>{r.label}</title>
               </text>

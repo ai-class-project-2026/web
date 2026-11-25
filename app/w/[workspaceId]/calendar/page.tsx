@@ -82,7 +82,7 @@ export default function CalendarPage() {
           toolbarTitleClass="cal-title"
           // 일정 색: AI = 노랑, 직접 = 파랑, 취소 = 회색 + 취소선
           eventClass={(i) => cn("cal-ev", `cal-${(i.event.extendedProps as { kind: string }).kind}`)}
-          eventTimeClass="cal-time font-mono tabular-nums"
+          eventTimeClass="cal-time tabular-nums"
           editable
           events={events}
           dateClick={(info) => {
