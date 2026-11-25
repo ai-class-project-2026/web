@@ -61,7 +61,7 @@ function LiveChat({ channelId }: { channelId: number }) {
   const ws = useWorkspace();
   const { messages, send, loadOlder, hasMore, loadError, loaded, denied } = useMessages(channelId);
   // 다른 팀원이 카드를 처리해도 내 캘린더와 오른쪽 일정 칸이 새로고침돼요
-  const { suggestions, registered, act } = useSuggestions(channelId, () => ws.reloadEvents());
+  const { suggestions, registered, act, revise } = useSuggestions(channelId, () => ws.reloadEvents());
 
   const onAct = async (s: Suggestion, action: Action, edited?: EventInput) => {
     try {
@@ -74,6 +74,15 @@ function LiveChat({ channelId }: { channelId: number }) {
       if (!r.ok) return errorText(r.error);
       if (action !== "ignored") ws.reloadEvents(); // 캘린더/오른쪽 일정 새로고침
       return null;
+    } catch {
+      return "서버에 연결할 수 없어요";
+    }
+  };
+
+  const onRevise = async (s: Suggestion, text: string) => {
+    try {
+      const r = await revise(s.id, text);
+      return r.ok ? r.changed : errorText(r.error);
     } catch {
       return "서버에 연결할 수 없어요";
     }
@@ -101,6 +110,7 @@ function LiveChat({ channelId }: { channelId: number }) {
       suggestions={suggestions}
       registered={registered}
       onAct={onAct}
+      onRevise={onRevise}
       onReport={onReport}
       loaded={loaded}
       loadError={loadError}
@@ -156,7 +166,7 @@ function DemoChat({ channelId }: { channelId: number }) {
 }
 
 /* 공통 화면 */
-function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestions, registered = [], onAct, onReport, loaded = true, loadError = false }: {
+function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestions, registered = [], onAct, onRevise, onReport, loaded = true, loadError = false }: {
   channelId: number;
   messages: Message[];
   hasMore: boolean;
@@ -168,6 +178,8 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
   loaded?: boolean;
   loadError?: boolean;
   onAct: (s: Suggestion, action: Action, edited?: EventInput) => Promise<string | null>;
+  /** 카드를 한 줄 말로 고치기 (데모에는 없어요) */
+  onRevise?: (s: Suggestion, text: string) => Promise<string[] | string>;
   onReport: ReportFn;
 }) {
   const ws = useWorkspace();
@@ -188,6 +200,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
         registered={doneIds.has(s.id)}
         current={ws.events.find((e) => e.id === s.payload.event_id)}
         onAct={(action, edited) => onAct(s, action, edited)}
+        onRevise={onRevise && ((text) => onRevise(s, text))}
       />
     ),
   }));

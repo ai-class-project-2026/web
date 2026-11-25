@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
 import { Field, Input } from "@/components/ui/field";
 import { IconCheck, IconClose, IconEdit, IconEventAdd, IconMembers, IconNote, IconPlace, IconTime } from "@/components/ui/icons";
-import { eulReul, hhmm, shortDate, timeLabel } from "@/components/ui/format";
+import { changedLabel, eulReul, hhmm, shortDate, timeLabel } from "@/components/ui/format";
 
 type Action = "added" | "edited" | "ignored";
 
@@ -16,6 +16,7 @@ type Action = "added" | "edited" | "ignored";
 //   kind "update": "기존 일정을 이렇게 바꿀까요?"  [바꾸기] [수정] [무시]
 //   kind "cancel": "11/19 팀 회의를 취소할까요?"  [취소하기] [무시]
 // 누가 버튼을 누르면 서버가 다른 팀원 화면의 카드도 지워줘요 (useSuggestions).
+// 새 일정/일정 변경 카드 아래 한 줄 입력칸: "8시로 바꿔줘"처럼 쓰면 서버가 카드를 고치고, 모든 팀원 화면의 같은 카드가 바뀌어요 (기획서 6.1).
 
 const KIND = {
   add: { badge: "새 일정", question: "이 일정을 캘린더에 추가할까요?", ok: "캘린더에 추가", tone: "bg-highlight text-highlight-foreground" },
@@ -23,12 +24,14 @@ const KIND = {
   cancel: { badge: "일정 취소", question: "", ok: "일정 취소하기", tone: "bg-destructive/10 text-destructive" },
 } as const;
 
-export function ScheduleCard({ suggestion, onAct, current, registered = false }: {
+export function ScheduleCard({ suggestion, onAct, onRevise, current, registered = false }: {
   suggestion: Suggestion;
   /** 내가 이미 등록한 카드: 버튼 대신 "등록됨"을 보여줘요 (기획서 6.1) */
   registered?: boolean;
   /** 결과로 에러 문구(string)를 돌려주면 카드에 보여줘요 */
   onAct: (action: Action, edited?: EventInput) => unknown;
+  /** 한 줄 말로 고치기. 바뀐 칸 이름 목록, 또는 에러 문구(string)를 돌려줘요. 없으면 입력칸을 안 보여줘요 (데모) */
+  onRevise?: (text: string) => Promise<string[] | string>;
   /** update/cancel일 때 바뀌기 전 일정 (있으면 비교해서 보여줘요) */
   current?: Event;
 }) {
@@ -37,6 +40,8 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [say, setSay] = useState("");
+  const [revised, setRevised] = useState("");
 
   const working = useRef(false); // 연타해도 한 번만 처리해요
   const run = async (action: Action, edited?: EventInput) => {
@@ -48,6 +53,21 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
     working.current = false;
     setBusy(false);
     if (typeof res === "string" && res) setError(res);
+  };
+
+  const revise = async () => {
+    const text = say.trim();
+    if (!text || !onRevise || working.current) return;
+    working.current = true;
+    setBusy(true);
+    setError("");
+    setRevised("");
+    const res = await onRevise(text);
+    working.current = false;
+    setBusy(false);
+    if (typeof res === "string") return setError(res);
+    setSay("");
+    setRevised(`${changedLabel(res)}${eulReul(changedLabel(res))} 바꿨어요`);
   };
 
   const struck = kind === "cancel" && "line-through decoration-destructive decoration-2";
@@ -104,6 +124,22 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
             </div>
 
             {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+            {revised && !error && <p className="mt-2 text-xs text-muted-foreground">{revised}</p>}
+
+            {!registered && onRevise && kind !== "cancel" && (
+              <Input
+                className="mt-3"
+                value={say}
+                onChange={(e) => { setSay(e.target.value); setRevised(""); }}
+                // 한글 조합 중의 Enter는 글자를 확정하는 것이라 보내지 않아요 (MessageInput과 같아요)
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); revise(); } }}
+                disabled={busy}
+                maxLength={200}
+                enterKeyHint="send"
+                aria-label="말로 고치기"
+                placeholder="예: 8시로 바꿔줘, 장소는 도서관"
+              />
+            )}
 
             {!registered && <div className="mt-3 flex flex-wrap gap-2">
               <Button disabled={busy} onClick={() => run("added")} variant={kind === "cancel" ? "destructive" : "default"}>

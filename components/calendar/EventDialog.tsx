@@ -1,16 +1,18 @@
 "use client";
 
 // 캘린더에서 날짜나 일정을 누르면 뜨는 팝업. 새 일정 추가 / 기존 일정 수정·취소·삭제.
+// 새 일정이면 맨 위 한 줄에 "내일 저녁 7시 도서관에서 팀 회의"처럼 쓰고 Enter: 서버가 읽어서 아래 칸을 채워요.
+// 저장은 하지 않아요. 확인하고 [추가하기]를 눌러야 저장돼요 (기획서 6.1).
 
 import { useRef, useState } from "react";
 import { cn } from "cn";
-import type { Event, EventInput, Member } from "@/lib/api";
+import { api, type Event, type EventInput, type Member, type ParsedEvent } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { ErrorText, Field, Input } from "@/components/ui/field";
-import { hhmm } from "@/components/ui/format";
+import { changedLabel, errorText, eulReul, hhmm } from "@/components/ui/format";
 import { IconAI, IconDelete } from "@/components/ui/icons";
-import type { EventUpdate } from "@/components/workspace/WorkspaceProvider";
+import { useWorkspace, type EventUpdate } from "@/components/workspace/WorkspaceProvider";
 
 /** title: 채팅 메시지에서 일정을 만들 때 미리 채울 제목 */
 export type EventDraft = { event?: Event; date: string; start?: string; title?: string };
@@ -56,6 +58,12 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
   const [location, setLocation] = useState(ev?.location ?? "");
   const [note, setNote] = useState(ev?.note ?? "");
   const [attendees, setAttendees] = useState<string[]>(ev?.attendees ?? members.map((m) => m.name));
+  // 한 줄로 쓴 말에서 읽은 것: 숫자가 아닌 시간("8시", "점심시간")과 불참자. 새 일정일 때만 써요
+  const [timeText, setTimeText] = useState<string | null>(null);
+  const [absent, setAbsent] = useState<string[]>([]);
+  const [say, setSay] = useState("");
+  const [filled, setFilled] = useState("");
+  const { demo, workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const cancelled = ev?.status === "cancelled";
@@ -76,10 +84,10 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
     title: title.trim(),
     date,
     start: start ? `${start}:00` : null,
-    time_text: start ? null : ev?.time_text ?? null,
+    time_text: start ? null : ev?.time_text ?? timeText,
     location: location.trim() || null,
     attendees,
-    absent: ev?.absent.filter((n) => !attendees.includes(n)) ?? [],
+    absent: (ev?.absent ?? absent).filter((n) => !attendees.includes(n)),
     note: note.trim() || null,
   };
 
@@ -101,6 +109,48 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
       if (JSON.stringify(body.absent) !== JSON.stringify(ev.absent)) patch.absent = body.absent;
     }
     return patch;
+  };
+
+  // 한 줄 → 칸 채우기. 읽어 낸 칸만 바꾸고 나머지는 그대로 둬요
+  const fill = (d: ParsedEvent) => {
+    if (d.title) setTitle(d.title);
+    if (d.date) setDate(d.date);
+    if (d.start) {
+      setStart(hhmm(d.start));
+      setTimeText(null);
+    } else if (d.time_text) {
+      setStart("");
+      setTimeText(d.time_text);
+    }
+    if (d.location) setLocation(d.location);
+    if (d.note) setNote(d.note);
+    if (d.attendees.length || d.absent.length) {
+      setAttendees((a) => (d.attendees.length ? d.attendees : a).filter((n) => !d.absent.includes(n)));
+      setAbsent(d.absent);
+    }
+    const label = changedLabel(d.changed);
+    setFilled(`${label}${eulReul(label)} 채웠어요. 확인하고 [추가하기]를 눌러 주세요`);
+  };
+
+  const parse = async () => {
+    const text = say.trim();
+    if (!text || !workspace || working.current) return;
+    working.current = true;
+    setBusy(true);
+    setError("");
+    setFilled("");
+    try {
+      const { data, error } = await api.POST("/workspaces/{workspace_id}/events/parse", {
+        params: { path: { workspace_id: workspace.id } },
+        body: { text },
+      });
+      if (data) fill(data);
+      else setError(errorText(error));
+    } catch {
+      setError("서버에 연결할 수 없어요");
+    }
+    working.current = false;
+    setBusy(false);
   };
 
   const toggle = (name: string) =>
@@ -128,11 +178,33 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
         </div>
       )}
 
+      {!ev && !demo && (
+        <div className="col-span-2 flex flex-col gap-1.5">
+          <Input
+            autoFocus
+            value={say}
+            onChange={(e) => { setSay(e.target.value); setFilled(""); }}
+            // 이 칸의 Enter는 저장이 아니라 "읽어서 채우기"예요. 조합 중 Enter도 폼 저장으로 넘어가지 않게 항상 막아요
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              if (!e.nativeEvent.isComposing) parse();
+            }}
+            disabled={busy}
+            maxLength={200}
+            enterKeyHint="done"
+            aria-label="한 줄로 일정 쓰기"
+            placeholder="예: 내일 저녁 7시 도서관에서 팀 회의, 하은 불참"
+          />
+          {filled && <span className="text-xs text-muted-foreground">{filled}</span>}
+        </div>
+      )}
+
       <Field label="제목" className="col-span-2">
-        <Input autoFocus={!ev} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 팀 회의" />
+        <Input autoFocus={!ev && demo} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 팀 회의" />
       </Field>
       <Field label="날짜" className="col-span-2 sm:col-span-1"><Input type="date" className="tabular-nums" value={date} onChange={(e) => setDate(e.target.value)} required /></Field>
-      <Field label="시간" className="col-span-2 sm:col-span-1" hint={!start && ev?.time_text ? `원래 표현: ${ev.time_text}` : "비우면 하루 종일"}>
+      <Field label="시간" className="col-span-2 sm:col-span-1" hint={!start && (ev?.time_text || timeText) ? `원래 표현: ${ev?.time_text || timeText}` : "비우면 하루 종일"}>
         <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} className="tabular-nums" />
       </Field>
       <Field label="장소" className="col-span-2"><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="예: 디스코드, 도서관 3층" /></Field>

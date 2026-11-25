@@ -280,8 +280,8 @@ type SugState = { channelId: number; suggestions: Suggestion[]; registered: Sugg
 
 /**
  * Pending AI schedule cards of a channel.
- *   const { suggestions, registered, act } = useSuggestions(channelId);
- *   act(id, "added") | act(id, "ignored") | act(id, "edited", correctedEvent)
+ *   const { suggestions, registered, act, revise } = useSuggestions(channelId);
+ *   act(id, "added") | act(id, "ignored") | act(id, "edited", correctedEvent) | revise(id, "8시로 바꿔줘")
  * registered: 내가 [추가]/[수정]으로 등록한 카드. 지우지 않고 "등록됨"으로 보여 줄 수 있게 따로 남겨요.
  */
 export function useSuggestions(
@@ -337,7 +337,13 @@ export function useSuggestions(
         known.current.set(p.data.id, p.data);
         if (resolved.current.has(p.data.id)) return;
         during?.set(p.data.id, p.data);
-        update((s) => (s.suggestions.some((x) => x.id === p.data.id) ? s : { ...s, suggestions: [...s.suggestions, p.data] }));
+        // 이미 있는 카드면 그 자리에서 내용만 바꿔요 (누가 말로 고친 카드가 같은 번호로 다시 와요)
+        update((s) => ({
+          ...s,
+          suggestions: s.suggestions.some((x) => x.id === p.data.id)
+            ? s.suggestions.map((x) => (x.id === p.data.id ? p.data : x))
+            : [...s.suggestions, p.data],
+        }));
       }
       if (p.type === "suggestion_resolved") {
         const id = p.data.suggestion.id;
@@ -383,5 +389,25 @@ export function useSuggestions(
     [update],
   );
 
-  return { suggestions: cur.suggestions, registered: cur.registered, act };
+  /** 카드를 한 줄 말로 고쳐요 ("8시로 바꿔줘"). 고친 카드는 모든 팀원 화면에서 같은 자리에서 바뀌어요. changed: 바뀐 칸 이름 */
+  const revise = useCallback(
+    async (id: number, text: string) => {
+      const { data, error, response } = await api.POST("/suggestions/{suggestion_id}/revise", {
+        params: { path: { suggestion_id: id } },
+        body: { text },
+      });
+      const conflict = response.status === 409; // 그 사이 누가 카드를 처리했어요
+      if (data) {
+        known.current.set(id, data.suggestion);
+        update((s) => ({ ...s, suggestions: s.suggestions.map((x) => (x.id === id ? data.suggestion : x)) }));
+      } else if (conflict) {
+        resolved.current.add(id);
+        update((s) => ({ ...s, suggestions: s.suggestions.filter((x) => x.id !== id) }));
+      }
+      return { ok: !!data, changed: data?.changed ?? [], conflict, error };
+    },
+    [update],
+  );
+
+  return { suggestions: cur.suggestions, registered: cur.registered, act, revise };
 }

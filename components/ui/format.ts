@@ -82,7 +82,25 @@ const KO_DETAIL: Record<string, string> = {
   "Already handled": "이미 다른 사람이 처리한 카드예요",
   "Assignee is not a member": "담당자가 이 프로젝트 멤버가 아니에요",
   "Request body too large": "내용이 너무 길어요",
+  // 말로 고치기/추가하기
+  "Instruction not understood": "무슨 뜻인지 잘 모르겠어요. 예: 8시로 바꿔줘, 장소는 도서관",
+  "Ignore the card to drop it": "이 일정을 없애려면 [무시]를 눌러 주세요",
+  "Cancel the event in the calendar": "일정을 취소하려면 캘린더에서 그 일정을 열어 [일정 취소]를 눌러 주세요",
+  "Cancel cards cannot be revised": "취소 카드는 말로 고칠 수 없어요",
+  "Date is in the past": "지난 날짜로는 정할 수 없어요",
+  "Invalid event": "그렇게 바꾸면 일정이 맞지 않아요. [수정]으로 고쳐 주세요",
+  "Instruction already running": "앞의 요청을 처리하고 있어요. 잠시만요",
 };
+
+// 말로 고친 칸 이름 → 화면에서 부르는 이름 (start와 time_text는 둘 다 "시간", attendees와 absent는 "참석")
+const CHANGED_KO: Record<string, string> = {
+  title: "제목", date: "날짜", start: "시간", time_text: "시간", location: "장소", attendees: "참석", absent: "참석", note: "메모",
+};
+
+/** ["start", "location"] → "시간·장소" (같은 이름은 한 번만) */
+export function changedLabel(fields: string[]) {
+  return [...new Set(fields.map((f) => CHANGED_KO[f]).filter(Boolean))].join("·");
+}
 
 // 입력 검사(422)에 걸린 칸: 서버 필드 이름 → 화면에서 부르는 이름
 const FIELD_KO: Record<string, string> = {

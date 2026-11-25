@@ -267,6 +267,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/suggestions/{suggestion_id}/revise": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revise Suggestion
+         * @description 대기 중인 새 일정/일정 변경 카드를 한 줄 지시로 고친다. 같은 카드가 모든 팀원 화면에서 바뀐다(푸시 "suggestion").
+         *     일정은 저장하지 않는다: 고친 뒤에도 팀원이 평소 버튼을 눌러야 한다.
+         */
+        post: operations["revise_suggestion_suggestions__suggestion_id__revise_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workspaces/{workspace_id}/events/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parse Event
+         * @description 일정 추가 창의 한 줄("내일 저녁 7시 도서관에서 팀 회의") → 칸을 채울 초안. 저장하지 않는다.
+         */
+        post: operations["parse_event_workspaces__workspace_id__events_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/workspaces/{workspace_id}/todos": {
         parameters: {
             query?: never;
@@ -381,6 +422,36 @@ export interface components {
             /** Ts */
             ts?: string | null;
         };
+        /**
+         * EventDraft
+         * @description 일정 추가 창에 채울 초안 (저장하지 않는다). 읽어 낸 칸만 값이 있고, 그 칸 이름이 changed에 있다.
+         */
+        EventDraft: {
+            /** Title */
+            title?: string | null;
+            /** Date */
+            date?: string | null;
+            /** Start */
+            start?: string | null;
+            /** Time Text */
+            time_text?: string | null;
+            /** Location */
+            location?: string | null;
+            /**
+             * Attendees
+             * @default []
+             */
+            attendees: string[];
+            /**
+             * Absent
+             * @default []
+             */
+            absent: string[];
+            /** Note */
+            note?: string | null;
+            /** Changed */
+            changed: string[];
+        };
         /** EventIn */
         EventIn: {
             /** Title */
@@ -479,6 +550,11 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** InstructionIn */
+        InstructionIn: {
+            /** Text */
+            text: string;
         };
         /**
          * InvitePreview
@@ -696,6 +772,12 @@ export interface components {
         SuggestionResult: {
             suggestion: components["schemas"]["SuggestionOut"];
             event: components["schemas"]["EventOut"] | null;
+        };
+        /** SuggestionRevised */
+        SuggestionRevised: {
+            suggestion: components["schemas"]["SuggestionOut"];
+            /** Changed */
+            changed: string[];
         };
         /** TodoIn */
         TodoIn: {
@@ -1461,6 +1543,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SuggestionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revise_suggestion_suggestions__suggestion_id__revise_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                suggestion_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InstructionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionRevised"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_event_workspaces__workspace_id__events_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InstructionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventDraft"];
                 };
             };
             /** @description Validation Error */

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { eulReul } from "../components/ui/format.ts";
+import { changedLabel, eulReul } from "../components/ui/format.ts";
 
 test("eulReul picks 을/를 from the last character", () => {
   const cases: [string, string][] = [
@@ -23,4 +23,11 @@ test("eulReul picks 을/를 from the last character", () => {
     ["  ", "을(를)"],
   ];
   for (const [word, want] of cases) assert.equal(eulReul(word), want, JSON.stringify(word));
+});
+
+test("changedLabel names each changed field once", () => {
+  assert.equal(changedLabel(["start", "location"]), "시간·장소");
+  assert.equal(changedLabel(["attendees", "absent"]), "참석"); // 참석/불참은 한 칸
+  assert.equal(changedLabel(["time_text", "start", "date"]), "시간·날짜");
+  assert.equal(changedLabel(["weekday"]), ""); // 모르는 칸은 빼요
 });
