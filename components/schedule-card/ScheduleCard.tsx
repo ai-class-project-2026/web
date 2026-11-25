@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
 import { Field, Input } from "@/components/ui/field";
 import { IconCheck, IconClose, IconEdit, IconEventAdd, IconMembers, IconNote, IconPlace, IconTime } from "@/components/ui/icons";
-import { hhmm, shortDate, timeLabel } from "@/components/ui/format";
+import { eulReul, hhmm, shortDate, timeLabel } from "@/components/ui/format";
 
 type Action = "added" | "edited" | "ignored";
 
@@ -51,7 +51,7 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
   };
 
   const struck = kind === "cancel" && "line-through decoration-destructive decoration-2";
-  const question = registered ? "" : kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
+  const question = registered ? "" : kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}${eulReul(event.title)} 취소할까요?` : k.question;
 
   // 플래너에서 뜯어낸 쪽지: 왼쪽 달력 한 장(노랑) | 점선(절취선) | 오른쪽 내용
   return (

@@ -10,7 +10,7 @@ import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorText, Input, Select } from "@/components/ui/field";
-import { dDay, shortDate } from "@/components/ui/format";
+import { dDay, eulReul, shortDate } from "@/components/ui/format";
 import { IconAdd, IconCheck, IconDelete, IconNext, IconTodo } from "@/components/ui/icons";
 import { Panel, PanelPage } from "@/components/ui/panel";
 import { DueBadge } from "@/components/workspace/UpcomingPanel";
@@ -229,7 +229,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
         </select>
       </label>
       <button
-        onClick={() => confirm(`"${t.title}"을(를) 지울까요?`) && onDelete()}
+        onClick={() => confirm(`"${t.title}"${eulReul(t.title)} 지울까요?`) && onDelete()}
         aria-label="삭제"
         title="삭제"
         className="-mr-2 flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition hover:bg-destructive/10 hover:text-destructive focus-visible:ring-3 focus-visible:ring-ring/50"

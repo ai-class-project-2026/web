@@ -54,6 +54,15 @@ export function dDay(date: string) {
   return { diff, label: diff === 0 ? "D-Day" : diff > 0 ? `D-${diff}` : `D+${-diff}` };
 }
 
+/** 목적격 조사: 받침 있으면 "을", 없으면 "를", 판단이 안 되면(영어·이모지·자모 등) "을(를)". 끝의 공백·닫는 따옴표/괄호는 건너뛰고 봐요 */
+export function eulReul(word: string) {
+  const ch = word.replace(/[\s"'”’)\]}」』〉》]+$/, "").at(-1) ?? "";
+  const code = ch.charCodeAt(0);
+  if (code >= 0xac00 && code <= 0xd7a3) return (code - 0xac00) % 28 ? "을" : "를";
+  if (/[0-9]/.test(ch)) return "013678".includes(ch) ? "을" : "를"; // 영·일·삼·육·칠·팔 / 이·사·오·구
+  return "을(를)";
+}
+
 /** 사람마다 고정된 연한 색 (아바타, 담당자 표시) */
 const PASTELS = ["bg-lavender", "bg-mint", "bg-peach", "bg-pink", "bg-sky", "bg-butter"];
 export function pastel(id: number) {
