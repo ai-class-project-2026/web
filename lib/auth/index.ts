@@ -19,6 +19,15 @@ export function logout() {
   localStorage.removeItem(KEY);
 }
 
+// 다른 탭에서 로그아웃하거나 다른 계정으로 로그인하면 이 탭도 새로 불러와요.
+// 그대로 두면 화면은 A인데 요청은 B의 토큰으로 나가요. 로그아웃이면 각 화면이 로그인 화면으로 보내요.
+// (storage 이벤트는 값을 바꾼 탭에는 오지 않아요. key가 null이면 저장소를 통째로 비운 거예요)
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY || e.key === null) location.reload();
+  });
+}
+
 /**
  * user: undefined = 불러오는 중, null = 로그아웃 상태.
  * 서버에 연결 못 했거나 5xx면 로그아웃하지 않고 error를 돌려줘요. retry()로 다시 시도해요.
