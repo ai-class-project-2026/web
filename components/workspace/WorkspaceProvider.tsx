@@ -9,7 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { api, type Channel, type Event, type EventInput, type Member, type Message, type Suggestion, type Todo, type User, type Workspace } from "@/lib/api";
 import type { components } from "@/lib/api/schema";
 import { logout } from "@/lib/auth";
-import { useMembersChanged } from "@/lib/ws";
+import { useWorkspaceChanged } from "@/lib/ws";
 import { demoProjects, demoWorkspaceId, dummyMe } from "@/lib/dummy";
 import { demoCache } from "@/components/demo/cache";
 import { errorText } from "@/components/ui/format";
@@ -108,16 +108,17 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
       .then(({ data }) => !!data && (setTodos(data), true));
   }, [id]);
 
-  // 누가 들어오면 멤버 목록을 다시 받아요. 늦게 온 옛 답이 새 목록을 덮어쓰지 못하게 마지막 요청만 반영해요
+  // 누가 들어오거나 방장이 설정을 바꾸면 멤버 목록과 프로젝트 정보를 다시 받아요. 늦게 온 옛 답이 새 값을 덮어쓰지 못하게 마지막 요청만 반영해요
   const memberSeq = useRef(0);
-  const reloadMembers = useCallback(() => {
+  const reloadShared = useCallback(() => {
     const my = ++memberSeq.current;
-    safe(api.GET("/workspaces/{workspace_id}/members", { params: { path: { workspace_id: id } } }))
-      .then(({ data }) => data && my === memberSeq.current && setMembers(data));
+    const p = { params: { path: { workspace_id: id } } };
+    safe(api.GET("/workspaces/{workspace_id}/members", p)).then(({ data }) => data && my === memberSeq.current && setMembers(data));
+    safe(api.GET("/workspaces/{workspace_id}", p)).then(({ data }) => data && my === memberSeq.current && setWorkspace(data));
   }, [id]);
   // 채팅 화면이면 보고 있는 채널의 소켓을 같이 써서 새로 열지 않아요. 다른 화면(캘린더 등)에서는 첫 채널 소켓으로 들어요
   const { channelId } = useParams<{ channelId?: string }>();
-  useMembersChanged(channels.find((c) => String(c.id) === channelId)?.id ?? channels[0]?.id, reloadMembers);
+  useWorkspaceChanged(channels.find((c) => String(c.id) === channelId)?.id ?? channels[0]?.id, reloadShared);
 
   const reloadEvents = useCallback(() => {
     safe(api.GET("/workspaces/{workspace_id}/events", { params: { path: { workspace_id: id } } }))
