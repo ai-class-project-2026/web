@@ -107,7 +107,7 @@ function Sidebar({ demo, me }: { demo: boolean; me: User }) {
             aria-current={current === s.id ? "true" : undefined}
             className={navItemClass(current === s.id)}
           >
-            <s.icon className={cn("size-5 shrink-0", current === s.id ? "text-primary" : "text-muted-foreground")} weight={current === s.id ? "fill" : "regular"} />
+            <s.icon className={cn("size-5 shrink-0", current === s.id ? "text-primary" : "text-muted-foreground")} />
             {s.label}
           </a>
         ))}

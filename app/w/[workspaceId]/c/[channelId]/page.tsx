@@ -210,10 +210,10 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
           )}
           <div className="ml-auto hidden items-center gap-1 xl:flex">
             <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">
-              <IconCalendar className="size-5" weight={panel === "schedule" ? "fill" : "regular"} /> 일정
+              <IconCalendar className="size-5" /> 일정
             </ToolButton>
             <ToolButton active={panel === "members"} onClick={() => toggle("members")} label="멤버 목록 보기">
-              <IconMembers className="size-5" weight={panel === "members" ? "fill" : "regular"} /> 멤버 <span className="tabular-nums">{ws.members.length}</span>
+              <IconMembers className="size-5" /> 멤버 <span className="tabular-nums">{ws.members.length}</span>
             </ToolButton>
           </div>
         </TopBar>

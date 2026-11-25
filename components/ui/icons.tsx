@@ -1,5 +1,5 @@
 // 아이콘은 전부 이 파일에서만 가져와요. (라이브러리를 다른 파일에서 직접 import 하지 않기)
-// 한 가지 뜻 = 한 가지 아이콘. 굵기는 기본 regular, 선택된 상태에서만 fill.
+// 한 가지 뜻 = 한 가지 아이콘. 항상 선(regular) 모양만 써요. 채운 모양(fill)은 이모지처럼 보여서 쓰지 않아요.
 // "/ssr" 주소로 가져오면 서버 컴포넌트와 클라이언트 컴포넌트 모두에서 쓸 수 있어요.
 
 import {
@@ -12,16 +12,15 @@ import { cn } from "cn";
 
 export type IconProps = {
   className?: string;
-  weight?: "regular" | "fill";
   "aria-label"?: string;
 };
 
-/** Phosphor 글리프를 우리 규칙(className, weight, aria-hidden)에 맞게 감싸요 */
+/** Phosphor 글리프를 우리 규칙(className, aria-hidden)에 맞게 감싸요 */
 function make(Glyph: React.ComponentType<IconBaseProps>, extra?: string) {
-  return function AppIcon({ className, weight = "regular", "aria-label": label }: IconProps) {
+  return function AppIcon({ className, "aria-label": label }: IconProps) {
     return (
       <Glyph
-        weight={weight}
+        weight="regular"
         className={cn(extra, className)}
         aria-hidden={label ? undefined : true}
         aria-label={label}
@@ -68,4 +67,4 @@ export const IconLogout = make(SignOut);
 export const IconLoading = make(CircleNotch, "animate-spin");
 
 /** NavItem·TopBarTitle 같은 곳에서 아이콘을 prop으로 받을 때 쓰는 타입 */
-export type AppIcon = React.ComponentType<{ className?: string; weight?: "regular" | "fill" }>;
+export type AppIcon = React.ComponentType<{ className?: string }>;

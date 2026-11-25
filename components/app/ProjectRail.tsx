@@ -24,7 +24,7 @@ export function ProjectRail({ demo, active }: {
   return (
     <nav aria-label="프로젝트" className="flex w-18 shrink-0 flex-col items-center gap-2 border-r border-sidebar-border bg-sidebar py-3">
       <RailItem href={demo ? "/dm/demo" : "/dm"} label="1:1 대화" active={active === "dm"} className="border bg-card text-primary">
-        <IconChat className="size-6" weight={active === "dm" ? "fill" : "regular"} />
+        <IconChat className="size-6" />
       </RailItem>
 
       <span aria-hidden className="my-1 h-px w-8 bg-border" />

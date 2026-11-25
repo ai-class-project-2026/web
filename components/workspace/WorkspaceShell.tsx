@@ -99,7 +99,7 @@ function Sidebar() {
             settingsActive ? "border-border bg-sidebar-accent font-medium text-sidebar-accent-foreground" : "border-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
           )}
         >
-          <IconSettings className="size-4" weight={settingsActive ? "fill" : "regular"} /> 설정
+          <IconSettings className="size-4" /> 설정
         </Link>
       </div>
 
@@ -166,7 +166,7 @@ export function NavItem({ href, active, icon: Icon, count, children }: {
 }) {
   return (
     <Link href={href} aria-current={active ? "page" : undefined} className={navItemClass(active)}>
-      {Icon && <Icon className={cn("size-5 shrink-0", active ? "text-primary" : "text-muted-foreground")} weight={active ? "fill" : "regular"} />}
+      {Icon && <Icon className={cn("size-5 shrink-0", active ? "text-primary" : "text-muted-foreground")} />}
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {!!count && <span className="rounded-full bg-primary px-2 text-xs tabular-nums text-primary-foreground">{count}</span>}
     </Link>
