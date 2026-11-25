@@ -195,7 +195,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
           return (
             <Fragment key={m.id}>
               {sep}
-              <li className={cn("group relative flex gap-4 px-4 py-0.5 hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group", isNew(it.at) && "animate-pop")}>
+              <li tabIndex={-1} className={cn("group relative flex gap-4 px-4 py-0.5 outline-none hover:bg-muted/60", grouped ? "mt-chat-line" : "mt-chat-group", isNew(it.at) && "animate-pop")}>
                 {grouped ? (
                   <span className="w-chat-avatar shrink-0 text-right text-meta tabular-nums leading-[1.375rem] text-muted-foreground opacity-0 group-hover:opacity-100">
                     {clock(m.created_at).replace(/^(오전|오후) /, "")}
@@ -215,9 +215,10 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                   </div>
                 </div>
 
-                {/* 마우스를 올리면 이 줄 오른쪽 위에 뜨는 도구. 터치 화면에서는 테두리 없는 작은 아이콘으로 줄 오른쪽 끝에 자리를 잡고 항상 보여요 */}
+                {/* 이 줄 오른쪽 위에 뜨는 도구. 마우스는 올리면, 터치 화면은 줄을 누르면(포커스) 보여요. 안 보일 때는 눌리지 않아요.
+                    ponytail: 누른 줄을 포커스로만 기억해요. 포커스가 안 잡히는 폰이 있으면 state로 바꿔요 */}
                 {(onMakeEvent || onReport) && !m.is_profane && (
-                  <span className="absolute -top-3 right-4 z-10 flex items-center gap-0.5 rounded-md border bg-card p-0.5 opacity-0 transition focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:z-auto [@media(hover:none)]:shrink-0 [@media(hover:none)]:self-start [@media(hover:none)]:gap-1 [@media(hover:none)]:rounded-none [@media(hover:none)]:border-0 [@media(hover:none)]:bg-transparent [@media(hover:none)]:p-0 [@media(hover:none)]:opacity-100">
+                  <span className="absolute -top-3 right-4 z-10 flex items-center gap-0.5 rounded-md border bg-card p-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:pointer-events-none [@media(hover:none)]:group-focus-within:pointer-events-auto">
                     {onMakeEvent && (
                       <Button
                         variant="ghost"
@@ -225,9 +226,9 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                         onClick={() => onMakeEvent(m)}
                         title="이 메시지로 일정 만들기"
                         aria-label="이 메시지로 일정 만들기"
-                        className="text-muted-foreground hover:text-primary [@media(hover:none)]:size-6"
+                        className="text-muted-foreground hover:text-primary [@media(hover:none)]:size-9"
                       >
-                        <IconEventAdd className="size-5 [@media(hover:none)]:size-4" />
+                        <IconEventAdd className="size-5" />
                       </Button>
                     )}
                     {onReport && !mine && (
@@ -240,9 +241,9 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                           onClick={() => reportMissed(m.id)}
                           title="욕설인데 안 가려졌다면 신고"
                           aria-label="욕설 신고"
-                          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive [@media(hover:none)]:size-6"
+                          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive [@media(hover:none)]:size-9"
                         >
-                          <IconReport className="size-5 [@media(hover:none)]:size-4" />
+                          <IconReport className="size-5" />
                         </Button>
                       )
                     )}

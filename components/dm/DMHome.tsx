@@ -3,7 +3,8 @@
 // 1:1 대화 첫 화면
 //  [상단 바: 팀원 | 전체 · 프로젝트별 탭]
 //  [검색창]
-//  [팀원 목록: 한 줄에 한 사람, 줄 어디를 눌러도 대화로]      [오른쪽 칸: 최근 대화]
+//  [팀원 목록: 한 줄에 한 사람, 줄 어디를 눌러도 대화로]
+// 최근 대화는 왼쪽 목록(DMShell)에 있어요
 
 import Link from "next/link";
 import { useState } from "react";
@@ -13,7 +14,6 @@ import { TopBar, TopBarDivider, TopBarTitle } from "@/components/app/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { IconChat, IconLock, IconMembers, IconSearch } from "@/components/ui/icons";
-import { clock } from "@/components/ui/format";
 import { useDM } from "./DMProvider";
 
 export function DMHome() {
@@ -87,44 +87,7 @@ export function DMHome() {
           )}
         </main>
 
-        <RecentPanel />
       </div>
     </div>
-  );
-}
-
-/** 오른쪽 칸: 최근 대화 (마지막 메시지 미리보기) */
-function RecentPanel() {
-  const dm = useDM();
-  return (
-    <aside className="hidden w-80 shrink-0 overflow-y-auto border-l px-4 py-4 xl:block">
-      <h2 className="mb-3 text-sm font-semibold">최근 대화</h2>
-      {dm.threads.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center text-sm text-muted-foreground">
-          <IconChat className="size-6" />
-          <p className="font-medium text-foreground">아직 조용하네요</p>
-          <p className="mt-1">왼쪽 목록에서 팀원을 골라 첫 대화를 시작해 보세요</p>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {dm.threads.slice(0, 6).map((t) => (
-            <li key={t.peer.id}>
-              <Link href={dm.peerHref(t.peer.id)} className="flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:bg-secondary">
-                <Avatar id={t.peer.id} className="size-9" />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-sm font-semibold">{t.peer.name}</span>
-                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{clock(t.last.created_at)}</span>
-                  </span>
-                  <span className="block truncate text-sm text-muted-foreground">
-                    {t.last.is_profane ? "가려진 메시지" : t.last.text}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </aside>
   );
 }

@@ -225,7 +225,7 @@ function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; 
         <h2 className="min-w-0 truncate text-base">{m.title}</h2>
         <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
           <span className="tabular-nums">목표 {m.lowerBetter ? "≤" : "≥"} {fmt(m.target, m.unit)}</span>
-          {last && <span className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-medium", met ? "bg-chart-2/20 text-foreground" : "bg-muted")}>{met && <IconCheck className="size-4" aria-hidden />}{met ? "달성" : "아직"}</span>}
+          {last && <span className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-medium", met ? "bg-secondary text-secondary-foreground" : "bg-muted")}>{met && <IconCheck className="size-4" aria-hidden />}{met ? "달성" : "아직"}</span>}
         </span>
       </div>
       <p className="mb-2 text-xs text-muted-foreground">{m.lowerBetter ? "낮을수록 좋아요" : "높을수록 좋아요"}</p>
