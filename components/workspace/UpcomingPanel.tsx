@@ -57,7 +57,7 @@ export function UpcomingPanel() {
               <li key={t.id} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm">
                 <input
                   type="checkbox"
-                  className="size-4 accent-primary"
+                  className="size-4 shrink-0 accent-primary dark:scheme-dark"
                   checked={t.done}
                   onChange={() => ws.updateTodo(t.id, { done: !t.done })}
                   aria-label={`${t.title} 완료`}

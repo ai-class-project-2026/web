@@ -40,6 +40,8 @@
      mt-chat-line      같은 사람 연속 메시지 사이 0 (각 줄 위아래 2px 여백 → 줄 간격 26px)
      날짜 구분선: 위 24px · 아래 8px
      멤버 한 줄 42px · 아바타 32px
+     주의: cn()은 text-chat·text-meta를 글자색으로 알고, 같은 cn 안에 글자색(text-primary 등)이 있으면 지워 버려요.
+           크기와 색을 다른 요소에 나눠 쓰거나 문자열로 이어 붙여요.
    ─────────────────────────────────────────────────────────────── */
 @theme {
   --text-chat: 1rem;
@@ -298,6 +300,15 @@
   --fc-breezy-popover: var(--card);
   --fc-breezy-border: var(--border);
   --fc-breezy-foreground: var(--foreground);
+  /* 테마의 어두운 색 묶음은 우리 .dark와 이름이 달라서 켜지지 않아요. 글자·옅은 배경·팝업 테두리도 사이트 색으로 이어 줘야
+     어두운 화면에서 "+3개 더보기" 같은 글자가 보여요 */
+  --fc-breezy-strong-foreground: var(--foreground);
+  --fc-breezy-muted-foreground: var(--muted-foreground);
+  --fc-breezy-faint-foreground: var(--muted-foreground);
+  --fc-breezy-faint: color-mix(in oklch, var(--foreground) 3%, transparent);
+  --fc-breezy-muted: color-mix(in oklch, var(--foreground) 5%, transparent);
+  --fc-breezy-strong: color-mix(in oklch, var(--foreground) 10%, transparent);
+  --fc-breezy-popover-border: var(--border);
   font-family: var(--font-sans);
 }
 .calendar-wrap .fc-event {
@@ -341,6 +352,8 @@
 .calendar-wrap .cal-other .cal-daynum {
   color: color-mix(in oklch, var(--muted-foreground) 65%, transparent);
 }
+/* 주 보기 요일 칸(.cal-head)의 오늘 날짜도 같은 칩이에요 */
+.calendar-wrap .cal-head .cal-today-num,
 .calendar-wrap .cal-daynum.cal-today-num {
   background: var(--primary);
   color: var(--primary-foreground);
@@ -361,8 +374,15 @@
   border: 1px solid var(--input);
   border-radius: var(--radius-md);
   box-shadow: none;
-  font-size: 0.875rem;
+  height: 2rem;
+  min-width: 2rem;
+  padding-block: 0;
+  font-size: var(--text-sm);
   font-weight: 500;
+}
+/* 붙어 있는 버튼(이전·다음, 월·주)은 테두리가 겹쳐 보이지 않게 살짝 띄워요 */
+.calendar-wrap .cal-btn-group {
+  gap: 0.25rem;
 }
 .calendar-wrap .cal-btn:hover:not(:disabled) {
   background: var(--secondary);
@@ -417,8 +437,15 @@
 .calendar-wrap .cal-ev .cal-time {
   flex-shrink: 0;
 }
-/* 좁은 화면: 제목과 버튼을 줄여서 위쪽 줄이 두 줄로 넘치지 않게 */
+/* 좁은 화면: 제목·버튼·사이 간격을 줄여서 위쪽 줄이 두 줄로 넘치지 않게 (360px 휴대폰까지 한 줄).
+   날짜 칸이 좁아서 일정은 …을 빼고 안쪽 여백을 줄여 한 글자라도 더 보여줘요 */
 @media (max-width: 40rem) {
+  .calendar-wrap .cal-toolbar { gap: 0.5rem; padding-inline: 0.75rem; }
   .calendar-wrap .cal-title { font-size: 1rem; }
-  .calendar-wrap .cal-btn { padding-inline: 0.5rem; }
+  .calendar-wrap .cal-btn { padding-inline: 0.375rem; font-size: 0.875rem; }
+  .calendar-wrap .cal-btn-group { gap: 0.125rem; }
+  .calendar-wrap .cal-ev * {
+    text-overflow: clip;
+    padding-inline: 0.0625rem;
+  }
 }

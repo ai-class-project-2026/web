@@ -208,7 +208,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
               </span>
             </div>
           )}
-          <div className="ml-auto hidden items-center gap-1 xl:flex">
+          <div className="ml-auto hidden shrink-0 items-center gap-1 xl:flex">
             <ToolButton active={panel === "schedule"} onClick={() => toggle("schedule")} label="다가오는 일정 보기">
               <IconCalendar className="size-5" /> 일정
             </ToolButton>
@@ -276,7 +276,7 @@ function ToolButton({ active, onClick, label, children }: { active: boolean; onC
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm transition",
+        "flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-sm transition",
         active ? "bg-secondary font-medium text-secondary-foreground" : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
       )}
     >

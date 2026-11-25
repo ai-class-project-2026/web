@@ -24,9 +24,9 @@ export function BackToChat() {
   return (
     <Link
       href={href}
-      className="flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium text-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+      className="flex h-8 w-fit min-w-0 shrink-[4] items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium text-foreground transition hover:bg-secondary hover:text-secondary-foreground"
     >
-      <IconBack className="size-4" />
+      <IconBack className="size-4 shrink-0" />
       <span className="max-w-48 truncate">{channel ? `#${channel.name} 채팅으로` : "채팅으로 돌아가기"}</span>
     </Link>
   );

@@ -144,7 +144,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
       )}
 
       {items.length === 0 && !historyError && loaded && (
-        <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+        <div className="flex h-full flex-col items-center justify-center gap-2 break-keep px-6 text-center text-muted-foreground">
           <IconChat className="size-6" />
           <p>첫 메시지를 보내 보세요</p>
           <p className="text-xs">“목요일 7시에 회의 어때?”처럼 일정을 이야기하면 AI가 캘린더 등록을 도와줘요</p>
@@ -205,9 +205,9 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                 )}
                 <div className="min-w-0 flex-1">
                   {!grouped && (
-                    <p className="flex items-baseline gap-2">
-                      <span className={cn("text-chat font-medium", mine && "text-primary")}>{m.user_name}</span>
-                      <span className="text-meta tabular-nums text-muted-foreground">{clock(m.created_at)}</span>
+                    <p className="flex items-baseline gap-2 text-chat">
+                      <span className={cn("min-w-0 truncate font-medium", mine && "text-primary")}>{m.user_name}</span>
+                      <span className="shrink-0 text-meta tabular-nums text-muted-foreground">{clock(m.created_at)}</span>
                     </p>
                   )}
                   <div className="text-chat">

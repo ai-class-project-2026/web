@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { cn } from "cn";
 import type { Message, Workspace } from "@/lib/api";
 import { IconHidden, IconNotify, IconWarning } from "@/components/ui/icons";
 import { splitSpans, spansAreValid } from "@/lib/mask";
@@ -63,10 +62,11 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = 
         )}
       </span>
 
-      <span className={cn("flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta", mine ? "text-primary-foreground/80" : "text-muted-foreground")}>
+      {/* cn에 넣으면 text-meta(글자 크기)를 글자색으로 알고 지워 버려서, 여기는 문자열로 이어 붙여요 */}
+      <span className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
         {warnOnly ? <span className="inline-flex items-center gap-1 text-destructive"><IconWarning className="size-4" /> 부적절한 표현이 있어요</span> : <span className="inline-flex items-center gap-1"><IconHidden className="size-4" /> 부적절한 표현이 가려졌어요</span>}
         {!warnOnly && (
-          <button className="font-medium text-primary underline underline-offset-2" onClick={() => setShown((s) => !s)}>
+          <button className="-mx-1 -my-1.5 rounded-sm px-1 py-1.5 font-medium text-primary underline underline-offset-2" onClick={() => setShown((s) => !s)}>
             {shown ? "숨기기" : "보기"}
           </button>
         )}
@@ -77,7 +77,7 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = 
           (reported ? (
             <span>신고 접수됐어요</span>
           ) : (
-            <button className="underline underline-offset-2" onClick={report} title="멀쩡한 말인데 가려졌다면 알려 주세요">
+            <button className="-mx-1 -my-1.5 rounded-sm px-1 py-1.5 underline underline-offset-2 hover:text-foreground" onClick={report} title="멀쩡한 말인데 가려졌다면 알려 주세요">
               욕설 아님
             </button>
           ))}

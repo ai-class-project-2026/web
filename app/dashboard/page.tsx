@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { cn } from "cn";
 import { Select } from "@/components/ui/field";
 import { Segmented } from "@/components/ui/segmented";
-import { IconBack, IconCheck, IconDashboard } from "@/components/ui/icons";
+import { IconBack, IconCheck, IconDashboard, IconNext } from "@/components/ui/icons";
 
 type Row = Record<string, string>;
 type Metric = { key: string; title: string; target: number; lowerBetter?: boolean; unit: "%" | "ms" };
@@ -124,7 +124,7 @@ export default function DashboardPage() {
           <IconBack className="size-5" />
         </Link>
         <div>
-          <h1 className="flex items-center gap-2 text-2xl"><IconDashboard className="size-5" aria-hidden />AI 성능 대시보드</h1>
+          <h1 className="flex items-center gap-2 text-2xl"><IconDashboard className="size-6" aria-hidden />AI 성능 대시보드</h1>
           <p className="text-sm text-muted-foreground">버전이 바뀔 때마다 점수가 얼마나 좋아졌는지 보여줘요</p>
         </div>
       </header>
@@ -163,23 +163,28 @@ export default function DashboardPage() {
               ))}
           </div>
 
-          <details className="rounded-xl border bg-card p-4 text-sm">
-            <summary className="cursor-pointer font-medium">표로 보기</summary>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full text-left tabular-nums">
-                <thead className="text-muted-foreground">
+          <details className="group rounded-xl border bg-card text-sm">
+            {/* 줄 전체가 눌리는 자리예요. 브라우저 기본 세모 대신 우리 아이콘을 써요 */}
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-xl px-4 py-3 font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+              <IconNext className="size-4 text-muted-foreground group-open:rotate-90" aria-hidden />
+              표로 보기
+            </summary>
+            <div className="overflow-x-auto px-4 pb-3">
+              {/* 숫자는 오른쪽으로 맞춰야 자릿수끼리 비교하기 쉬워요 */}
+              <table className="w-full whitespace-nowrap text-right tabular-nums">
+                <thead className="whitespace-normal break-keep align-bottom text-muted-foreground">
                   <tr>
-                    <th className="py-1.5 pr-4 font-normal">버전</th>
-                    <th className="py-1.5 pr-4 font-normal">n</th>
-                    {src.metrics.map((m) => <th key={m.key} className="py-1.5 pr-4 font-normal">{m.title}</th>)}
+                    <th className="py-2 text-left font-normal">버전</th>
+                    <th className="py-2 pl-3 font-normal">n</th>
+                    {src.metrics.map((m) => <th key={m.key} className="py-2 pl-3 font-normal">{m.title}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, i) => (
                     <tr key={i} className="border-t">
-                      <td className="py-1.5 pr-4">{r.label || "(이름 없음)"}</td>
-                      <td className="py-1.5 pr-4 tabular-nums">{r.n}</td>
-                      {src.metrics.map((m) => <td key={m.key} className="py-1.5 pr-4 tabular-nums">{fmt(num(r[m.key], m.unit), m.unit)}</td>)}
+                      <td className="min-w-28 whitespace-normal break-words py-2 text-left">{r.label || "(이름 없음)"}</td>
+                      <td className="py-2 pl-3">{r.n}</td>
+                      {src.metrics.map((m) => <td key={m.key} className="py-2 pl-3">{fmt(num(r[m.key], m.unit), m.unit)}</td>)}
                     </tr>
                   ))}
                 </tbody>
@@ -197,63 +202,82 @@ function fmt(v: number | null, unit: Metric["unit"]) {
   return unit === "%" ? `${(v * 100).toFixed(1)}%` : `${Math.round(v)}ms`;
 }
 
-/** 버전별 막대 하나씩 + 목표 점선. 막대에 마우스를 올리면 값이 떠요. 마지막(최신) 버전만 값을 바로 적어요. */
+/** 버전별 막대 하나씩 + 목표 점선. 막대에 마우스를 올리면 값이 떠요. 마지막(최신) 버전만 값을 바로 적어요.
+ *  막대와 선만 SVG로 그리고 글자는 그 위에 따로 얹어요. 그래야 칸이 좁아져도 글자 크기가 그대로예요. */
 function BarChart({ metric: m, rows }: { metric: Metric; rows: { label: string; value: number }[] }) {
   const [hover, setHover] = useState<number | null>(null);
-  const W = 360, H = 200, PAD_L = 8, PAD_B = 34, PAD_T = 24;
-  const max = Math.max(m.target, ...rows.map((r) => r.value)) * 1.15 || 1;
-  const plotH = H - PAD_B - PAD_T;
-  const slot = (W - PAD_L * 2) / Math.max(rows.length, 1);
+  // PAD_T는 막대 위에 값을 적을 자리예요
+  const W = 360, H = 150, PAD_T = 24;
+  const base = H - 1;
+  const plotH = base - PAD_T;
+  const max = Math.max(m.target, ...rows.map((r) => r.value)) || 1;
+  const slot = W / Math.max(rows.length, 1);
   const bw = Math.min(44, slot * 0.55);
-  const y = (v: number) => PAD_T + plotH - (v / max) * plotH;
+  const y = (v: number) => base - (v / max) * plotH;
+  const lastIndex = rows.length - 1;
   const last = rows.at(-1);
   const met = last && (m.lowerBetter ? last.value <= m.target : last.value >= m.target);
+  const shown = hover ?? lastIndex;
 
   return (
     <section className="rounded-xl border bg-card p-4">
-      <div className="mb-1 flex items-baseline justify-between gap-2">
-        <h2 className="text-base">{m.title}</h2>
-        <span className="text-xs text-muted-foreground">
-          목표 {m.lowerBetter ? "≤" : "≥"} {fmt(m.target, m.unit)}
-          {last && <span className={cn("ml-2 inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-medium", met ? "bg-chart-2/20 text-foreground" : "bg-muted")}>{met && <IconCheck className="size-4" aria-hidden />}{met ? "달성" : "아직"}</span>}
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="min-w-0 truncate text-base">{m.title}</h2>
+        <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+          <span className="tabular-nums">목표 {m.lowerBetter ? "≤" : "≥"} {fmt(m.target, m.unit)}</span>
+          {last && <span className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-medium", met ? "bg-chart-2/20 text-foreground" : "bg-muted")}>{met && <IconCheck className="size-4" aria-hidden />}{met ? "달성" : "아직"}</span>}
         </span>
       </div>
       <p className="mb-2 text-xs text-muted-foreground">{m.lowerBetter ? "낮을수록 좋아요" : "높을수록 좋아요"}</p>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`${m.title} 버전별 막대그래프`}>
-        {/* 바닥선 */}
-        <line x1={PAD_L} x2={W - PAD_L} y1={PAD_T + plotH} y2={PAD_T + plotH} stroke="var(--border)" />
-        {/* 목표 점선 */}
-        <line x1={PAD_L} x2={W - PAD_L} y1={y(m.target)} y2={y(m.target)} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeWidth={1.5} />
-        <text x={W - PAD_L} y={y(m.target) - 4} textAnchor="end" fontSize={10} fill="var(--muted-foreground)">목표</text>
 
-        {rows.map((r, i) => {
-          const cx = PAD_L + slot * i + slot / 2;
-          const top = y(r.value);
-          const h = PAD_T + plotH - top;
-          const x0 = cx - bw / 2;
-          const rad = Math.min(4, h);
-          // 위쪽 모서리만 둥근 막대 (바닥은 평평하게)
-          const d = `M${x0},${PAD_T + plotH} V${top + rad} Q${x0},${top} ${x0 + rad},${top} H${x0 + bw - rad} Q${x0 + bw},${top} ${x0 + bw},${top + rad} V${PAD_T + plotH} Z`;
-          const isLast = i === rows.length - 1;
-          const show = hover === i || (hover === null && isLast);
-          return (
-            <g key={i} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
-              {/* 막대보다 넓은 마우스 영역 */}
-              <rect x={cx - slot / 2} y={PAD_T} width={slot} height={plotH} fill="transparent" />
-              <path d={d} fill={isLast ? "var(--chart-1)" : "var(--muted-foreground)"} opacity={hover === null || hover === i ? (isLast ? 1 : 0.45) : 0.25} />
-              {show && (
-                <text x={cx} y={top - 6} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--foreground)" stroke="var(--card)" strokeWidth={4} paintOrder="stroke">
-                  {fmt(r.value, m.unit)}
-                </text>
-              )}
-              <text x={cx} y={H - PAD_B + 16} textAnchor="middle" fontSize={10} fill="var(--muted-foreground)">
-                {r.label.length > 12 ? `${r.label.slice(0, 11)}…` : r.label}
-                <title>{r.label}</title>
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+      <div className="flex">
+        <div className="relative min-w-0 flex-1">
+          <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label={`${m.title} 버전별 막대그래프`}>
+            {/* 바닥선 */}
+            <line x1={0} x2={W} y1={base} y2={base} stroke="var(--border)" />
+            {/* 목표 점선 */}
+            <line x1={0} x2={W} y1={y(m.target)} y2={y(m.target)} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeWidth={1.5} />
+            {rows.map((r, i) => {
+              const top = y(r.value);
+              const h = base - top;
+              const x0 = slot * i + (slot - bw) / 2;
+              const rad = Math.min(4, h);
+              // 위쪽 모서리만 둥근 막대 (바닥은 평평하게)
+              const d = `M${x0},${base} V${top + rad} Q${x0},${top} ${x0 + rad},${top} H${x0 + bw - rad} Q${x0 + bw},${top} ${x0 + bw},${top + rad} V${base} Z`;
+              const isLast = i === lastIndex;
+              return (
+                <g key={i} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+                  {/* 막대보다 넓은 마우스 영역 */}
+                  <rect x={slot * i} y={0} width={slot} height={H} fill="transparent" />
+                  <path d={d} fill={isLast ? "var(--chart-1)" : "var(--muted-foreground)"} opacity={hover === null || hover === i ? (isLast ? 1 : 0.45) : 0.25} />
+                </g>
+              );
+            })}
+          </svg>
+          {/* 값은 막대 바로 위에. 막대가 많아 좁을 땐 그래프 밖으로 나가지 않게 안쪽으로 당겨요 */}
+          {rows[shown] && (
+            <span
+              className="pointer-events-none absolute -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-sm bg-card px-1 text-sm font-semibold leading-tight tabular-nums"
+              style={{ left: `clamp(1.75rem, ${((shown + 0.5) / rows.length) * 100}%, 100% - 1.75rem)`, top: `${((y(rows[shown].value) - 3) / H) * 100}%` }}
+            >
+              {fmt(rows[shown].value, m.unit)}
+            </span>
+          )}
+        </div>
+        {/* 점선이 끝나는 자리 옆에 이름을 적어요. 막대나 값과 겹치지 않아요 */}
+        <div className="relative w-8 shrink-0">
+          <span className="absolute left-1.5 -translate-y-1/2 whitespace-nowrap text-xs text-muted-foreground" style={{ top: `${(y(m.target) / H) * 100}%` }}>목표</span>
+        </div>
+      </div>
+
+      {/* 버전 이름: 막대와 같은 너비로 나눠서 바로 아래에 와요. 길면 두 줄까지 보여줘요 */}
+      <div className="mr-8 mt-1.5 grid text-center text-xs leading-tight text-muted-foreground" style={{ gridTemplateColumns: `repeat(${rows.length}, minmax(0, 1fr))` }}>
+        {rows.map((r, i) => (
+          <span key={i} title={r.label} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} className={cn("line-clamp-2 text-balance break-keep break-words px-0.5", i === lastIndex && "font-medium text-foreground")}>
+            {r.label}
+          </span>
+        ))}
+      </div>
     </section>
   );
 }

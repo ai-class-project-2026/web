@@ -50,6 +50,7 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
     if (typeof res === "string" && res) setError(res);
   };
 
+  const struck = kind === "cancel" && "line-through decoration-destructive decoration-2";
   const question = registered ? "" : kind === "cancel" ? `${shortDate(event.date, event.weekday)} ${event.title}을(를) 취소할까요?` : k.question;
 
   // 플래너에서 뜯어낸 쪽지: 왼쪽 달력 한 장(노랑) | 점선(절취선) | 오른쪽 내용
@@ -69,20 +70,21 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
 
         {editing && !registered ? (
           <>
-            <EditForm event={event} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
+            <EditForm event={event} update={kind === "update"} busy={busy} onCancel={() => setEditing(false)} onSave={(e) => run("edited", e)} />
             {/* 고쳐서 추가하다 실패해도 이유가 보이게, 수정 중에도 에러를 보여줘요 */}
             {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
           </>
         ) : (
           <>
             {current && kind === "update" && (
-              <p className="mb-1.5 break-words text-sm text-muted-foreground line-through decoration-destructive decoration-2">
+              <p className="mb-1.5 break-words text-sm text-muted-foreground line-through decoration-destructive decoration-1">
                 <span className="tabular-nums">{shortDate(current.date)} {timeLabel(current)}</span> · {current.location ?? "장소 미정"} · {current.title}
               </p>
             )}
-            <div className={cn("text-sm", kind === "cancel" && "line-through decoration-destructive decoration-2")}>
-              <p className="break-words text-chat font-semibold">{event.title}</p>
-              <p className="mt-1 flex min-w-0 items-center gap-1.5 break-words tabular-nums">
+            <div className="text-sm">
+              {/* 취소 카드는 제목과 날짜에만 빨간 줄을 그어요 (참석자까지 그으면 전부 불참처럼 보여요) */}
+              <p className={cn("break-words text-chat font-semibold", struck)}>{event.title}</p>
+              <p className={cn("mt-1 flex min-w-0 items-center gap-1.5 break-words tabular-nums", struck)}>
                 <IconTime className="size-4 shrink-0 text-muted-foreground" />
                 <span className="min-w-0 break-words">{shortDate(event.date, event.weekday)} {timeLabel(event) || "시간 미정"}</span>
               </p>
@@ -123,9 +125,11 @@ export function ScheduleCard({ suggestion, onAct, current, registered = false }:
   );
 }
 
-/** [수정]을 누르면 나오는 폼. 고친 값으로 onAct("edited", 고친값) */
-function EditForm({ event, busy, onSave, onCancel }: {
+/** [수정]을 누르면 나오는 폼. 고친 값으로 onAct("edited", 고친값). 카드가 좁으면(휴대폰) 날짜와 시간을 한 줄씩 써요 */
+function EditForm({ event, update, busy, onSave, onCancel }: {
   event: Suggestion["payload"]["event"];
+  /** 일정 변경 카드면 버튼 글자가 "바꾸기" */
+  update: boolean;
   busy: boolean;
   onSave: (e: EventInput) => void;
   onCancel: () => void;
@@ -144,7 +148,7 @@ function EditForm({ event, busy, onSave, onCancel }: {
 
   return (
     <form
-      className="grid grid-cols-2 gap-2"
+      className="@container grid grid-cols-2 gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         onSave({
@@ -160,14 +164,14 @@ function EditForm({ event, busy, onSave, onCancel }: {
       }}
     >
       <Field label="제목" className="col-span-2"><Input value={f.title} onChange={set("title")} required /></Field>
-      <Field label="날짜"><Input type="date" value={f.date} onChange={set("date")} required /></Field>
-      <Field label="시간"><Input type="time" value={f.start} onChange={set("start")} /></Field>
+      <Field label="날짜" className="col-span-2 @xs:col-span-1"><Input type="date" value={f.date} onChange={set("date")} required /></Field>
+      <Field label="시간" className="col-span-2 @xs:col-span-1"><Input type="time" value={f.start} onChange={set("start")} /></Field>
       <Field label="장소" className="col-span-2"><Input value={f.location} onChange={set("location")} placeholder="예: 디스코드" /></Field>
       <Field label="참석 (쉼표로 구분)" className="col-span-2"><Input value={f.attendees} onChange={set("attendees")} /></Field>
       <Field label="불참"><Input value={f.absent} onChange={set("absent")} /></Field>
       <Field label="메모"><Input value={f.note} onChange={set("note")} /></Field>
       <div className="col-span-2 mt-1 flex gap-2">
-        <Button type="submit" disabled={busy}>고친 내용으로 추가</Button>
+        <Button type="submit" disabled={busy}>{update ? "고친 내용으로 바꾸기" : "고친 내용으로 추가"}</Button>
         <Button type="button" variant="ghost" onClick={onCancel}>돌아가기</Button>
       </div>
     </form>

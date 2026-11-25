@@ -42,26 +42,32 @@ export default function CalendarPage() {
       };
     });
 
+  // 색 설명 + 취소된 일정 보기. 넓은 화면은 위쪽 줄에, 좁은 화면은 달력 바로 위에 놓아요
+  const legend = (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+      <Legend swatch="bg-highlight">AI가 찾은 일정</Legend>
+      <Legend swatch="border border-l-[3px] border-border border-l-primary bg-secondary">직접 추가</Legend>
+      <label className="flex cursor-pointer items-center gap-1.5">
+        <input type="checkbox" className="accent-primary dark:scheme-dark" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
+        취소된 일정도 보기
+      </label>
+    </div>
+  );
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <TopBar>
         <BackToChat />
         <TopBarDivider />
         <TopBarTitle icon={IconCalendar}>캘린더</TopBarTitle>
-        <div className="hidden items-center gap-3 text-xs text-muted-foreground lg:flex">
-          <Legend swatch="bg-highlight">AI가 찾은 일정</Legend>
-          <Legend swatch="border border-l-[3px] border-border border-l-primary bg-secondary">직접 추가</Legend>
-          <label className="flex cursor-pointer items-center gap-1.5">
-            <input type="checkbox" className="accent-primary dark:scheme-dark" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
-            취소된 일정도 보기
-          </label>
-        </div>
+        <div className="hidden xl:block">{legend}</div>
         <Button className="ml-auto" onClick={() => setDraft({ date: todayStr() })}>
           <IconAdd /> 일정 추가
         </Button>
       </TopBar>
 
     <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background p-4">
+      <div className="mb-3 px-1 xl:hidden">{legend}</div>
       {/* 종이 카드 한 장: 테두리는 여기 한 번만 (FullCalendar 안쪽 테두리는 globals.css에서 지워요) */}
       <div className="calendar-wrap min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-card">
         <FullCalendar
@@ -75,10 +81,24 @@ export default function CalendarPage() {
           // 날짜 칸 구분: 주말·다른 달·오늘에 각각 다른 배경 (모양은 globals.css의 .cal-*)
           dayCellClass={(d) => cn(d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat", d.isOther && "cal-other", d.isToday && "cal-today")}
           dayHeaderClass={(d) => cn("cal-head", d.dow === 0 && "cal-sun", d.dow === 6 && "cal-sat")}
+          // 주 보기 요일 칸: 오늘은 월 보기처럼 파란 칩. 칸이 아주 좁으면 요일만 나와서 그 아래에 날짜를 따로 적어요
+          dayHeaderContent={(d) => {
+            if (!d.dayNumberText || d.inPopover) return d.text; // 월 보기는 요일만, "더보기" 팝업 제목은 날짜 그대로
+            const day = cn("tabular-nums", d.isToday && "cal-today-num");
+            return d.text.includes(d.dayNumberText) ? (
+              <span className={day}>{d.text}</span>
+            ) : (
+              <span className="flex flex-col items-center gap-0.5 py-1 text-xs">{d.text}<span className={cn("text-sm", day)}>{d.dayNumberText}</span></span>
+            );
+          }}
           // 오늘 날짜 숫자는 파란 칩 (칸 전체를 칠하지 않아요)
           dayCellTopInnerClass={(d) => cn("cal-daynum", d.isToday && "cal-today-num")}
           // 버튼: 선택된 보기(월/주)는 cal-btn-on
           buttonClass={(b) => cn("cal-btn", b.isSelected && "cal-btn-on")}
+          buttonGroupClass="cal-btn-group"
+          // "+N개 더보기" 팝업은 달력 바깥(body)에 그려져요. 같은 이름을 붙여야 일정 색이 똑같이 나와요
+          popoverClass="calendar-wrap"
+          toolbarClass="cal-toolbar"
           toolbarTitleClass="cal-title"
           // 일정 색: AI = 노랑, 직접 = 파랑, 취소 = 회색 + 취소선
           eventClass={(i) => cn("cal-ev", `cal-${(i.event.extendedProps as { kind: string }).kind}`)}

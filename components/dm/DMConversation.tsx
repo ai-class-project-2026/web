@@ -27,7 +27,7 @@ export function DMConversation({ peerId }: { peerId: number }) {
           <Avatar id={peer.id} className="size-7" />
           <TopBarTitle>{peer.name}</TopBarTitle>
           <TopBarDivider />
-          <span className="truncate text-sm text-muted-foreground">{peer.projects.map((w) => w.name).join(" · ")}</span>
+          <span className="min-w-0 truncate text-sm text-muted-foreground">{peer.projects.map((w) => w.name).join(" · ")}</span>
         </TopBar>
 
         {!dm.supported && (
@@ -76,8 +76,8 @@ function Profile({ peer }: { peer: Person }) {
     <aside className="hidden w-72 shrink-0 flex-col overflow-y-auto border-l bg-sidebar xl:flex">
       <div className={`h-24 ${pastel(peer.id)}`} />
       <div className="-mt-10 px-4">
-        <Avatar id={peer.id} className="size-20 border-4 border-background" />
-        <p className="mt-2 text-xl font-bold">{peer.name}</p>
+        <Avatar id={peer.id} className="size-20 border-4 border-sidebar" />
+        <p className="mt-2 break-words text-xl font-bold">{peer.name}</p>
       </div>
 
       <section className="m-4 rounded-xl border bg-card p-3">
@@ -85,11 +85,11 @@ function Profile({ peer }: { peer: Person }) {
         <ul className="flex flex-col gap-1">
           {peer.projects.map((w) => (
             <li key={w.id}>
-              <Link href={dm.demo ? demoPath(w.id) : `/w/${w.id}`} className="flex items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-foreground/5">
-                <span className={`flex size-6 items-center justify-center rounded-lg text-xs font-semibold ${pastel(w.id)}`}>
+              <Link href={dm.demo ? demoPath(w.id) : `/w/${w.id}`} className="-mx-1 flex items-center gap-2.5 rounded-md p-1 text-sm hover:bg-foreground/5">
+                <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold ${pastel(w.id)}`}>
                   {w.name.replace(/\s/g, "").slice(0, 2)}
                 </span>
-                {w.name}
+                <span className="min-w-0 break-words">{w.name}</span>
               </Link>
             </li>
           ))}

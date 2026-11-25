@@ -38,7 +38,7 @@ export function DMHome() {
       </TopBar>
 
       <div className="flex min-h-0 flex-1">
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 pt-4">
+        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 pt-4">
           {!dm.supported && (
             <p className="mb-3 flex items-center gap-2 rounded-md border bg-muted px-3 py-2.5 text-sm text-muted-foreground">
               <IconLock className="size-4 shrink-0" />

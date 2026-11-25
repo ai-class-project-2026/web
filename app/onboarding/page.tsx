@@ -67,12 +67,12 @@ export default function OnboardingPage() {
     <BrandCard title="우리 팀 공간 만들기" subtitle="팀 이름만 정하면 바로 시작할 수 있어요">
       {mine.length > 0 && (
         <div className="mb-5">
-          <p className="mb-2 text-sm font-medium text-foreground/80">내 워크스페이스</p>
+          <p className="mb-2 text-sm font-medium text-foreground/80">내 프로젝트</p>
           <ul className="flex flex-col gap-1.5">
             {mine.map((w) => (
               <li key={w.id}>
-                <Link href={`/w/${w.id}`} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm hover:bg-muted">
-                  {w.name} <IconNext className="size-4 text-muted-foreground" aria-hidden />
+                <Link href={`/w/${w.id}`} className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                  <span className="min-w-0">{w.name}</span> <IconNext className="size-4 shrink-0 text-muted-foreground" aria-hidden />
                 </Link>
               </li>
             ))}

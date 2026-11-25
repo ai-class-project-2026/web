@@ -63,7 +63,8 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    // break-keep: 설명 글이 낱말 중간("팀/원이")에서 끊기지 않게 띄어쓰기에서만 줄을 바꿔요
+    <div className="flex min-h-0 flex-1 flex-col break-keep">
       <TopBar>
         <BackToChat />
         <TopBarDivider />
@@ -99,14 +100,17 @@ function SettingsForm({ workspace }: { workspace: Workspace }) {
                       disabled={locked}
                       onClick={() => setMode(m.value)}
                       className={cn(
-                        "relative flex flex-col items-start gap-1 rounded-md border p-3 text-left transition disabled:cursor-not-allowed",
+                        "relative flex items-start gap-3 rounded-md border p-3 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed sm:flex-col sm:gap-1",
                         mode === m.value ? "border-primary bg-secondary" : "hover:bg-muted/60",
                       )}
                     >
                       {mode === m.value && <IconCheck className="absolute top-2.5 right-2.5 size-4 text-primary" />}
-                      <m.icon className="size-5" />
-                      <span className="text-sm font-medium">{m.title}</span>
-                      <span className="break-keep text-xs text-muted-foreground">{m.desc}</span>
+                      {/* 좁은 화면에서는 아이콘이 왼쪽, 글이 오른쪽 (세 칸이 한 화면에 들어오게) */}
+                      <m.icon className="size-5 shrink-0" />
+                      <span className="flex flex-col gap-1 pr-5 sm:pr-0">
+                        <span className="text-sm font-medium">{m.title}</span>
+                        <span className="text-xs text-muted-foreground">{m.desc}</span>
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -185,7 +189,7 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={cn("relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-60", checked ? "bg-primary" : "bg-input")}
+      className={cn("relative h-7 w-12 shrink-0 rounded-full outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-60", checked ? "bg-primary" : "bg-input")}
     >
       <span className={cn("absolute top-1 left-1 size-5 rounded-full bg-card transition-transform", checked && "translate-x-5")} />
     </button>

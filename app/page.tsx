@@ -7,9 +7,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Avatar } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
-import { IconCalendar, IconChat, IconHidden, IconLoading, IconPlace, IconTime } from "@/components/ui/icons";
+import { IconAI, IconCalendar, IconChat, IconHidden, IconLoading, IconNext, IconPlace, IconTime } from "@/components/ui/icons";
 import { api } from "@/lib/api";
 
 const screens = [
@@ -33,11 +34,11 @@ const features = [
   { icon: IconHidden, title: "욕설 필터", desc: "ㅅ1발, tlqkf 같은 우회 욕설도 가려줘요" },
 ];
 
-// 오른쪽 견본 그림에 쓰는 대화 (그림일 뿐이라 동작하지 않아요)
+// 오른쪽 견본 그림에 쓰는 대화 (그림일 뿐이라 동작하지 않아요). id는 데모 화면과 같은 얼굴이 나오게 맞췄어요
 const sampleChat = [
-  { who: "서연", before: "발표 연습 언제 해?", hl: "", after: "" },
-  { who: "지호", before: "나는 ", hl: "목요일 7시", after: " 괜찮아" },
-  { who: "하은", before: "좋아, ", hl: "목요일 7시", after: " 확정!" },
+  { id: 2, who: "서연", before: "발표 연습 언제 해?", hl: "", after: "" },
+  { id: 3, who: "지호", before: "나는 ", hl: "목요일 7시", after: " 괜찮아" },
+  { id: 4, who: "하은", before: "좋아, ", hl: "목요일 7시", after: " 확정!" },
 ];
 
 export default function Home() {
@@ -59,13 +60,13 @@ export default function Home() {
   }, [router]);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-10 md:py-14">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center break-keep px-4 py-10 md:py-14">
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         {/* 왼쪽: 로고, 한 줄 소개, 버튼 */}
         <div>
-          <p className="text-xl font-bold"><span className="hl">팀플</span>메이트</p>
-          <h1 className="mt-5 break-keep text-4xl leading-snug md:text-5xl md:leading-snug">
-            대화만 하면 AI가 <span className="hl">약속을 캘린더에 정리</span>해 주는 우리 팀 협업 공간
+          <p className="text-xl font-bold"><span className="hl -mx-[0.15em]">팀플</span>메이트</p>
+          <h1 className="mt-5 text-4xl leading-snug md:text-5xl md:leading-snug">
+            대화만 하면 AI가 <span className="hl">약속을 캘린더에 정리해</span> 주는 우리 팀 협업 공간
           </h1>
 
           <div className="mt-7 flex flex-wrap gap-2">
@@ -81,30 +82,34 @@ export default function Home() {
           {offline && <p className="mt-3 text-xs text-muted-foreground">서버에 연결할 수 없어서 소개 화면을 보여주고 있어요</p>}
         </div>
 
-        {/* 오른쪽: 채팅에서 일정 쪽지가 나오는 모습 (그림) */}
-        <div aria-hidden className="flex flex-col gap-3 rounded-xl border bg-muted p-4">
-          <ul className="flex flex-col gap-2.5">
-            {sampleChat.map((m) => (
-              <li key={m.who} className="flex gap-2.5 text-sm">
-                <span className="w-9 shrink-0 pt-px font-medium">{m.who}</span>
-                <span>
-                  {m.before}
-                  {m.hl && <span className="hl">{m.hl}</span>}
-                  {m.after}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className="flex overflow-hidden rounded-xl border bg-card">
-            <DateLeaf date="2026-11-26" ai size="lg" className="self-stretch rounded-none" />
-            <div className="border-l border-dashed" />
-            <div className="min-w-0 flex-1 p-3">
-              <p className="font-semibold">발표 연습</p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm tabular-nums"><IconTime className="size-4" />19:00</p>
-              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground"><IconPlace className="size-4" />스터디카페</p>
+        {/* 오른쪽: 채팅에서 일정 쪽지가 나오는 모습 (그림). 실제 채팅처럼 얼굴 + 이름 + 말, AI가 보낸 쪽지는 노란 네모 옆에 */}
+        <ul aria-hidden className="flex flex-col gap-3 rounded-xl border bg-muted p-4">
+          {sampleChat.map((m) => (
+            <li key={m.who} className="flex gap-3 text-sm">
+              <Avatar id={m.id} className="mt-0.5 size-8" />
+              <p className="min-w-0">
+                <span className="block font-medium">{m.who}</span>
+                {m.before}
+                {m.hl && <span className="hl">{m.hl}</span>}
+                {m.after}
+              </p>
+            </li>
+          ))}
+          <li className="flex gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-highlight text-highlight-foreground">
+              <IconAI className="size-5" />
+            </span>
+            <div className="flex min-w-0 flex-1 overflow-hidden rounded-xl border bg-card">
+              <DateLeaf date="2026-11-26" ai size="lg" className="self-stretch rounded-none" />
+              <div className="border-l border-dashed" />
+              <div className="min-w-0 flex-1 p-3">
+                <p className="font-semibold">발표 연습</p>
+                <p className="mt-1 flex items-center gap-1.5 text-sm tabular-nums"><IconTime className="size-4" />19:00</p>
+                <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground"><IconPlace className="size-4" />스터디카페</p>
+              </div>
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
 
       <ul className="mt-12 grid gap-6 border-t pt-8 sm:grid-cols-3">
@@ -117,8 +122,11 @@ export default function Home() {
         ))}
       </ul>
 
-      <details className="mt-10 text-sm text-muted-foreground">
-        <summary className="cursor-pointer">개발용 화면 바로가기</summary>
+      <details className="group mt-10 text-sm text-muted-foreground">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md hover:text-foreground [&::-webkit-details-marker]:hidden">
+          <IconNext className="size-4 group-open:rotate-90" aria-hidden />
+          개발용 화면 바로가기
+        </summary>
         <ul className="mt-2 flex flex-wrap gap-2">
           {screens.map(([href, label]) => (
             <li key={href}>

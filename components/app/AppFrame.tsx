@@ -30,7 +30,8 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      {open && <div className="fixed inset-0 z-30 animate-fade bg-foreground/30 md:hidden" onClick={() => setOpen(false)} />}
+      {/* 서랍 뒤 본문을 어둡게 덮어요. 어두운 화면에서는 글자색(밝은색)을 깔면 오히려 밝아져서 검정을 써요 */}
+      {open && <div className="fixed inset-0 z-30 animate-fade bg-foreground/30 md:hidden dark:bg-black/60" onClick={() => setOpen(false)} />}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex transition-[translate,visibility] duration-250 ease-drawer motion-reduce:transition-none md:static md:translate-x-0",
@@ -38,9 +39,10 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
         )}
       >
         <ProjectRail demo={demo} active={active} />
-        {/* 서랍 안의 링크를 누르면 닫아요. #해시 링크(/me 목차)는 주소(pathname)가 안 바뀌어서 따로 처리해요 */}
-        <aside onClick={(e) => (e.target as HTMLElement).closest("a") && setOpen(false)} className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-          <button aria-label="메뉴 닫기" className="absolute right-2 top-2 z-10 rounded-md p-1.5 hover:bg-foreground/5 md:hidden" onClick={() => setOpen(false)}>
+        {/* 서랍 안의 링크를 누르면 닫아요. #해시 링크(/me 목차)는 주소(pathname)가 안 바뀌어서 따로 처리해요.
+            휴대폰에서는 오른쪽에 본문이 48px쯤 보이게 폭을 줄여요 (거기를 눌러 닫을 수 있고, 좁은 휴대폰에서도 서랍이 잘리지 않아요) */}
+        <aside onClick={(e) => (e.target as HTMLElement).closest("a") && setOpen(false)} className="relative flex w-76 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground max-md:max-w-[calc(100vw-7.5rem)]">
+          <button aria-label="메뉴 닫기" className="absolute right-1 top-1.5 z-10 rounded-md p-2 hover:bg-foreground/5 md:hidden" onClick={() => setOpen(false)}>
             <IconClose className="size-5" />
           </button>
           {sidebar}
@@ -48,8 +50,8 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3 md:hidden">
-          <button aria-label="메뉴 열기" className="rounded-md p-1.5 hover:bg-foreground/5" onClick={() => setOpen(true)}>
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background pl-2 pr-4 md:hidden">
+          <button aria-label="메뉴 열기" className="rounded-md p-2 hover:bg-foreground/5" onClick={() => setOpen(true)}>
             <IconMenu className="size-5" />
           </button>
           <span className="truncate text-base font-semibold">{title}</span>

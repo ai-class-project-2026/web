@@ -115,7 +115,7 @@ function Sidebar() {
 
       <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
         {ws.demo && (
-          <p className="mx-1 mt-2 rounded-sm bg-muted px-2 py-1 text-xs text-muted-foreground">
+          <p className="mt-2 rounded-md bg-foreground/5 px-2 py-1 text-xs text-muted-foreground">
             데모 모드 · 서버 없이 둘러보는 중
           </p>
         )}
@@ -125,8 +125,9 @@ function Sidebar() {
           return <NavItem key={c.id} href={href} active={pathname === href} icon={IconChannel}>{c.name}</NavItem>;
         })}
         {adding ? (
-          <form onSubmit={addChannel} className="px-1 py-1">
-            <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="새 채널 이름 입력 후 Enter" onBlur={() => !name && setAdding(false)} />
+          <form onSubmit={addChannel}>
+            {/* 다른 줄과 같은 높이(36px)·같은 폭이라 눌렀을 때 목록이 밀리지 않아요 */}
+            <Input autoFocus className="h-9 py-0" value={name} onChange={(e) => setName(e.target.value)} placeholder="새 채널 이름 입력 후 Enter" onBlur={() => !name && setAdding(false)} />
           </form>
         ) : (
           <button onClick={() => setAdding(true)} className={cn(navItemClass(false), "text-muted-foreground")}>

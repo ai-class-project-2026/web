@@ -70,8 +70,11 @@ function MyPageView({ demo, me }: { demo: boolean; me: User }) {
         >
           <IconBack className="size-4" /> 돌아가기
         </button>
-        <TopBarDivider />
-        <TopBarTitle icon={IconProfile}>마이페이지</TopBarTitle>
+        {/* 휴대폰에서는 바로 위 줄에 같은 제목이 이미 있어서 숨겨요 */}
+        <div className="contents max-md:hidden">
+          <TopBarDivider />
+          <TopBarTitle icon={IconProfile}>마이페이지</TopBarTitle>
+        </div>
         {demo && <span className="ml-auto hidden text-xs text-muted-foreground sm:block">데모 모드 · 실제 계정은 바뀌지 않아요</span>}
       </TopBar>
 
@@ -157,7 +160,7 @@ function PasswordPanel({ demo }: { demo: boolean }) {
   };
 
   return (
-    <div id="password" className="scroll-mt-4">
+    <div id="password" className="@container scroll-mt-4">
       <Panel title="비밀번호 변경">
         {!demo && (
           <p className="mb-3 flex items-center gap-2 rounded-md border bg-muted px-3 py-2.5 text-sm text-muted-foreground">
@@ -165,15 +168,16 @@ function PasswordPanel({ demo }: { demo: boolean }) {
             서버(파트 1)에 비밀번호 변경 기능이 준비되면 바로 쓸 수 있어요.
           </p>
         )}
-        <form onSubmit={changePassword} className="grid gap-3 sm:grid-cols-3">
+        {/* 화면 너비가 아니라 이 칸의 너비를 보고 세 칸으로 나눠요 (옆에 계정 칸이 붙으면 좁아져요) */}
+        <form onSubmit={changePassword} className="grid gap-3 @xl:grid-cols-3">
           <Field label="지금 비밀번호"><Input type="password" autoComplete="current-password" value={f.current} onChange={set("current")} required /></Field>
           <Field label="새 비밀번호" hint="8자 이상"><Input type="password" autoComplete="new-password" value={f.next} onChange={set("next")} required /></Field>
           <Field label="새 비밀번호 확인"><Input type="password" autoComplete="new-password" value={f.confirm} onChange={set("confirm")} required /></Field>
-          <div className="flex items-center gap-3 sm:col-span-3">
+          <div className="flex items-center gap-3 @xl:col-span-3">
             <Button type="submit">비밀번호 바꾸기</Button>
             {done && <span className="text-sm text-primary">비밀번호를 바꿨어요</span>}
           </div>
-          {error && <div className="sm:col-span-3"><ErrorText>{error}</ErrorText></div>}
+          {error && <div className="@xl:col-span-3"><ErrorText>{error}</ErrorText></div>}
         </form>
       </Panel>
     </div>

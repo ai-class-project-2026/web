@@ -27,34 +27,37 @@ export function ProjectRail({ demo, active }: {
         <IconChat className="size-6" />
       </RailItem>
 
-      <span aria-hidden className="my-1 h-px w-8 bg-border" />
+      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-border" />
 
-      {workspaces.map((w) => (
+      {/* 프로젝트가 많아지면 이 칸만 위아래로 밀어서 봐요 (1:1 대화와 대시보드는 늘 제자리).
+          스크롤 칸은 밖으로 나간 것을 잘라 버려서, 이름표가 잘리지 않게 칸을 오른쪽으로 넓혀 두고
+          넓힌 부분은 마우스가 그냥 통과하게 했어요 (pointer-events-none) */}
+      <div className="pointer-events-none -my-1 flex min-h-0 w-[calc(100%+15rem)] flex-1 flex-col gap-2 self-start overflow-y-auto py-1 pr-60 [scrollbar-width:none] *:pointer-events-auto [&::-webkit-scrollbar]:hidden">
+        {workspaces.map((w) => (
+          <RailItem
+            key={w.id}
+            href={demo ? demoPath(w.id) : `/w/${w.id}`}
+            label={w.name}
+            active={active === w.id}
+            className={cn(pastel(w.id), "text-sm font-semibold text-foreground/80")}
+          >
+            {w.name.replace(/\s/g, "").slice(0, 2)}
+          </RailItem>
+        ))}
+
         <RailItem
-          key={w.id}
-          href={demo ? demoPath(w.id) : `/w/${w.id}`}
-          label={w.name}
-          active={active === w.id}
-          className={cn(pastel(w.id), "text-sm font-semibold text-foreground/80")}
+          href="/onboarding"
+          label={demo ? "새 프로젝트 (로그인 필요)" : "새 프로젝트 만들기 / 참가"}
+          active={false}
+          className="border border-dashed border-input bg-transparent text-muted-foreground hover:text-primary"
         >
-          {w.name.replace(/\s/g, "").slice(0, 2)}
-        </RailItem>
-      ))}
-
-      <RailItem
-        href="/onboarding"
-        label={demo ? "새 프로젝트 (로그인 필요)" : "새 프로젝트 만들기 / 참가"}
-        active={false}
-        className="border border-dashed border-input bg-transparent text-muted-foreground hover:text-primary"
-      >
-        <IconAdd className="size-6" />
-      </RailItem>
-
-      <div className="mt-auto">
-        <RailItem href="/dashboard" label="AI 성능 대시보드" active={false} className="border bg-card text-muted-foreground">
-          <IconDashboard className="size-6" />
+          <IconAdd className="size-6" />
         </RailItem>
       </div>
+
+      <RailItem href="/dashboard" label="AI 성능 대시보드" active={false} className="border bg-card text-muted-foreground">
+        <IconDashboard className="size-6" />
+      </RailItem>
     </nav>
   );
 }
@@ -67,18 +70,19 @@ function RailItem({ href, label, active, className, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <Link href={href} aria-label={label} aria-current={active ? "page" : undefined} className="group relative flex w-full justify-center">
+    <Link href={href} aria-label={label} aria-current={active ? "page" : undefined} className="group relative flex w-full shrink-0 justify-center outline-none">
+      {/* 키보드로 왔을 때(focus-visible)는 탭 모양을 따라 바깥에 한 줄 더 그려요 */}
       <span
         className={cn(
-          "flex size-12 items-center justify-center overflow-hidden rounded-lg outline-2 outline-offset-0 transition-colors",
+          "flex size-12 items-center justify-center overflow-hidden rounded-lg outline-2 outline-offset-0 transition-colors group-focus-visible:outline-ring group-focus-visible:outline-offset-2",
           active ? "outline-primary" : "outline-transparent",
           className,
         )}
       >
         {children}
       </span>
-      {/* 이름표 */}
-      <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-1 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium text-background opacity-0 shadow-lg transition group-focus-visible:opacity-100 group-hover:opacity-100">
+      {/* 이름표: 긴 이름은 여러 줄로 접어요 */}
+      <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-1 w-max max-w-56 -translate-y-1/2 wrap-anywhere break-keep rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium text-background opacity-0 shadow-lg transition group-focus-visible:opacity-100 group-hover:opacity-100">
         {label}
       </span>
     </Link>

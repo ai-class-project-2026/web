@@ -22,7 +22,7 @@ export function Panel({ title, desc, action, children, className, bodyClassName,
         <h2 className={cn("text-sm font-semibold", danger && "text-destructive")}>{title}</h2>
         {action && <div className="ml-auto flex items-center gap-2">{action}</div>}
       </header>
-      {desc && <p className="px-4 pt-3 text-sm text-muted-foreground">{desc}</p>}
+      {desc && <p className="break-keep px-4 pt-3 text-sm text-muted-foreground">{desc}</p>}
       <div className={cn("p-4", bodyClassName)}>{children}</div>
     </section>
   );

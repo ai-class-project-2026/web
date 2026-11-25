@@ -76,8 +76,8 @@ export default function InvitePage() {
           <div className="flex flex-col gap-4">
             <ErrorText>{error}</ErrorText>
             <div className="flex flex-wrap gap-2">
-              <Link href="/onboarding" className={buttonVariants()}>내 워크스페이스로</Link>
-              <Link href="/login" className={buttonVariants({ variant: "outline" })}>다른 계정으로 로그인</Link>
+              <Link href="/onboarding" className={buttonVariants({ size: "lg" })}>내 프로젝트로</Link>
+              <Link href="/login" className={buttonVariants({ variant: "outline", size: "lg" })}>다른 계정으로 로그인</Link>
             </div>
           </div>
         ) : (

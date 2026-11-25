@@ -4,7 +4,7 @@ import { IconWarning } from "@/components/ui/icons";
 
 // 입력창 모양을 한 곳에서 관리해요. 모든 폼에서 같은 모양이 나와요.
 const base =
-  "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-3 focus:ring-ring/30 disabled:opacity-60";
+  "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-3 focus:ring-ring/30 disabled:opacity-60 dark:scheme-dark";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(base, className)} {...props} />;

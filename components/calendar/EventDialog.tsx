@@ -149,7 +149,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
                   key={m.user_id}
                   onClick={() => toggle(m.name)}
                   className={cn(
-                    "rounded-md border px-2.5 py-1 text-xs transition",
+                    "h-8 max-w-full truncate rounded-md border px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50",
                     on ? "border-primary bg-secondary text-secondary-foreground" : "text-muted-foreground line-through hover:bg-muted",
                   )}
                 >
@@ -174,7 +174,7 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
             disabled={busy}
             onClick={() => done(() => onUpdate(ev.id, { status: cancelled ? "confirmed" : "cancelled" }))}
           >
-            {cancelled ? "다시 살리기" : <><IconDelete /> 일정 취소</>}
+            {cancelled ? "다시 살리기" : "일정 취소"}
           </Button>
         )}
         {ev && (

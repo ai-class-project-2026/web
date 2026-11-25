@@ -140,7 +140,7 @@ function LiveProvider({ workspaceId: id, children }: { workspaceId: number; chil
       ]);
       if (!alive) return;
       if (!ws.data) {
-        setErrorMessage(errorText(ws.error, "이 워크스페이스에 들어갈 수 없어요"));
+        setErrorMessage(errorText(ws.error, "이 프로젝트에 들어갈 수 없어요"));
         setStatus("error");
         return;
       }
