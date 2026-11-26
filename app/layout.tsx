@@ -12,7 +12,7 @@ const plex = IBM_Plex_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "팀플메이트",
+  title: "harmony",
   description: "대화만 하면 AI가 일정을 정리해 주는 팀 협업 공간",
 };
 

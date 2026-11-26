@@ -64,7 +64,7 @@ export default function Home() {
       <div className="grid items-center gap-10 md:grid-cols-[1.1fr_1fr]">
         {/* 왼쪽: 로고, 한 줄 소개, 버튼 */}
         <div>
-          <p className="text-xl font-bold"><span className="hl -mx-[0.15em]">팀플</span>메이트</p>
+          <p className="text-xl font-bold"><span className="hl -mx-[0.15em]">harmony</span></p>
           <h1 className="mt-5 text-4xl leading-snug md:text-5xl md:leading-snug">
             대화만 하면 AI가 <span className="hl">약속을 캘린더에 정리해</span> 주는 우리 팀 협업 공간
           </h1>

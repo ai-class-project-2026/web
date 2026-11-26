@@ -1,6 +1,6 @@
 # AI 작업 지침 (web)
 
-팀플메이트 웹 화면 레포. Next.js(App Router) + Tailwind + shadcn/ui. 백엔드는 server 레포의 FastAPI. 기획서: https://github.com/ai-class-project-2026/plan
+harmony 웹 화면 레포. Next.js(App Router) + Tailwind + shadcn/ui. 백엔드는 server 레포의 FastAPI. 기획서: https://github.com/ai-class-project-2026/plan
 
 ## 파트별 담당
 
