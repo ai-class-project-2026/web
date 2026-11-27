@@ -378,6 +378,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/moderation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Moderation Feed
+         * @description 최근에 가려졌거나 신고된 메시지, 새것부터.
+         */
+        get: operations["moderation_feed_admin_moderation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -399,6 +419,39 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdminModerationItem
+         * @description 운영자 화면 한 줄: 가려졌거나 신고된 메시지 하나.
+         */
+        AdminModerationItem: {
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Workspace Name */
+            workspace_name: string;
+            /** Channel Name */
+            channel_name: string;
+            /** User Name */
+            user_name: string;
+            /** Text */
+            text: string;
+            /** Is Profane */
+            is_profane: boolean;
+            /** Profanity Score */
+            profanity_score: number | null;
+            /** Profanity Spans */
+            profanity_spans: number[][];
+            /** Model Version */
+            model_version: string | null;
+            /** False Positive Reports */
+            false_positive_reports: number;
+            /** Missed Reports */
+            missed_reports: number;
+        };
         /** ChannelIn */
         ChannelIn: {
             /** Name */
@@ -1820,6 +1873,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScheduleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    moderation_feed_admin_moderation_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminModerationItem"][];
                 };
             };
             /** @description Validation Error */

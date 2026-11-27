@@ -48,5 +48,6 @@ export type EventField = NonNullable<S["SuggestionActionIn"]["changed"]>[number]
 export type Todo = S["TodoOut"];
 export type Suggestion = S["SuggestionOut"];
 export type SuggestionResult = S["SuggestionResult"];
+export type AdminModerationItem = S["AdminModerationItem"];
 /** 말로 쓴 한 줄에서 읽어 낸 일정 초안 (일정 추가 창을 채울 때) */
 export type ParsedEvent = S["EventDraft"];
