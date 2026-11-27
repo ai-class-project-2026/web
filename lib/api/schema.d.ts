@@ -1891,7 +1891,9 @@ export interface operations {
             query?: {
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                "x-admin-password"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
