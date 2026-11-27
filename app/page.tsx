@@ -1,8 +1,8 @@
 "use client";
 
-// 첫 화면: 로그인 안 했으면 /login, 워크스페이스가 없으면 /onboarding, 있으면 /w/<id>로 보내요.
-// 서버가 꺼져 있으면 소개 화면과 "데모로 둘러보기" 버튼을 보여줘요.
-// 맨 아래에는 개발할 때 쓰는 모든 화면 바로가기가 있어요.
+// 첫 화면(소개 화면): 로그인 안 한 사람과 서버가 꺼져 있을 때는 소개와 "로그인"·"데모로 둘러보기" 버튼을 보여줘요.
+// 로그인한 사람은 워크스페이스가 없으면 /onboarding, 있으면 /w/<id>로 보내요.
+// 개발할 때(npm run dev)는 맨 아래에 모든 화면 바로가기가 나와요.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { DateLeaf } from "@/components/ui/date-leaf";
 import { IconAI, IconCalendar, IconChat, IconHidden, IconLoading, IconNext, IconPlace, IconTime } from "@/components/ui/icons";
 import { api } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 const screens = [
   ["/login", "로그인/가입"],
@@ -41,20 +42,26 @@ const sampleChat = [
   { id: 4, who: "하은", before: "좋아, ", hl: "목요일 7시", after: " 확정!" },
 ];
 
+const loginLink = ["/login", "로그인"];
+const demoLink = ["/w/demo", "데모로 둘러보기"];
+
 export default function Home() {
   const router = useRouter();
-  const [offline, setOffline] = useState(false);
+  // loading: 확인 중, guest: 로그인 안 함, offline: 서버에 연결할 수 없음
+  const [view, setView] = useState<"loading" | "guest" | "offline">("loading");
+  const offline = view === "offline";
 
   useEffect(() => {
     (async () => {
+      if (!getToken()) return setView("guest"); // 로그인한 적이 없으면 서버에 묻지 않고 소개 화면을 보여줘요
       try {
         const me = await api.GET("/auth/me");
-        if (me.response.status === 401) return router.replace("/login");
-        if (!me.data) return setOffline(true); // 5xx: 로그인은 그대로 두고 소개 화면을 보여줘요
+        if (me.response.status === 401) return setView("guest"); // 로그인이 풀린 경우 (lib/api가 로그인 화면으로 보내요)
+        if (!me.data) return setView("offline"); // 5xx: 로그인은 그대로 두고 소개 화면을 보여줘요
         const { data } = await api.GET("/workspaces");
         router.replace(data?.length ? `/w/${data[0].id}` : "/onboarding");
       } catch {
-        setOffline(true);
+        setView("offline");
       }
     })();
   }, [router]);
@@ -70,13 +77,13 @@ export default function Home() {
           </h1>
 
           <div className="mt-7 flex flex-wrap gap-2">
-            {offline ? (
-              <>
-                <Link href="/w/demo" className={buttonVariants({ size: "lg", className: "px-5" })}>데모로 둘러보기</Link>
-                <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline", className: "px-5" })}>로그인</Link>
-              </>
-            ) : (
+            {view === "loading" ? (
               <p className="flex items-center gap-2 text-sm text-muted-foreground"><IconLoading className="size-4 animate-spin" />들어가는 중…</p>
+            ) : (
+              // 앞에 오는 버튼이 강조돼요: 서버가 꺼져 있으면 로그인할 수 없으니 데모가 먼저예요
+              (offline ? [demoLink, loginLink] : [loginLink, demoLink]).map(([href, label], i) => (
+                <Link key={href} href={href} className={buttonVariants({ size: "lg", variant: i ? "outline" : "default", className: "px-5" })}>{label}</Link>
+              ))
             )}
           </div>
           {offline && <p className="mt-3 text-xs text-muted-foreground">서버에 연결할 수 없어서 소개 화면을 보여주고 있어요</p>}
@@ -122,6 +129,7 @@ export default function Home() {
         ))}
       </ul>
 
+      {process.env.NODE_ENV !== "production" && (
       <details className="group mt-10 text-sm text-muted-foreground">
         <summary className="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md hover:text-foreground [&::-webkit-details-marker]:hidden">
           <IconNext className="size-4 group-open:rotate-90" aria-hidden />
@@ -135,6 +143,7 @@ export default function Home() {
           ))}
         </ul>
       </details>
+      )}
     </main>
   );
 }
