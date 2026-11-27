@@ -231,7 +231,7 @@ export function MessageList({ messages, hasMore, onLoadOlder, meId, cards = [], 
                         <IconEventAdd className="size-5" />
                       </Button>
                     )}
-                    {onReport && !mine && (
+                    {onReport && (
                       reported.has(m.id) ? (
                         <span className="px-2 text-xs text-muted-foreground">신고됨</span>
                       ) : (
