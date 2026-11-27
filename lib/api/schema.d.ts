@@ -624,6 +624,11 @@ export interface components {
              * @default []
              */
             context: string[];
+            /**
+             * Level
+             * @default 2
+             */
+            level: number;
         };
         /** ModerateResponse */
         ModerateResponse: {
