@@ -126,7 +126,12 @@ function LiveDM({ children }: { children: React.ReactNode }) {
       try {
         const meRes = await api.GET("/auth/me");
         if (!alive) return;
-        if (!meRes.data) return router.replace("/login?next=/dm");
+        if (!meRes.data) {
+          // 로그인이 안 됐을 때만 로그인 화면으로 보내요. 서버 오류(5xx)면 로그인은 그대로 두고 다시 시도하게 해요
+          if (meRes.response.status === 401) return router.replace("/login?next=/dm");
+          setErrorMessage("서버에 문제가 생겼어요. 잠시 후 다시 시도해 주세요");
+          return setStatus("error");
+        }
         setMe(meRes.data);
         const { data: workspaces } = await api.GET("/workspaces");
         const groups = await Promise.all(
