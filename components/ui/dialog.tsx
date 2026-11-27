@@ -20,7 +20,7 @@ export function Dialog({ open, onClose, title, children }: {
   if (!open) return null;
   return (
     <div
-      className="animate-fade fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 dark:bg-black/60"
+      className="animate-fade fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div role="dialog" aria-modal aria-label={title} className="animate-pop max-h-full w-full max-w-md overflow-y-auto rounded-xl border bg-card p-6 shadow-lg">

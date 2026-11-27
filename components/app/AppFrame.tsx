@@ -30,8 +30,8 @@ export function AppFrame({ demo, active, title, sidebar, children }: {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      {/* 서랍 뒤 본문을 어둡게 덮어요. 어두운 화면에서는 글자색(밝은색)을 깔면 오히려 밝아져서 검정을 써요 */}
-      {open && <div className="fixed inset-0 z-30 animate-fade bg-foreground/30 md:hidden dark:bg-black/60" onClick={() => setOpen(false)} />}
+      {/* 서랍 뒤 본문을 어둡게 덮어요 */}
+      {open && <div className="fixed inset-0 z-30 animate-fade bg-foreground/30 md:hidden" onClick={() => setOpen(false)} />}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex transition-[translate,visibility] duration-250 ease-drawer motion-reduce:transition-none md:static md:translate-x-0",

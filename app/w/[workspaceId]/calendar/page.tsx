@@ -48,7 +48,7 @@ export default function CalendarPage() {
       <Legend swatch="bg-highlight">AI가 찾은 일정</Legend>
       <Legend swatch="border border-l-[3px] border-border border-l-primary bg-secondary">직접 추가</Legend>
       <label className="flex cursor-pointer items-center gap-1.5">
-        <input type="checkbox" className="accent-primary dark:scheme-dark" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
+        <input type="checkbox" className="accent-primary" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
         취소된 일정도 보기
       </label>
     </div>

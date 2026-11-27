@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 /* ── 디자인 규칙 ("학교 플래너") ──────────────────────────────────
    색은 네 가지 재료만 쓰고, 각각 뜻이 하나예요.
      종이   background / card      바탕과 칸 (흰 종이)
@@ -160,48 +158,6 @@
   --sidebar-ring: oklch(0.6 0.15 264);
 }
 
-.dark {
-  --background: oklch(0.19 0.022 265);
-  --foreground: oklch(0.93 0.008 255);
-  --card: oklch(0.235 0.024 265);
-  --card-foreground: oklch(0.93 0.008 255);
-  --popover: oklch(0.235 0.024 265);
-  --popover-foreground: oklch(0.93 0.008 255);
-  --primary: oklch(0.72 0.14 264);
-  --primary-foreground: oklch(0.18 0.03 265);
-  --secondary: oklch(0.3 0.045 264);
-  --secondary-foreground: oklch(0.88 0.06 264);
-  --muted: oklch(0.26 0.02 265);
-  --muted-foreground: oklch(0.7 0.015 260);
-  --accent: oklch(0.3 0.045 264);
-  --accent-foreground: oklch(0.88 0.06 264);
-  --highlight: oklch(0.86 0.16 104);
-  --highlight-foreground: oklch(0.2 0.03 265);
-  --destructive: oklch(0.68 0.18 27);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 17%);
-  --ring: oklch(0.62 0.12 264);
-  --lavender: oklch(0.4 0.05 290);
-  --mint: oklch(0.4 0.05 170);
-  --peach: oklch(0.4 0.05 55);
-  --pink: oklch(0.4 0.05 0);
-  --sky: oklch(0.4 0.05 235);
-  --butter: oklch(0.4 0.05 95);
-  --chart-1: oklch(0.72 0.14 264);
-  --chart-2: oklch(0.62 0.13 165);
-  --chart-3: oklch(0.8 0.15 95);
-  --chart-4: oklch(0.68 0.18 27);
-  --chart-5: oklch(0.6 0.02 262);
-  --sidebar: oklch(0.165 0.022 265);
-  --sidebar-foreground: oklch(0.93 0.008 255);
-  --sidebar-primary: oklch(0.72 0.14 264);
-  --sidebar-primary-foreground: oklch(0.18 0.03 265);
-  --sidebar-accent: oklch(0.26 0.03 265);
-  --sidebar-accent-foreground: oklch(0.93 0.008 255);
-  --sidebar-border: oklch(1 0 0 / 11%);
-  --sidebar-ring: oklch(0.62 0.12 264);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -275,10 +231,6 @@
   box-decoration-break: clone;
   color: var(--highlight-foreground);
 }
-.dark .hl {
-  background: linear-gradient(transparent 36%, color-mix(in oklch, var(--highlight) 38%, transparent) 36%, color-mix(in oklch, var(--highlight) 38%, transparent) 90%, transparent 90%);
-  color: inherit;
-}
 
 /* 욕설 가림: 마커로 칠한 검은 줄 (이모지·●●● 대신) */
 .redact {
@@ -299,8 +251,7 @@
   --fc-breezy-popover: var(--card);
   --fc-breezy-border: var(--border);
   --fc-breezy-foreground: var(--foreground);
-  /* 테마의 어두운 색 묶음은 우리 .dark와 이름이 달라서 켜지지 않아요. 글자·옅은 배경·팝업 테두리도 사이트 색으로 이어 줘야
-     어두운 화면에서 "+3개 더보기" 같은 글자가 보여요 */
+  /* 글자·옅은 배경·팝업 테두리도 사이트 색으로 이어 줘요 ("+3개 더보기" 같은 글자) */
   --fc-breezy-strong-foreground: var(--foreground);
   --fc-breezy-muted-foreground: var(--muted-foreground);
   --fc-breezy-faint-foreground: var(--muted-foreground);

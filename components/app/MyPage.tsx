@@ -23,7 +23,7 @@ import { ErrorText, Field, Input } from "@/components/ui/field";
 import { Panel, PanelPage } from "@/components/ui/panel";
 import { SectionLabel, Splash, navItemClass } from "@/components/workspace/WorkspaceShell";
 import { AppFrame } from "./AppFrame";
-import { setPrefs, usePrefs, type TextSize, type Theme } from "./preferences";
+import { setPrefs, usePrefs, type TextSize } from "./preferences";
 import { TopBar, TopBarDivider, TopBarTitle } from "./TopBar";
 import { UserPanel } from "./UserPanel";
 
@@ -190,17 +190,6 @@ function DisplayPanel() {
     <div id="display" className="scroll-mt-4">
       <Panel title="화면 설정" desc="이 브라우저에만 저장돼요.">
         <div className="flex flex-col divide-y">
-          <Row label="테마" sub="어두운 화면은 밤에 눈이 덜 피곤해요">
-            <Segmented<Theme>
-              value={prefs.theme}
-              onChange={(theme) => setPrefs({ theme })}
-              options={[
-                { value: "light", label: "밝게" },
-                { value: "dark", label: "어둡게" },
-                { value: "system", label: "컴퓨터 설정", icon: IconDisplay },
-              ]}
-            />
-          </Row>
           <Row label="글자 크기" sub="크게: 글자와 버튼을 모두 12% 키워요">
             <Segmented<TextSize>
               value={prefs.text}

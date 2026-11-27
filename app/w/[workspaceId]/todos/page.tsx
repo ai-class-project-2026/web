@@ -221,7 +221,7 @@ function TodoRow({ todo: t, onChange, onDelete }: {
         <select
           value={t.assignee_id ?? ""}
           onChange={(e) => onChange({ assignee_id: e.target.value ? Number(e.target.value) : null })}
-          className="absolute inset-0 size-full cursor-pointer opacity-0 dark:scheme-dark"
+          className="absolute inset-0 size-full cursor-pointer opacity-0"
           aria-label="담당자"
         >
           <option value="">없음</option>
