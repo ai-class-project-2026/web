@@ -31,3 +31,13 @@ export function spansAreValid(text: string, spans: unknown): spans is number[][]
       Array.isArray(sp) && sp.length === 2 && Number.isInteger(sp[0]) && Number.isInteger(sp[1]) && sp[0] >= 0 && sp[0] < sp[1] && sp[1] <= n,
   );
 }
+
+/**
+ * 욕이 너무 많은 메시지인가? 가린 곳이 3군데 이상이거나, 공백을 뺀 글자의 절반 넘게 가려질 때예요.
+ * 이런 글은 욕만 가려도 뜻이 다 보여서 통째로 가려요. spans는 spansAreValid를 통과한 값이어야 해요.
+ */
+export function tooProfane(text: string, spans: number[][]) {
+  const letters = (s: string) => Array.from(s.replace(/\s/g, "")).length;
+  const hidden = splitSpans(text, spans).filter((p) => p.hidden);
+  return hidden.length >= 3 || hidden.reduce((n, p) => n + letters(p.text), 0) * 2 > letters(text);
+}

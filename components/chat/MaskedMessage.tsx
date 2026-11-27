@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import type { Message, Workspace } from "@/lib/api";
 import { IconHidden, IconNotify, IconWarning } from "@/components/ui/icons";
-import { splitSpans, spansAreValid } from "@/lib/mask";
+import { splitSpans, spansAreValid, tooProfane } from "@/lib/mask";
 
 export type ReportType = "false_positive" | "missed";
 /** 신고 보내기. 실패하면 에러 문구, 성공하면 null */
@@ -28,7 +28,7 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, onRepor
   if (!message.is_profane) return <span className="whitespace-pre-wrap break-words">{message.text}</span>;
 
   const warnOnly = mode === "warn";
-  const whole = !spansAreValid(message.text, message.profanity_spans);
+  const whole = !spansAreValid(message.text, message.profanity_spans) || tooProfane(message.text, message.profanity_spans);
   const reveal = warnOnly || shown;
 
   const report = async () => {

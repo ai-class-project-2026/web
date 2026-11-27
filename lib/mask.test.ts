@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { demoModerate } from "./dummy.ts";
-import { splitSpans, spansAreValid } from "./mask.ts";
+import { splitSpans, spansAreValid, tooProfane } from "./mask.ts";
 
 test("splitSpans hides only the spans", () => {
   assert.deepEqual(splitSpans("아 씨@발 진짜", [[2, 5]]), [
@@ -50,4 +50,14 @@ test("malformed spans hide the whole message (no word left visible)", () => {
   assert.equal(spansAreValid(text, [[2, 4]]), true);
   assert.equal(spansAreValid(text, [[0, 6]]), true);
   assert.equal(spansAreValid(text, []), false);
+});
+
+test("tooProfane: 3 or more hidden places, or more than half of the letters", () => {
+  assert.equal(tooProfane("개웃기네", [[0, 1]]), false);
+  assert.equal(tooProfane("아 씨발 진짜", [[2, 4]]), false); // 5글자 중 2글자
+  assert.equal(tooProfane("개꿀", [[0, 1]]), false); // 딱 절반은 아직 아니에요
+  assert.equal(tooProfane("아 씨발", [[2, 4]]), true); // 3글자 중 2글자
+  assert.equal(tooProfane("씨발 병신아 진짜 왜 그러는 거야", [[0, 2], [3, 5]]), false); // 2곳, 절반 아래
+  assert.equal(tooProfane("개웃겨 씨발 진짜 병신아 오늘 회의 몇 시였지", [[0, 1], [4, 6], [10, 12]]), true); // 3곳
+  assert.equal(tooProfane("\u{1F600}\u{1F600}\u{1F600} 시발", [[4, 6]]), false); // 이모지도 한 글자
 });
