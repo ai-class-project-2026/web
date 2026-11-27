@@ -25,7 +25,6 @@ const screens = [
   ["/dm/demo", "1:1 대화 (데모)"],
   ["/dm/demo-2", "서연과 1:1 (데모)"],
   ["/me/demo", "마이페이지 (데모)"],
-  ["/dashboard", "AI 대시보드"],
 ];
 
 const features = [

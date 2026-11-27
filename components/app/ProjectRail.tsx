@@ -1,13 +1,13 @@
 "use client";
 
-// 맨 왼쪽 세로 줄: [1:1 대화] / 내 프로젝트들 / [+ 새 프로젝트] / [AI 대시보드]
+// 맨 왼쪽 세로 줄: [1:1 대화] / 내 프로젝트들 / [+ 새 프로젝트]
 //
 // 디자인 원칙
 //  - 화면 맨 왼쪽 끝에 붙여 두면 마우스를 왼쪽으로 "던지기만" 해도 닿아요 (가장자리는 무한히 큰 버튼과 같음).
 //  - 프로젝트는 둥근 네모 탭(동그라미는 사람 전용). 지금 있는 프로젝트는 파란 2px 테두리로 표시해요.
 //  - 이름은 마우스를 올리면 바로 옆에 작은 이름표로. 탭에는 이름 앞 두 글자 + 프로젝트마다 고정된 인덱스 탭 색.
 
-import { IconAdd, IconChat, IconDashboard } from "@/components/ui/icons";
+import { IconAdd, IconChat } from "@/components/ui/icons";
 import Link from "next/link";
 import { cn } from "cn";
 import { pastel } from "@/components/ui/format";
@@ -29,7 +29,7 @@ export function ProjectRail({ demo, active }: {
 
       <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-border" />
 
-      {/* 프로젝트가 많아지면 이 칸만 위아래로 밀어서 봐요 (1:1 대화와 대시보드는 늘 제자리).
+      {/* 프로젝트가 많아지면 이 칸만 위아래로 밀어서 봐요 (1:1 대화는 늘 제자리).
           스크롤 칸은 밖으로 나간 것을 잘라 버려서, 이름표가 잘리지 않게 칸을 오른쪽으로 넓혀 두고
           넓힌 부분은 마우스가 그냥 통과하게 했어요 (pointer-events-none) */}
       <div className="pointer-events-none -my-1 flex min-h-0 w-[calc(100%+15rem)] flex-1 flex-col gap-2 self-start overflow-y-auto py-1 pr-60 [scrollbar-width:none] *:pointer-events-auto [&::-webkit-scrollbar]:hidden">
@@ -54,10 +54,6 @@ export function ProjectRail({ demo, active }: {
           <IconAdd className="size-6" />
         </RailItem>
       </div>
-
-      <RailItem href="/dashboard" label="AI 성능 대시보드" active={false} className="border bg-card text-muted-foreground">
-        <IconDashboard className="size-6" />
-      </RailItem>
     </nav>
   );
 }

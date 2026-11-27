@@ -3,7 +3,7 @@
 // "/ssr" 주소로 가져오면 서버 컴포넌트와 클라이언트 컴포넌트 모두에서 쓸 수 있어요.
 
 import {
-  ArrowLeft, Bell, CalendarBlank, CalendarPlus, CaretRight, ChartBar, ChatCircle, Check, CheckSquare,
+  ArrowLeft, Bell, CalendarBlank, CalendarPlus, CaretRight, ChatCircle, Check, CheckSquare,
   CircleNotch, Clock, Crown, EyeSlash, Flag, GearSix, Hash, Highlighter, Key, List, LinkSimple, Lock, MagnifyingGlass,
   MapPin, Monitor, Note, PaperPlaneRight, PencilSimple, Plus, SignOut, Trash, UserCircle, Users, Warning, X,
 } from "@phosphor-icons/react/ssr";
@@ -55,7 +55,6 @@ export const IconPlace = make(MapPin);
 export const IconOwner = make(Crown);
 export const IconSearch = make(MagnifyingGlass);
 export const IconMenu = make(List);
-export const IconDashboard = make(ChartBar);
 export const IconReport = make(Flag);
 export const IconHidden = make(EyeSlash);
 export const IconWarning = make(Warning);
