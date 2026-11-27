@@ -129,14 +129,7 @@ export default function CalendarPage() {
         />
       </div>
 
-      <EventDialog
-        draft={draft}
-        members={ws.members}
-        onClose={() => setDraft(null)}
-        onCreate={ws.createEvent}
-        onUpdate={ws.updateEvent}
-        onDelete={ws.deleteEvent}
-      />
+      <EventDialog draft={draft} onClose={() => setDraft(null)} />
     </main>
     </div>
   );

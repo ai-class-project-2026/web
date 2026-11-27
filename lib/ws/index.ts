@@ -295,6 +295,7 @@ export function useEventsChanged(channelId: number | undefined, onChange: () => 
 }
 
 type SugState = { channelId: number; suggestions: Suggestion[]; registered: Suggestion[] };
+const emptySugState = (channelId: number): SugState => ({ channelId, suggestions: [], registered: [] });
 
 /**
  * Pending AI schedule cards of a channel.
@@ -307,8 +308,8 @@ export function useSuggestions(
   /** 누군가(나 포함) 카드를 처리했을 때 불려요. 캘린더·일정 패널을 새로고침할 때 쓰세요 */
   onResolved?: (r: SuggestionResult) => void,
 ) {
-  const [state, setState] = useState<SugState>({ channelId, suggestions: [], registered: [] });
-  const cur = state.channelId === channelId ? state : { channelId, suggestions: [], registered: [] };
+  const [state, setState] = useState<SugState>(() => emptySugState(channelId));
+  const cur = state.channelId === channelId ? state : emptySugState(channelId);
   // 본 적 있는 카드들. 다른 화면의 "처리됨" 푸시가 [추가] 응답보다 먼저 와서 카드가 지워져도 내용을 알 수 있게 해요
   const known = useRef(new Map<number, Suggestion>());
   // 이미 처리된 카드 번호: 늦게 도착한 GET/푸시가 지워진 카드를 되살리지 못하게 기억해 둬요
@@ -319,7 +320,7 @@ export function useSuggestions(
   });
   const update = useCallback(
     (f: (s: SugState) => SugState) =>
-      setState((s) => f(s.channelId === channelId ? s : { channelId, suggestions: [], registered: [] })),
+      setState((s) => f(s.channelId === channelId ? s : emptySugState(channelId))),
     [channelId],
   );
 

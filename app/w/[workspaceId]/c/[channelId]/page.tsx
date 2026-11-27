@@ -274,14 +274,7 @@ function ChatView({ channelId, messages, hasMore, onLoadOlder, onSend, suggestio
         </aside>
       )}
 
-      <EventDialog
-        draft={draft}
-        members={ws.members}
-        onClose={() => setDraft(null)}
-        onCreate={ws.createEvent}
-        onUpdate={ws.updateEvent}
-        onDelete={ws.deleteEvent}
-      />
+      <EventDialog draft={draft} onClose={() => setDraft(null)} />
     </div>
   );
 }

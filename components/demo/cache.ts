@@ -23,7 +23,4 @@ export const demoCache = {
   saveDm(peerId: number, messages: Message[]) {
     dms.set(peerId, messages);
   },
-  dmPeers(): number[] {
-    return [...dms.entries()].filter(([, ms]) => ms.length > 0).map(([id]) => id);
-  },
 };

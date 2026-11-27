@@ -14,10 +14,6 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
   return <select className={cn(base, "pr-8", className)} {...props} />;
 }
 
-export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
-  return <textarea className={cn(base, "resize-none", className)} {...props} />;
-}
-
 /** 라벨 + 입력창 한 묶음 */
 export function Field({ label, hint, children, className }: {
   label: string;

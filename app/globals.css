@@ -294,7 +294,6 @@
   --fc-breezy-primary-over: color-mix(in oklch, var(--primary), white 15%);
   --fc-breezy-primary-foreground: var(--primary-foreground);
   --fc-breezy-event: var(--primary);
-  --fc-breezy-highlight: color-mix(in oklch, var(--primary), transparent 85%);
   --fc-breezy-now: var(--destructive);
   --fc-breezy-background: var(--card);
   --fc-breezy-popover: var(--card);
@@ -316,7 +315,6 @@
 }
 /* 칸 구분: 선은 border 색, 요일 줄은 옅은 종이색, 주말·다른 달은 은은하게, 오늘은 날짜 숫자만 파란 칩 */
 .calendar-wrap {
-  --fc-breezy-border: var(--border);
   --fc-breezy-muted-border: var(--border);
   --fc-breezy-strong-border: var(--border);
   --fc-breezy-event-contrast: var(--primary-foreground);

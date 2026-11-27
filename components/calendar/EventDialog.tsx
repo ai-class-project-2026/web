@@ -6,7 +6,7 @@
 
 import { useRef, useState } from "react";
 import { cn } from "cn";
-import { api, type Event, type EventInput, type Member, type ParsedEvent } from "@/lib/api";
+import { api, type Event, type ParsedEvent } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { ErrorText, Field, Input } from "@/components/ui/field";
@@ -17,40 +17,18 @@ import { useWorkspace, type EventUpdate } from "@/components/workspace/Workspace
 /** title: 채팅 메시지에서 일정을 만들 때 미리 채울 제목 */
 export type EventDraft = { event?: Event; date: string; start?: string; title?: string };
 
-export function EventDialog({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
-  draft: EventDraft | null;
-  members: Member[];
-  onClose: () => void;
-  onCreate: (e: EventInput) => Promise<string | null>;
-  onUpdate: (id: number, patch: EventUpdate) => Promise<string | null>;
-  onDelete: (id: number) => Promise<string | null>;
-}) {
+/** 저장·수정·삭제와 참석자 목록은 WorkspaceProvider의 것을 써요 */
+export function EventDialog({ draft, onClose }: { draft: EventDraft | null; onClose: () => void }) {
   return (
     <Dialog open={!!draft} onClose={onClose} title={draft?.event ? "일정 보기" : "새 일정"}>
       {/* key: 다른 일정을 열면 폼을 새로 채워요 */}
-      {draft && (
-        <EventForm
-          key={draft.event?.id ?? `${draft.date}${draft.start}`}
-          draft={draft}
-          members={members}
-          onClose={onClose}
-          onCreate={onCreate}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        />
-      )}
+      {draft && <EventForm key={draft.event?.id ?? `${draft.date}${draft.start}`} draft={draft} onClose={onClose} />}
     </Dialog>
   );
 }
 
-function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
-  draft: EventDraft;
-  members: Member[];
-  onClose: () => void;
-  onCreate: (e: EventInput) => Promise<string | null>;
-  onUpdate: (id: number, patch: EventUpdate) => Promise<string | null>;
-  onDelete: (id: number) => Promise<string | null>;
-}) {
+function EventForm({ draft, onClose }: { draft: EventDraft; onClose: () => void }) {
+  const { demo, workspace, members, createEvent: onCreate, updateEvent: onUpdate, deleteEvent: onDelete } = useWorkspace();
   const ev = draft.event;
   const [title, setTitle] = useState(ev?.title ?? draft.title ?? "");
   const [date, setDate] = useState(ev?.date ?? draft.date);
@@ -63,7 +41,6 @@ function EventForm({ draft, members, onClose, onCreate, onUpdate, onDelete }: {
   const [absent, setAbsent] = useState<string[]>([]);
   const [say, setSay] = useState("");
   const [filled, setFilled] = useState("");
-  const { demo, workspace } = useWorkspace();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const cancelled = ev?.status === "cancelled";

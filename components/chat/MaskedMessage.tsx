@@ -15,12 +15,10 @@ export type ReportFn = (messageId: number, type: ReportType) => Promise<string |
 //  - notify_admin: mask처럼 가리고, 방장(owner) 화면에는 "관리자 알림" 표시
 // is_profane인데 profanity_spans가 비어 있거나, 하나라도 이상하면(범위 밖, 거꾸로, 빈 구간, null) 메시지 전체를 가려요.
 
-export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = false, onReport }: {
+export function MaskedMessage({ message, mode = "mask", isOwner = false, onReport }: {
   message: Message;
   mode?: Workspace["filter_mode"];
   isOwner?: boolean;
-  /** 내가 보낸 메시지면 글자색을 파란 계열로 맞춰요 */
-  mine?: boolean;
   onReport?: ReportFn;
 }) {
   const [shown, setShown] = useState(false);
@@ -62,8 +60,8 @@ export function MaskedMessage({ message, mode = "mask", isOwner = false, mine = 
         )}
       </span>
 
-      {/* cn에 넣으면 text-meta(글자 크기)를 글자색으로 알고 지워 버려서, 여기는 문자열로 이어 붙여요 */}
-      <span className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+      {/* cn에 넣으면 text-meta(글자 크기)를 글자색으로 알고 지워 버려서, 여기는 cn을 쓰지 않아요 */}
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta text-muted-foreground">
         {warnOnly ? <span className="inline-flex items-center gap-1 text-destructive"><IconWarning className="size-4" /> 부적절한 표현이 있어요</span> : <span className="inline-flex items-center gap-1"><IconHidden className="size-4" /> 부적절한 표현이 가려졌어요</span>}
         {!warnOnly && (
           <button className="-mx-1 -my-1.5 rounded-sm px-1 py-1.5 font-medium text-primary underline underline-offset-2" onClick={() => setShown((s) => !s)}>
